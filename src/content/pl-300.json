@@ -1,0 +1,639 @@
+{
+  "examen": "PL-300",
+  "nombre": "Microsoft Power BI Data Analyst",
+  "certificacion": "Microsoft Certified: Power BI Data Analyst Associate",
+  "estado": "activo",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-04-20",
+    "retirementDate": null,
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/pl-300"
+  },
+  "cobertura": "completa",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "pl300-d1",
+      "dominio": "Prepare the data (Preparar los datos)",
+      "ponderacion": "25-30%",
+      "subtemas": [
+        "Conectarse a orígenes de datos y semantic models compartidos",
+        "Elegir entre Import, DirectQuery y DirectLake",
+        "Perfilar y limpiar datos (nulls, errores, inconsistencias)",
+        "Transformar y cargar datos (tipos, pivot/unpivot, merge/append)",
+        "Tablas de hechos y dimensiones, claves para relaciones",
+        "Parámetros y configuración de orígenes (credenciales, privacy levels)"
+      ],
+      "flashcards": [
+        { "id": "pl300-d1-f01", "concepto": "Import mode", "explicacion": "Modo de almacenamiento que copia los datos al semantic model en memoria (VertiPaq). Máximo rendimiento de consulta, pero los datos solo se actualizan con cada refresh." },
+        { "id": "pl300-d1-f02", "concepto": "DirectQuery", "explicacion": "Modo que NO copia datos: cada visual lanza consultas al origen en tiempo real. Útil para datos muy grandes o casi en tiempo real, a costa de rendimiento y limitaciones en DAX/Power Query." },
+        { "id": "pl300-d1-f03", "concepto": "DirectLake", "explicacion": "Modo de Fabric que lee archivos Delta/Parquet directamente desde OneLake sin importar ni traducir a SQL. Combina rendimiento cercano a Import con datos siempre actuales del lakehouse." },
+        { "id": "pl300-d1-f04", "concepto": "Privacy levels", "explicacion": "Clasificación (Private, Organizational, Public) que controla si Power Query puede combinar datos de un origen con otro, evitando fugas de información entre orígenes." },
+        { "id": "pl300-d1-f05", "concepto": "Parámetros de Power Query", "explicacion": "Valores reutilizables (texto, número, lista) que parametrizan rutas, servidores o filtros. Permiten cambiar el origen sin editar cada query, p. ej. entre entorno de prueba y producción." },
+        { "id": "pl300-d1-f06", "concepto": "Column quality / distribution / profile", "explicacion": "Herramientas de perfilado en Power Query: quality muestra % válido/error/vacío; distribution muestra valores distintos y únicos; profile da estadísticas detalladas. Por defecto analizan solo las primeras 1000 filas." },
+        { "id": "pl300-d1-f07", "concepto": "Reference vs Duplicate", "explicacion": "Duplicate copia la query completa y queda independiente. Reference crea una query que parte del resultado de la original: si la original cambia, la referenciada hereda el cambio." },
+        { "id": "pl300-d1-f08", "concepto": "Merge vs Append", "explicacion": "Merge combina columnas de dos queries mediante una clave (equivale a JOIN). Append apila filas de queries con la misma estructura (equivale a UNION)." },
+        { "id": "pl300-d1-f09", "concepto": "Tabla de hechos (fact table)", "explicacion": "Tabla con eventos medibles del negocio (ventas, transacciones): muchas filas, columnas numéricas y claves foráneas hacia dimensiones. Es el centro del esquema en estrella." },
+        { "id": "pl300-d1-f10", "concepto": "Tabla de dimensión (dimension table)", "explicacion": "Tabla descriptiva (cliente, producto, fecha) con pocas filas y muchos atributos para filtrar y agrupar. Se relaciona 1:N con la tabla de hechos." },
+        { "id": "pl300-d1-f11", "concepto": "Query folding", "explicacion": "Capacidad de Power Query de traducir los pasos de transformación a una consulta nativa del origen (p. ej. SQL). Mejora mucho el refresh porque el trabajo lo hace el servidor origen." },
+        { "id": "pl300-d1-f12", "concepto": "Unpivot", "explicacion": "Transformación que convierte columnas en filas: ideal cuando los datos vienen en formato matriz (un mes por columna) y necesitas un formato tabular largo para modelar." },
+        { "id": "pl300-d1-f13", "concepto": "Clave sustituta (surrogate key)", "explicacion": "Clave artificial (entero autoincremental o índice) creada para relacionar hechos y dimensiones cuando no existe una clave natural única o fiable." },
+        { "id": "pl300-d1-f14", "concepto": "Errores de importación", "explicacion": "Fallos al cargar (tipo incompatible, columna renombrada en el origen, credenciales caducadas). Se diagnostican revisando los pasos aplicados; 'Replace errors' o corregir el tipo suelen resolverlos." },
+        { "id": "pl300-d1-f15", "concepto": "Conexión a un shared semantic model", "explicacion": "Live connection a un modelo ya publicado en el servicio: reutilizas medidas y relaciones existentes, garantizas una única versión de la verdad y no duplicas datos." },
+        { "id": "pl300-d1-f16", "concepto": "Configurar carga de queries (Enable load)", "explicacion": "'Enable load' controla si una query se carga al modelo. Las queries intermedias (staging) se dejan sin cargar para no inflar el modelo con tablas de apoyo." }
+      ],
+      "preguntas": [
+        {
+          "id": "pl300-d1-q01",
+          "pregunta": "Tu origen tiene 900 millones de filas y el negocio exige ver datos con máximo 2 minutos de retraso. ¿Qué modo de almacenamiento eliges?",
+          "opciones": [
+            { "texto": "Import con refresh cada hora", "correcta": false, "explicacion": "Import no cumple la latencia de 2 minutos: los datos solo se actualizan con cada refresh programado." },
+            { "texto": "DirectQuery", "correcta": true, "explicacion": "DirectQuery consulta el origen en tiempo real: los visuales siempre reflejan datos actuales y no hay que importar 900M de filas." },
+            { "texto": "Import con refresh incremental", "correcta": false, "explicacion": "El refresh incremental acelera la actualización pero sigue siendo programado; no da latencia continua de minutos." },
+            { "texto": "Exportar a CSV y conectar al archivo", "correcta": false, "explicacion": "Un CSV estático es lo contrario de tiempo casi real y maneja mal ese volumen." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q02",
+          "pregunta": "Recibes un Excel donde cada mes es una columna (Ene, Feb, Mar...) y cada fila es un producto. Necesitas una fila por producto y mes. ¿Qué transformación aplicas?",
+          "opciones": [
+            { "texto": "Pivot sobre la columna de producto", "correcta": false, "explicacion": "Pivot hace lo contrario: convierte filas en columnas, agravando el problema." },
+            { "texto": "Transpose de toda la tabla", "correcta": false, "explicacion": "Transpose intercambia filas por columnas completas; no genera el par atributo-valor que necesitas." },
+            { "texto": "Unpivot de las columnas de mes", "correcta": true, "explicacion": "Unpivot convierte las columnas Ene-Dic en dos columnas (Mes, Valor), el formato largo ideal para el modelo." },
+            { "texto": "Group by producto", "correcta": false, "explicacion": "Group by agrega filas; aquí no quieres agregar sino reestructurar." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q03",
+          "pregunta": "Tienes ventas 2023 y ventas 2024 en dos queries con las mismas columnas. ¿Cómo las combinas en una sola tabla?",
+          "opciones": [
+            { "texto": "Merge con Inner Join", "correcta": false, "explicacion": "Merge une columnas por clave; aquí las estructuras son iguales y quieres apilar filas, no cruzar columnas." },
+            { "texto": "Append", "correcta": true, "explicacion": "Append apila las filas de ambas queries (UNION), exactamente lo necesario con estructuras idénticas." },
+            { "texto": "Merge con Full Outer Join", "correcta": false, "explicacion": "Generaría columnas duplicadas y cruces incorrectos; el join no es la operación adecuada." },
+            { "texto": "Relación 1:1 en el modelo", "correcta": false, "explicacion": "Una relación no consolida tablas; seguirías con dos tablas separadas." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q04",
+          "pregunta": "El perfilado muestra 0% de errores, pero al cargar el modelo aparecen errores en la columna Precio. ¿Causa más probable?",
+          "opciones": [
+            { "texto": "El perfilado analiza por defecto solo las primeras 1000 filas", "correcta": true, "explicacion": "Los errores están más allá de la fila 1000. Cambiando el perfilado a 'entire data set' se detectan antes de cargar." },
+            { "texto": "Power BI no puede perfilar columnas numéricas", "correcta": false, "explicacion": "El perfilado funciona con cualquier tipo de columna." },
+            { "texto": "El privacy level bloquea el análisis", "correcta": false, "explicacion": "Los privacy levels afectan a la combinación de orígenes, no al perfilado local." },
+            { "texto": "Los errores solo existen en DirectQuery", "correcta": false, "explicacion": "Los errores de conversión ocurren precisamente al importar; DirectQuery no importa datos." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q05",
+          "pregunta": "Quieres que tu staging query 'RawSales' alimente tres queries de limpieza, y que cualquier corrección en RawSales se propague automáticamente. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Duplicate tres veces", "correcta": false, "explicacion": "Los duplicados son copias independientes: una corrección en RawSales no se propaga." },
+            { "texto": "Reference tres veces", "correcta": true, "explicacion": "Las queries referenciadas parten del resultado de RawSales y heredan cualquier cambio automáticamente." },
+            { "texto": "Copiar y pegar los pasos de M", "correcta": false, "explicacion": "Igual que duplicar: crea copias desincronizadas del código." },
+            { "texto": "Merge de las tres queries", "correcta": false, "explicacion": "Merge combina datos por clave, no establece dependencia de pasos." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q06",
+          "pregunta": "El refresh de una query sobre SQL Server tarda 40 minutos. Un paso temprano de 'Changed Type' rompe el query folding. ¿Qué haces?",
+          "opciones": [
+            { "texto": "Mover o eliminar el paso que rompe el folding para que los filtros se ejecuten en SQL Server", "correcta": true, "explicacion": "Con el folding intacto, el servidor origen hace el trabajo pesado y solo viajan los datos ya filtrados." },
+            { "texto": "Aumentar el timeout de la query", "correcta": false, "explicacion": "No reduce el trabajo; solo permite esperar más por el mismo problema." },
+            { "texto": "Pasar el modelo a DirectQuery", "correcta": false, "explicacion": "Cambiar el modo por un problema de refresh es desproporcionado y trae otras limitaciones." },
+            { "texto": "Dividir la query en dos archivos .pbix", "correcta": false, "explicacion": "Fragmentar el modelo no soluciona que las transformaciones se ejecuten localmente." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q07",
+          "pregunta": "Al combinar una query de un Excel interno con una API pública, aparece el aviso 'Formula.Firewall'. ¿Qué configuración está implicada?",
+          "opciones": [
+            { "texto": "Los privacy levels de los orígenes", "correcta": true, "explicacion": "El firewall de datos impide combinar orígenes con niveles de privacidad incompatibles, evitando fugas hacia el origen público." },
+            { "texto": "El gateway de datos", "correcta": false, "explicacion": "El gateway media refreshes en el servicio, no genera este aviso en Desktop." },
+            { "texto": "Las credenciales caducadas", "correcta": false, "explicacion": "Credenciales inválidas dan error de autenticación, no de firewall." },
+            { "texto": "La sensitivity label del archivo", "correcta": false, "explicacion": "Las etiquetas de sensibilidad protegen documentos, no controlan la combinación de queries." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q08",
+          "pregunta": "¿Cuál de estas tablas es la mejor candidata a tabla de hechos en un modelo de ventas retail?",
+          "opciones": [
+            { "texto": "Tickets de venta con fecha, tienda, producto, cantidad e importe", "correcta": true, "explicacion": "Registra eventos medibles con claves hacia dimensiones: la definición de tabla de hechos." },
+            { "texto": "Catálogo de productos con categoría y marca", "correcta": false, "explicacion": "Es descriptiva y de baja cardinalidad: una dimensión clásica." },
+            { "texto": "Lista de tiendas con dirección y región", "correcta": false, "explicacion": "También es una dimensión: atributos para filtrar, no eventos." },
+            { "texto": "Calendario con festivos", "correcta": false, "explicacion": "Es la dimensión de fecha, no contiene hechos del negocio." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q09",
+          "pregunta": "Analistas de otro equipo deben construir reports sobre tu modelo publicado, sin duplicar datos ni lógica. ¿Qué les recomiendas?",
+          "opciones": [
+            { "texto": "Conectarse al shared semantic model (live connection)", "correcta": true, "explicacion": "Reutilizan medidas, relaciones y datos gobernados: una sola versión de la verdad sin duplicación." },
+            { "texto": "Pedir el .pbix y guardarlo con otro nombre", "correcta": false, "explicacion": "Duplica modelo y datos, y las copias divergen con el tiempo." },
+            { "texto": "Exportar los datos a Excel y reimportarlos", "correcta": false, "explicacion": "Pierden medidas, relaciones, seguridad y frescura de datos." },
+            { "texto": "Recrear las queries de Power Query a mano", "correcta": false, "explicacion": "Duplica esfuerzo y garantiza inconsistencias futuras." }
+          ]
+        },
+        {
+          "id": "pl300-d1-q10",
+          "pregunta": "Una columna importada como texto contiene '1.234,56' (formato europeo) y al convertirla a decimal da errores. ¿Mejor solución en Power Query?",
+          "opciones": [
+            { "texto": "Usar 'Change Type with Locale' con la configuración regional correcta", "correcta": true, "explicacion": "La conversión con locale interpreta separadores de miles y decimales según la región de origen." },
+            { "texto": "Replace errors con 0", "correcta": false, "explicacion": "Oculta el problema corrompiendo los datos: los valores europeos se perderían." },
+            { "texto": "Eliminar las filas con error", "correcta": false, "explicacion": "Descarta datos válidos que solo estaban mal interpretados." },
+            { "texto": "Dejar la columna como texto", "correcta": false, "explicacion": "Impide agregaciones numéricas y análisis posteriores." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "pl300-d1-s01",
+          "situacion": "Finanzas deposita cada mes un CSV con la misma estructura en una carpeta de SharePoint. Hoy copias los datos a mano en un Excel maestro que alimenta tu report.",
+          "pregunta": "¿Cómo rediseñas la ingesta para que el report se actualice solo al llegar cada archivo nuevo?",
+          "respuestaEsperada": "Conectar con el conector de carpeta (SharePoint folder), usar Combine Files para apilar automáticamente todos los CSV, y programar el refresh del semantic model. Cada archivo nuevo se incorpora sin intervención manual.",
+          "razonamiento": "El conector de carpeta trata la carpeta completa como origen: itera archivos con estructura homogénea y los apila, eliminando el paso manual que es el punto frágil del proceso."
+        },
+        {
+          "id": "pl300-d1-s02",
+          "situacion": "Tu modelo importa una tabla de 200 columnas desde un data warehouse, pero los reports solo usan 14. El refresh tarda una hora y el archivo pesa 800 MB.",
+          "pregunta": "¿Qué harías primero para reducir tamaño y tiempo de refresh?",
+          "respuestaEsperada": "Eliminar en Power Query las columnas no usadas (y filtrar filas históricas innecesarias) lo antes posible en los pasos, verificando que el query folding se mantiene para que el recorte ocurra en el warehouse.",
+          "razonamiento": "Menos columnas = menos memoria VertiPaq y menos datos transferidos. Hacerlo al inicio y con folding activo multiplica el beneficio porque el origen envía solo lo necesario."
+        },
+        {
+          "id": "pl300-d1-s03",
+          "situacion": "Comercial te pasa una tabla cuya columna 'Cliente' mezcla mayúsculas, espacios extra y algunos IDs en lugar de nombres. Debes relacionarla con la dimensión Clientes.",
+          "pregunta": "¿Qué pasos de limpieza aplicas antes de crear la relación?",
+          "respuestaEsperada": "Normalizar el texto (Trim, Clean, capitalización consistente), mapear los IDs con un merge contra la dimensión para recuperar el nombre canónico, y validar con el perfilado que la clave resultante no tiene duplicados ni nulls antes de relacionar.",
+          "razonamiento": "Las relaciones necesitan claves consistentes y únicas del lado dimensión. Limpiar antes de modelar evita relaciones rotas o filas huérfanas que distorsionan los totales."
+        }
+      ]
+    },
+    {
+      "id": "pl300-d2",
+      "dominio": "Model the data (Modelar los datos)",
+      "ponderacion": "25-30%",
+      "subtemas": [
+        "Diseño del modelo: propiedades, cardinalidad, cross-filter direction",
+        "Role-playing dimensions y tabla de fechas común",
+        "Columnas calculadas vs medidas; tablas calculadas",
+        "DAX: CALCULATE, time intelligence, estadísticas, semi-aditivas",
+        "Calculation groups y quick measures",
+        "Optimización: Performance Analyzer, DAX query view, granularidad"
+      ],
+      "flashcards": [
+        { "id": "pl300-d2-f01", "concepto": "Esquema en estrella (star schema)", "explicacion": "Diseño con una tabla de hechos central rodeada de dimensiones. Es el patrón recomendado en Power BI: simplifica DAX, mejora rendimiento y hace el filtrado predecible." },
+        { "id": "pl300-d2-f02", "concepto": "Cardinalidad de una relación", "explicacion": "Cuántas filas de una tabla se corresponden con la otra: uno-a-muchos (1:*, la habitual dimensión→hechos), uno-a-uno y muchos-a-muchos (*:*, a evitar salvo necesidad real)." },
+        { "id": "pl300-d2-f03", "concepto": "Cross-filter direction", "explicacion": "Sentido en que viajan los filtros por una relación: single (dimensión filtra hechos) o both (bidireccional). 'Both' se usa con cautela: puede crear ambigüedad y degradar rendimiento." },
+        { "id": "pl300-d2-f04", "concepto": "Role-playing dimension", "explicacion": "Una misma dimensión (p. ej. Fecha) que juega varios roles (fecha de pedido, de envío). Solo una relación puede estar activa; las inactivas se invocan con USERELATIONSHIP dentro de CALCULATE." },
+        { "id": "pl300-d2-f05", "concepto": "Columna calculada vs medida", "explicacion": "La columna calculada se evalúa fila a fila al refrescar y consume memoria; la medida se evalúa en tiempo de consulta según el contexto de filtro. Para agregaciones, casi siempre medida." },
+        { "id": "pl300-d2-f06", "concepto": "CALCULATE", "explicacion": "Función central de DAX: evalúa una expresión modificando el contexto de filtro (añade, reemplaza o elimina filtros). Ejemplo: CALCULATE([Ventas], Region[Zona] = \"Norte\")." },
+        { "id": "pl300-d2-f07", "concepto": "Contexto de fila vs contexto de filtro", "explicacion": "El contexto de fila es 'la fila actual' (columnas calculadas, iteradores como SUMX); el contexto de filtro es el conjunto de filtros activos (slicers, ejes, CALCULATE) que determina qué datos ve una medida." },
+        { "id": "pl300-d2-f08", "concepto": "Tabla de fechas (date table)", "explicacion": "Tabla con una fila por día, continua y marcada como 'date table'. Requisito para que time intelligence funcione de forma fiable. Se crea con CALENDAR/CALENDARAUTO o en Power Query." },
+        { "id": "pl300-d2-f09", "concepto": "Time intelligence", "explicacion": "Funciones DAX para comparaciones temporales: TOTALYTD (acumulado del año), SAMEPERIODLASTYEAR (mismo periodo año anterior), DATEADD (desplazar periodos), entre otras." },
+        { "id": "pl300-d2-f10", "concepto": "Medida semi-aditiva", "explicacion": "Medida que suma en unas dimensiones pero no en el tiempo, como stock o saldo bancario: para el tiempo se toma el último valor (p. ej. con LASTDATE) en lugar de sumar los días." },
+        { "id": "pl300-d2-f11", "concepto": "Calculation groups", "explicacion": "Colección de 'calculation items' que aplican una transformación reutilizable (YTD, PY, %) a cualquier medida, evitando crear docenas de medidas casi idénticas." },
+        { "id": "pl300-d2-f12", "concepto": "Quick measures", "explicacion": "Generador visual de medidas comunes (running total, promedio por categoría, YoY%) que escribe el DAX por ti; útil para aprender patrones y acelerar el desarrollo." },
+        { "id": "pl300-d2-f13", "concepto": "Tabla calculada", "explicacion": "Tabla creada con DAX (p. ej. CALENDAR, SUMMARIZE). Se materializa en el modelo al refrescar; útil para tablas de fechas, puentes o dimensiones derivadas." },
+        { "id": "pl300-d2-f14", "concepto": "Performance Analyzer", "explicacion": "Herramienta de Desktop que mide cuánto tarda cada visual (DAX query, visual display). Permite identificar la medida o visual lento y copiar la consulta para analizarla en DAX query view." },
+        { "id": "pl300-d2-f15", "concepto": "Reducir granularidad", "explicacion": "Almacenar datos al nivel de detalle que el análisis necesita (p. ej. diario en vez de por segundo). Menos filas y menos cardinalidad = modelo más pequeño y rápido." },
+        { "id": "pl300-d2-f16", "concepto": "DIVIDE()", "explicacion": "División segura en DAX: DIVIDE(numerador, denominador, [alternativo]) devuelve el alternativo (o BLANK) en lugar de error cuando el denominador es cero." }
+      ],
+      "preguntas": [
+        {
+          "id": "pl300-d2-q01",
+          "pregunta": "Necesitas el total de ventas visible en cualquier visual, respetando slicers y filtros. ¿Qué creas?",
+          "opciones": [
+            { "texto": "Una medida con SUM", "correcta": true, "explicacion": "Las medidas se evalúan según el contexto de filtro de cada visual: el mecanismo diseñado para agregaciones dinámicas." },
+            { "texto": "Una columna calculada con SUM", "correcta": false, "explicacion": "Una columna se evalúa fila a fila al refrescar; no reacciona a slicers y desperdicia memoria." },
+            { "texto": "Una tabla calculada con el total", "correcta": false, "explicacion": "Materializa un valor estático; no responde al contexto del report." },
+            { "texto": "Un parámetro de Power Query", "correcta": false, "explicacion": "Los parámetros configuran la ingesta, no calculan agregaciones en visuales." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q02",
+          "pregunta": "Tu tabla de hechos tiene OrderDate y ShipDate hacia la dimensión Fecha; la relación activa es OrderDate. ¿Cómo calculas ventas por fecha de envío?",
+          "opciones": [
+            { "texto": "CALCULATE([Ventas], USERELATIONSHIP(Hechos[ShipDate], Fecha[Date]))", "correcta": true, "explicacion": "USERELATIONSHIP activa la relación inactiva solo durante esa medida: el patrón estándar de role-playing dimension." },
+            { "texto": "Crear una segunda tabla Fecha duplicada", "correcta": false, "explicacion": "Duplica el modelo innecesariamente; solo se justifica si necesitas filtrar por ambas fechas a la vez." },
+            { "texto": "Cambiar la relación activa cada vez", "correcta": false, "explicacion": "Alterar el modelo por consulta es inviable y rompe el resto de medidas." },
+            { "texto": "Usar CROSSFILTER con Both", "correcta": false, "explicacion": "CROSSFILTER cambia la dirección del filtro, no qué relación está activa." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q03",
+          "pregunta": "¿Qué hace CALCULATE([Total Ventas], ALL(Producto)) en una matriz por categoría de producto?",
+          "opciones": [
+            { "texto": "Devuelve el total ignorando los filtros de Producto en cada fila", "correcta": true, "explicacion": "ALL(Producto) elimina los filtros de esa tabla del contexto: útil como denominador para % del total." },
+            { "texto": "Devuelve las ventas solo de la categoría actual", "correcta": false, "explicacion": "Eso lo hace la medida sin modificar; ALL elimina precisamente ese filtro." },
+            { "texto": "Da error porque ALL requiere una columna", "correcta": false, "explicacion": "ALL acepta tanto tablas como columnas." },
+            { "texto": "Suma solo los productos sin categoría", "correcta": false, "explicacion": "ALL no filtra por valores vacíos; quita filtros." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q04",
+          "pregunta": "Tus medidas TOTALYTD devuelven resultados erráticos. ¿Causa más típica?",
+          "opciones": [
+            { "texto": "No existe una tabla de fechas continua marcada como date table", "correcta": true, "explicacion": "Time intelligence asume una tabla de fechas con una fila por día y marcada como tal; sin ella los cálculos temporales fallan." },
+            { "texto": "TOTALYTD solo funciona en DirectQuery", "correcta": false, "explicacion": "Funciona en Import y (con matices de rendimiento) en otros modos." },
+            { "texto": "Falta un calculation group", "correcta": false, "explicacion": "Los calculation groups son opcionales, no un requisito de time intelligence." },
+            { "texto": "La medida debe ser una columna calculada", "correcta": false, "explicacion": "Time intelligence se usa precisamente en medidas." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q05",
+          "pregunta": "Modelas inventario diario por almacén. En la vista mensual, ¿qué valor debe mostrar el stock?",
+          "opciones": [
+            { "texto": "El stock del último día del periodo (semi-aditivo)", "correcta": true, "explicacion": "El stock no se suma en el tiempo: el valor correcto del mes es el saldo a cierre, p. ej. CALCULATE(SUM(...), LASTDATE(Fecha[Date]))." },
+            { "texto": "La suma del stock de todos los días", "correcta": false, "explicacion": "Sumaría 30 veces el inventario: error clásico de medida aditiva mal aplicada." },
+            { "texto": "El promedio simple sin más análisis", "correcta": false, "explicacion": "Puede ser métrica secundaria, pero el estándar de negocio para 'stock del mes' es el cierre." },
+            { "texto": "El máximo del mes", "correcta": false, "explicacion": "El pico de stock no representa la posición a fin de mes." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q06",
+          "pregunta": "Tienes 40 medidas base y piden versión YTD, PY y YoY% de todas. ¿Qué evita crear 120 medidas nuevas?",
+          "opciones": [
+            { "texto": "Un calculation group con items YTD, PY y YoY%", "correcta": true, "explicacion": "Cada calculation item aplica su transformación a cualquier medida: 3 items sustituyen a 120 medidas." },
+            { "texto": "Quick measures para cada combinación", "correcta": false, "explicacion": "Generaría igualmente las 120 medidas, solo que más rápido de escribir." },
+            { "texto": "Una tabla calculada por variante", "correcta": false, "explicacion": "Las tablas calculadas no transforman medidas." },
+            { "texto": "Bookmarks con distintas medidas visibles", "correcta": false, "explicacion": "Los bookmarks gestionan el estado visual del report, no crean cálculos." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q07",
+          "pregunta": "Un report tarda 20 segundos en cargar una página. ¿Primer paso de diagnóstico correcto?",
+          "opciones": [
+            { "texto": "Ejecutar Performance Analyzer y ordenar los visuales por duración", "correcta": true, "explicacion": "Identifica objetivamente si el cuello de botella es una consulta DAX, el render del visual u otra cosa, antes de tocar nada." },
+            { "texto": "Reescribir todas las medidas con variables", "correcta": false, "explicacion": "Optimizar a ciegas sin medir suele desperdiciar esfuerzo en el lugar equivocado." },
+            { "texto": "Pasar el modelo a DirectQuery", "correcta": false, "explicacion": "DirectQuery normalmente empeora la latencia visual; además no has diagnosticado la causa." },
+            { "texto": "Reducir el tamaño de página del report", "correcta": false, "explicacion": "El tamaño del lienzo no es la causa habitual de consultas lentas." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q08",
+          "pregunta": "¿Cuándo está justificada una relación muchos-a-muchos (*:*)?",
+          "opciones": [
+            { "texto": "Con granularidades distintas legítimas, p. ej. presupuesto por categoría contra ventas por producto", "correcta": true, "explicacion": "Es el caso de diseño consciente donde *:* (o una tabla puente) es la solución correcta." },
+            { "texto": "Siempre, porque es más flexible", "correcta": false, "explicacion": "*:* elimina la garantía de unicidad, puede duplicar resultados y complica el filtrado; no es un default." },
+            { "texto": "Cuando la relación 1:* da error de duplicados y no quieres investigar", "correcta": false, "explicacion": "Cambiar a *:* para silenciar el error esconde un problema de calidad de datos en la clave." },
+            { "texto": "Solo en modelos DirectQuery", "correcta": false, "explicacion": "La cardinalidad no depende del modo de almacenamiento." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q09",
+          "pregunta": "Necesitas contar clientes distintos que compraron. ¿Expresión correcta y eficiente?",
+          "opciones": [
+            { "texto": "DISTINCTCOUNT(Ventas[ClienteID])", "correcta": true, "explicacion": "Cuenta valores únicos de la clave en el contexto de filtro actual: exactamente la semántica pedida." },
+            { "texto": "COUNT(Ventas[ClienteID])", "correcta": false, "explicacion": "Cuenta filas con valor, incluyendo clientes repetidos." },
+            { "texto": "COUNTROWS(Clientes)", "correcta": false, "explicacion": "Cuenta clientes de la dimensión, hayan comprado o no." },
+            { "texto": "SUM(Ventas[ClienteID])", "correcta": false, "explicacion": "Sumar IDs no tiene significado de negocio." }
+          ]
+        },
+        {
+          "id": "pl300-d2-q10",
+          "pregunta": "Tu modelo pesa demasiado y la columna DatetimeTransacción (precisión de segundos) es la de mayor cardinalidad. ¿Qué haces?",
+          "opciones": [
+            { "texto": "Separarla en columna Fecha y columna Hora (o truncar la precisión)", "correcta": true, "explicacion": "Reducir la cardinalidad mejora drásticamente la compresión de VertiPaq: fecha y hora separadas tienen muchos menos valores únicos." },
+            { "texto": "Convertirla a texto", "correcta": false, "explicacion": "El texto no comprime mejor y pierdes la semántica temporal." },
+            { "texto": "Crear una columna calculada adicional con el año", "correcta": false, "explicacion": "Añadir columnas aumenta el tamaño; no reduce la columna problemática." },
+            { "texto": "Ocultar la columna en la vista de report", "correcta": false, "explicacion": "Ocultar no libera memoria: la columna sigue almacenada." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "pl300-d2-s01",
+          "situacion": "Heredas un modelo con una sola tabla plana de 60 columnas que mezcla ventas, cliente, producto y tienda. Las medidas son lentas y el equipo no se aclara con los filtros.",
+          "pregunta": "¿Cómo lo rediseñas y en qué orden?",
+          "respuestaEsperada": "Normalizar hacia un esquema en estrella: identificar la granularidad del hecho (línea de venta), extraer dimensiones Cliente, Producto, Tienda y Fecha con sus claves, relacionarlas 1:* hacia la tabla de hechos con filtro single, y revisar las medidas para el nuevo modelo.",
+          "razonamiento": "El esquema en estrella reduce cardinalidad y ambigüedad, acelera VertiPaq y hace el comportamiento de filtros predecible. Es la corrección estructural que precede a cualquier optimización de DAX."
+        },
+        {
+          "id": "pl300-d2-s02",
+          "situacion": "Dirección pide comparar cada métrica contra el año anterior y contra presupuesto. El presupuesto está a nivel mes-categoría; las ventas, a nivel día-producto.",
+          "pregunta": "¿Cómo modelas la diferencia de granularidad y las comparaciones temporales?",
+          "respuestaEsperada": "Crear una tabla de fechas común marcada como date table; relacionar presupuesto a su granularidad (claves mes-categoría o tabla puente) manteniendo ventas al detalle; construir medidas PY con SAMEPERIODLASTYEAR y variaciones con DIVIDE; documentar que el presupuesto no puede desglosarse por debajo de mes-categoría.",
+          "razonamiento": "Las granularidades distintas se resuelven en el modelo (claves al nivel correcto), no falseando datos. Time intelligence exige la tabla de fechas común para comparar ambas tablas sobre el mismo eje."
+        },
+        {
+          "id": "pl300-d2-s03",
+          "situacion": "Una medida de margen funciona en la tarjeta de totales pero muestra valores absurdos al desglosarla por vendedor. Sospechas un problema de contexto.",
+          "pregunta": "¿Cómo diagnosticas y corriges el cálculo?",
+          "respuestaEsperada": "Reproducir la consulta con Performance Analyzer/DAX query view; revisar si la medida promedia ratios en vez de recalcularlos (error clásico). Corregir con el patrón DIVIDE(suma del numerador, suma del denominador) para que el ratio se calcule después de agregar en el contexto actual.",
+          "razonamiento": "Los ratios deben calcularse agregando primero numerador y denominador en el contexto actual. Diagnosticar con la consulta real evita adivinar dónde se rompe el contexto."
+        }
+      ]
+    },
+    {
+      "id": "pl300-d3",
+      "dominio": "Visualize and analyze the data (Visualizar y analizar los datos)",
+      "ponderacion": "25-30%",
+      "subtemas": [
+        "Selección, formato y configuración de visuales; temas y conditional formatting",
+        "Slicing, filtering, sync slicers y configuración de página",
+        "Narrativas y páginas asistidas por Copilot; visual calculations",
+        "Usabilidad y storytelling: bookmarks, tooltips, drillthrough, navegación, mobile, accesibilidad",
+        "Patrones y tendencias: Analyze, grouping/binning/clustering, AI visuals, forecasting, outliers",
+        "Paginated reports y export settings"
+      ],
+      "flashcards": [
+        { "id": "pl300-d3-f01", "concepto": "Elegir el visual adecuado", "explicacion": "Barras para comparar categorías, líneas para tendencias temporales, scatter para correlación, tarjetas para KPIs, matriz para detalle jerárquico. La pregunta de negocio determina el visual, no la estética." },
+        { "id": "pl300-d3-f02", "concepto": "Conditional formatting", "explicacion": "Formato dinámico (color de fondo, iconos, barras de datos) basado en valores o en una medida DAX. Dirige la atención a lo relevante sin añadir visuales extra." },
+        { "id": "pl300-d3-f03", "concepto": "Slicer vs filtro del panel Filters", "explicacion": "El slicer es un visual interactivo en el lienzo, visible para el usuario; el panel Filters filtra a nivel visual, página o report y puede ocultarse o bloquearse." },
+        { "id": "pl300-d3-f04", "concepto": "Sync slicers", "explicacion": "Permite que un slicer aplique y/o sea visible en varias páginas a la vez. Se controla por grupo de sincronización desde el panel Sync slicers." },
+        { "id": "pl300-d3-f05", "concepto": "Bookmarks", "explicacion": "Capturan el estado de una página (filtros, selección, visibilidad de objetos) para crear navegación, vistas alternativas o storytelling paso a paso." },
+        { "id": "pl300-d3-f06", "concepto": "Drillthrough", "explicacion": "Navegación desde un punto de datos hacia una página de detalle filtrada por ese elemento (p. ej. de la lista de clientes a la ficha del cliente). Se configura con campos de drillthrough y botón de retorno." },
+        { "id": "pl300-d3-f07", "concepto": "Custom tooltips", "explicacion": "Páginas de tooltip: mini-páginas del report que aparecen al pasar el cursor sobre un visual, mostrando contexto extra sin ocupar espacio en el lienzo." },
+        { "id": "pl300-d3-f08", "concepto": "Interacciones entre visuales", "explicacion": "Edit interactions define si al seleccionar en un visual los demás se filtran (filter), se resaltan (highlight) o no reaccionan (none)." },
+        { "id": "pl300-d3-f09", "concepto": "Selection pane y capas", "explicacion": "Panel para agrupar, ordenar, renombrar y ocultar objetos del lienzo. Combinado con bookmarks permite paneles emergentes y navegación avanzada." },
+        { "id": "pl300-d3-f10", "concepto": "Mobile layout", "explicacion": "Vista específica para teléfono que reorganiza los visuales existentes en un lienzo vertical, sin duplicar el report." },
+        { "id": "pl300-d3-f11", "concepto": "Accesibilidad en reports", "explicacion": "Buenas prácticas: orden de tabulación, alt text en visuales, contraste suficiente, no depender solo del color, títulos descriptivos. Se valida con navegación por teclado y lectores de pantalla." },
+        { "id": "pl300-d3-f12", "concepto": "AI visuals", "explicacion": "Visuales con análisis integrado: Key influencers (qué factores explican un resultado), Decomposition tree (desglose interactivo), Q&A (preguntas en lenguaje natural), Smart narrative (resumen textual automático)." },
+        { "id": "pl300-d3-f13", "concepto": "Forecasting y reference lines", "explicacion": "Las líneas de referencia (media, mediana, percentil, constante) contextualizan valores; el forecast de los gráficos de línea proyecta la serie con intervalos de confianza configurables." },
+        { "id": "pl300-d3-f14", "concepto": "Grouping, binning y clustering", "explicacion": "Grouping agrupa categorías manualmente; binning trocea valores numéricos en rangos de tamaño fijo; clustering agrupa puntos similares automáticamente (p. ej. en scatter charts)." },
+        { "id": "pl300-d3-f15", "concepto": "Paginated report", "explicacion": "Report de formato fijo pensado para imprimir o exportar píxel-perfecto (facturas, listados largos multipágina). Se crea con Report Builder; complementa a los reports interactivos de Power BI." },
+        { "id": "pl300-d3-f16", "concepto": "Visual calculations", "explicacion": "Cálculos DAX definidos dentro de un visual que operan sobre sus datos ya agregados (running sum, % del total del visual), simplificando patrones que antes exigían medidas complejas." }
+      ],
+      "preguntas": [
+        {
+          "id": "pl300-d3-q01",
+          "pregunta": "Debes mostrar la evolución mensual de ingresos de los últimos 3 años y su tendencia. ¿Qué visual eliges?",
+          "opciones": [
+            { "texto": "Gráfico de líneas", "correcta": true, "explicacion": "Las líneas comunican evolución temporal y tendencia mejor que cualquier otro visual estándar." },
+            { "texto": "Gráfico circular (pie)", "correcta": false, "explicacion": "El pie compara partes de un todo en un instante; es inadecuado para series temporales." },
+            { "texto": "Tarjeta (card)", "correcta": false, "explicacion": "Una tarjeta muestra un único valor, no una evolución." },
+            { "texto": "Treemap", "correcta": false, "explicacion": "El treemap muestra composición jerárquica, no tendencia temporal." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q02",
+          "pregunta": "Ventas quiere que, al hacer clic en una tienda del mapa, pueda saltar a una página con el detalle completo de esa tienda. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Drillthrough hacia la página de detalle con el campo Tienda", "correcta": true, "explicacion": "Drillthrough navega a una página filtrada automáticamente por el elemento seleccionado: exactamente el caso descrito." },
+            { "texto": "Drill down en la jerarquía del mapa", "correcta": false, "explicacion": "Drill down profundiza niveles dentro del mismo visual, no navega a otra página." },
+            { "texto": "Un bookmark por tienda", "correcta": false, "explicacion": "Sería inviable de mantener (un bookmark por cada tienda) y no es dinámico." },
+            { "texto": "Un filtro de página manual", "correcta": false, "explicacion": "Exigiría que el usuario cambie el filtro a mano, perdiendo la navegación con un clic." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q03",
+          "pregunta": "Quieres que el mismo filtro de Región aplique en las 5 páginas del report con un solo slicer. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Sync slicers", "correcta": true, "explicacion": "Sincroniza el slicer entre páginas, con control de en cuáles aplica y en cuáles es visible." },
+            { "texto": "Copiar el slicer en cada página sin más", "correcta": false, "explicacion": "Sin sincronizar, cada copia filtra solo su página y los estados divergen." },
+            { "texto": "Un filtro a nivel de visual", "correcta": false, "explicacion": "Afecta a un solo visual, lo contrario de lo que se pide." },
+            { "texto": "Un bookmark con la región seleccionada", "correcta": false, "explicacion": "Un bookmark fija un estado; no da filtrado interactivo sincronizado." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q04",
+          "pregunta": "El comité quiere entender qué factores influyen en la pérdida de clientes (churn). ¿Qué visual de IA es el más directo?",
+          "opciones": [
+            { "texto": "Key influencers", "correcta": true, "explicacion": "Analiza qué variables explican un resultado (churn sí/no) y cuantifica su influencia." },
+            { "texto": "Smart narrative", "correcta": false, "explicacion": "Genera un resumen textual de los visuales, no un análisis de factores explicativos." },
+            { "texto": "Q&A", "correcta": false, "explicacion": "Responde preguntas en lenguaje natural, pero no modela influencias." },
+            { "texto": "Gauge", "correcta": false, "explicacion": "Muestra un KPI contra un objetivo; ningún análisis causal." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q05",
+          "pregunta": "Necesitas emitir 5.000 facturas mensuales en PDF con formato exacto multipágina. ¿Qué herramienta corresponde?",
+          "opciones": [
+            { "texto": "Paginated report (Report Builder)", "correcta": true, "explicacion": "Los paginated reports están diseñados para salida píxel-perfecto, multipágina y de gran volumen." },
+            { "texto": "Un report interactivo exportado a PDF", "correcta": false, "explicacion": "La exportación de reports interactivos no controla el formato página a página con precisión de factura." },
+            { "texto": "Un dashboard del servicio", "correcta": false, "explicacion": "Los dashboards agregan tiles para monitorizar, no generan documentos." },
+            { "texto": "Excel con Analyze in Excel", "correcta": false, "explicacion": "Sirve para análisis pivot, no para emitir documentos formateados." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q06",
+          "pregunta": "Un usuario con lector de pantalla no puede seguir el orden lógico del report. ¿Qué revisas primero?",
+          "opciones": [
+            { "texto": "El tab order en el Selection pane y el alt text de los visuales", "correcta": true, "explicacion": "El orden de tabulación define la secuencia de lectura y el alt text describe cada visual: ambos son la base de accesibilidad." },
+            { "texto": "El tema de color del report", "correcta": false, "explicacion": "El contraste importa para baja visión, pero no resuelve el orden de lectura del lector de pantalla." },
+            { "texto": "El tamaño de página", "correcta": false, "explicacion": "No afecta a la navegación por teclado/lector." },
+            { "texto": "Los tooltips personalizados", "correcta": false, "explicacion": "Los tooltips al pasar el cursor no son el mecanismo primario de accesibilidad." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q07",
+          "pregunta": "Quieres agrupar automáticamente puntos de venta con comportamiento similar en un scatter de margen vs volumen. ¿Qué función usas?",
+          "opciones": [
+            { "texto": "Clustering automático del visual", "correcta": true, "explicacion": "El clustering encuentra grupos de puntos similares sin definirlos a mano." },
+            { "texto": "Binning de la columna margen", "correcta": false, "explicacion": "El binning trocea una variable en rangos fijos; no agrupa por similitud multivariable." },
+            { "texto": "Grouping manual de categorías", "correcta": false, "explicacion": "Agrupar a mano contradice el requisito de 'automáticamente'." },
+            { "texto": "Una jerarquía de fechas", "correcta": false, "explicacion": "No hay dimensión temporal en la pregunta." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q08",
+          "pregunta": "Al seleccionar una categoría en el gráfico de barras, el gráfico de líneas se atenúa (highlight) pero el negocio prefiere que se filtre por completo. ¿Dónde lo cambias?",
+          "opciones": [
+            { "texto": "Edit interactions, cambiando la interacción de highlight a filter", "correcta": true, "explicacion": "Edit interactions controla exactamente cómo reacciona cada visual a la selección en otro." },
+            { "texto": "En el panel Sync slicers", "correcta": false, "explicacion": "Sincroniza slicers entre páginas; no controla interacciones entre visuales." },
+            { "texto": "Con un bookmark", "correcta": false, "explicacion": "Los bookmarks capturan estados, no cambian el tipo de interacción." },
+            { "texto": "Cambiando el visual de líneas por una tabla", "correcta": false, "explicacion": "Cambiar el visual no ajusta el comportamiento de interacción pedido." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q09",
+          "pregunta": "Necesitas un '% del total del visual' que respete solo lo mostrado en la matriz, sin escribir una medida compleja con ALLSELECTED. ¿Qué opción moderna existe?",
+          "opciones": [
+            { "texto": "Una visual calculation", "correcta": true, "explicacion": "Las visual calculations operan sobre los datos ya agregados del visual, simplificando patrones como % del total visible." },
+            { "texto": "Una columna calculada en la tabla de hechos", "correcta": false, "explicacion": "Se evalúa fila a fila al refrescar; no conoce lo que muestra el visual." },
+            { "texto": "Un parámetro what-if", "correcta": false, "explicacion": "Los parámetros generan valores de entrada, no porcentajes del visual." },
+            { "texto": "Conditional formatting", "correcta": false, "explicacion": "Da formato según valores, no crea el cálculo." }
+          ]
+        },
+        {
+          "id": "pl300-d3-q10",
+          "pregunta": "Detectas valores anómalos en una serie diaria de pedidos y quieres resaltarlos con su explicación probable. ¿Qué funcionalidad aplicas?",
+          "opciones": [
+            { "texto": "Anomaly detection en el gráfico de líneas", "correcta": true, "explicacion": "La detección de anomalías marca outliers en la serie y sugiere posibles explicaciones basadas en los datos." },
+            { "texto": "Una reference line de media", "correcta": false, "explicacion": "Contextualiza el nivel medio pero no identifica ni explica anomalías." },
+            { "texto": "Un slicer de fechas", "correcta": false, "explicacion": "Filtra el periodo; no detecta nada." },
+            { "texto": "Formato de ejes logarítmico", "correcta": false, "explicacion": "Cambia la escala visual, no señala outliers." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "pl300-d3-s01",
+          "situacion": "Tu report de 12 páginas creció sin plan: cada analista añadió su página, hay slicers distintos por página y nadie encuentra nada. Dirección pide 'que se entienda en 30 segundos'.",
+          "pregunta": "¿Cómo reestructuras la experiencia de navegación?",
+          "respuestaEsperada": "Definir una página resumen con KPIs y navegación clara (botones + page navigation), consolidar filtros comunes con sync slicers, mover el detalle a páginas de drillthrough u ocultas accesibles por botón, y aplicar un tema consistente. Validar el flujo con un usuario real.",
+          "razonamiento": "La estructura resumen→detalle con navegación explícita reduce carga cognitiva. Sync slicers y drillthrough sustituyen la duplicación caótica de filtros y páginas."
+        },
+        {
+          "id": "pl300-d3-s02",
+          "situacion": "El director comercial revisa el report desde el móvil en visitas a clientes y se queja de que 'no se ve nada'.",
+          "pregunta": "¿Qué harías para darle una buena experiencia móvil sin duplicar el report?",
+          "respuestaEsperada": "Crear el mobile layout de las páginas clave reordenando los visuales existentes en vertical, priorizando KPIs y visuales simples arriba, ajustar tamaños de fuente y probar en la app de Power BI Mobile.",
+          "razonamiento": "El mobile layout reutiliza los mismos visuales del report: cero duplicación de lógica y una vista optimizada para pantalla estrecha."
+        },
+        {
+          "id": "pl300-d3-s03",
+          "situacion": "Compliance te pide que el report de riesgos sea usable por una persona daltónica y por otra que navega solo con teclado.",
+          "pregunta": "¿Qué checklist de accesibilidad aplicas?",
+          "respuestaEsperada": "No codificar información solo por color (añadir iconos/etiquetas), verificar contraste del tema, definir alt text descriptivo por visual, configurar el tab order lógico, títulos claros en visuales y páginas, y probar con navegación por teclado y un lector de pantalla.",
+          "razonamiento": "La accesibilidad en Power BI combina diseño (color, contraste, texto) y configuración técnica (tab order, alt text). Probar con los medios reales del usuario valida el resultado."
+        }
+      ]
+    },
+    {
+      "id": "pl300-d4",
+      "dominio": "Manage and secure Power BI (Administrar y proteger Power BI)",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Workspaces: creación, roles y publicación de items",
+        "Apps, dashboards y métodos de distribución",
+        "Subscriptions, data alerts y endorsement (promoted/certified)",
+        "Gateways y scheduled refresh del semantic model",
+        "Row-level security (roles y membresía por grupos)",
+        "Item-level access, permisos del semantic model y sensitivity labels"
+      ],
+      "flashcards": [
+        { "id": "pl300-d4-f01", "concepto": "Workspace", "explicacion": "Contenedor colaborativo en el servicio donde se publican semantic models, reports y dashboards. Es la unidad de trabajo en equipo y la base para distribuir contenido vía app." },
+        { "id": "pl300-d4-f02", "concepto": "Roles de workspace", "explicacion": "Admin (control total), Member (publica y comparte), Contributor (crea y edita contenido), Viewer (solo consume). Asignar el mínimo necesario es la práctica correcta." },
+        { "id": "pl300-d4-f03", "concepto": "App de Power BI", "explicacion": "Paquete de solo lectura que distribuye contenido seleccionado del workspace a audiencias amplias, con navegación propia y posibilidad de distintas audiencias por contenido." },
+        { "id": "pl300-d4-f04", "concepto": "Dashboard vs report", "explicacion": "El dashboard es una página de tiles anclados desde uno o varios reports, pensada para monitorizar de un vistazo; el report es interactivo y multipágina sobre un semantic model." },
+        { "id": "pl300-d4-f05", "concepto": "Data alerts", "explicacion": "Alertas sobre tiles de dashboard (cards, gauges, KPIs) que notifican cuando el valor cruza un umbral definido." },
+        { "id": "pl300-d4-f06", "concepto": "Subscriptions", "explicacion": "Envío programado por correo de una instantánea del report o dashboard a usuarios definidos, con frecuencia y condiciones configurables." },
+        { "id": "pl300-d4-f07", "concepto": "Endorsement: Promoted vs Certified", "explicacion": "Promoted lo marca el propietario como contenido listo para usar; Certified lo valida un revisor autorizado por la organización, señalando la máxima confianza." },
+        { "id": "pl300-d4-f08", "concepto": "On-premises data gateway", "explicacion": "Puente seguro entre el servicio de Power BI y orígenes locales. Necesario para refrescar datos on-premises; el modo estándar sirve a varios usuarios, el personal a uno." },
+        { "id": "pl300-d4-f09", "concepto": "Scheduled refresh", "explicacion": "Actualización programada del semantic model en el servicio. Requiere credenciales válidas y, para orígenes locales, un gateway configurado." },
+        { "id": "pl300-d4-f10", "concepto": "Row-level security (RLS)", "explicacion": "Filtra las filas visibles según el rol del usuario, con reglas DAX definidas en el modelo (p. ej. [Country] = USERPRINCIPALNAME() mapeado). El usuario solo ve sus datos." },
+        { "id": "pl300-d4-f11", "concepto": "Membresía de roles RLS", "explicacion": "Los roles definidos en Desktop se pueblan en el servicio (Security del semantic model), idealmente con grupos de seguridad en lugar de usuarios individuales para facilitar el mantenimiento." },
+        { "id": "pl300-d4-f12", "concepto": "Test as role / View as", "explicacion": "Función para validar RLS viendo el modelo como lo vería un rol o usuario concreto, antes de publicar a producción." },
+        { "id": "pl300-d4-f13", "concepto": "Permiso Build", "explicacion": "Permiso sobre el semantic model que permite a otros crear reports propios sobre él (incluido Analyze in Excel) sin darles acceso de edición al workspace." },
+        { "id": "pl300-d4-f14", "concepto": "Sensitivity labels", "explicacion": "Etiquetas de Microsoft Purview (p. ej. Confidencial) aplicadas a items de Power BI que persisten en exportaciones a Excel/PDF, aplicando la protección de la organización." },
+        { "id": "pl300-d4-f15", "concepto": "Elegir método de distribución", "explicacion": "App para audiencias amplias de solo lectura; acceso al workspace para colaboradores; compartir item a item para casos puntuales; publicar en web solo para datos públicos (con máximo cuidado)." }
+      ],
+      "preguntas": [
+        {
+          "id": "pl300-d4-q01",
+          "pregunta": "300 usuarios de negocio deben consumir tus reports sin editar nada, con navegación curada. ¿Método de distribución correcto?",
+          "opciones": [
+            { "texto": "Publicar una app del workspace con audiencia definida", "correcta": true, "explicacion": "La app es el mecanismo de distribución masiva de solo lectura, con contenido y navegación seleccionados." },
+            { "texto": "Añadir los 300 como Viewers del workspace", "correcta": false, "explicacion": "Funciona pero expone todo el workspace sin curación y complica la gestión frente a la app." },
+            { "texto": "Compartir cada report individualmente", "correcta": false, "explicacion": "Inmanejable a esa escala y sin experiencia de navegación unificada." },
+            { "texto": "Enviar el .pbix por correo", "correcta": false, "explicacion": "Pierde seguridad, gobernanza y actualización centralizada." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q02",
+          "pregunta": "Un compañero debe crear sus propios reports sobre tu semantic model, sin poder modificar el modelo ni el workspace. ¿Qué le das?",
+          "opciones": [
+            { "texto": "Permiso Build sobre el semantic model", "correcta": true, "explicacion": "Build permite construir reports (y Analyze in Excel) sobre el modelo sin acceso de edición al workspace." },
+            { "texto": "Rol Admin del workspace", "correcta": false, "explicacion": "Concede control total: viola el mínimo privilegio." },
+            { "texto": "Rol Member del workspace", "correcta": false, "explicacion": "Permite editar y publicar contenido del workspace, más de lo necesario." },
+            { "texto": "Una suscripción por correo", "correcta": false, "explicacion": "Solo recibe instantáneas; no puede construir nada." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q03",
+          "pregunta": "Tu semantic model se alimenta de un SQL Server local y el scheduled refresh falla desde el servicio. ¿Qué falta con mayor probabilidad?",
+          "opciones": [
+            { "texto": "Un on-premises data gateway configurado con ese origen", "correcta": true, "explicacion": "El servicio no alcanza orígenes locales sin gateway: es el requisito clásico del refresh on-premises." },
+            { "texto": "Una capacity Premium", "correcta": false, "explicacion": "Premium afecta a frecuencia y características, no a la conectividad básica local." },
+            { "texto": "El permiso Build", "correcta": false, "explicacion": "Build controla quién construye reports, no el refresh." },
+            { "texto": "Una sensitivity label", "correcta": false, "explicacion": "Las etiquetas protegen contenido; no intervienen en el refresh." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q04",
+          "pregunta": "Cada country manager debe ver solo las ventas de su país en el mismo report. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Row-level security con roles y mapeo por usuario/grupo", "correcta": true, "explicacion": "RLS filtra las filas por identidad del usuario: un solo report, datos segregados." },
+            { "texto": "Un report duplicado por país", "correcta": false, "explicacion": "Multiplica mantenimiento y no impide que un manager abra el report de otro país." },
+            { "texto": "Un slicer de país", "correcta": false, "explicacion": "El usuario puede cambiar el slicer y ver otros países: no es seguridad." },
+            { "texto": "Ocultar la columna país", "correcta": false, "explicacion": "Ocultar columnas no filtra filas ni protege datos." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q05",
+          "pregunta": "Definiste el rol RLS 'Iberia' en Desktop y publicaste. ¿Dónde asignas los usuarios al rol?",
+          "opciones": [
+            { "texto": "En el servicio: Security del semantic model, idealmente con grupos", "correcta": true, "explicacion": "La membresía se gestiona en el servicio; usar grupos de seguridad simplifica el mantenimiento." },
+            { "texto": "En Desktop, dentro de Manage roles", "correcta": false, "explicacion": "Desktop define las reglas del rol, no su membresía." },
+            { "texto": "En el panel Sync slicers", "correcta": false, "explicacion": "No tiene relación con seguridad." },
+            { "texto": "En la configuración del gateway", "correcta": false, "explicacion": "El gateway gestiona conectividad, no roles RLS." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q06",
+          "pregunta": "Operaciones quiere recibir un aviso cuando el stock disponible baje de 500 unidades. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Un data alert sobre un tile (card/gauge/KPI) del dashboard", "correcta": true, "explicacion": "Las alertas de datos notifican al cruzar umbrales y se definen sobre tiles de dashboard compatibles." },
+            { "texto": "Una subscription diaria del report", "correcta": false, "explicacion": "Envía instantáneas programadas, no avisos condicionados por umbral." },
+            { "texto": "Conditional formatting en la matriz", "correcta": false, "explicacion": "Resalta visualmente pero no notifica a nadie." },
+            { "texto": "Un bookmark de stock bajo", "correcta": false, "explicacion": "Captura un estado del report; no monitoriza valores." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q07",
+          "pregunta": "Existen cuatro versiones de 'Ventas Corporativas' y los usuarios no saben cuál usar. ¿Qué mecanismo de gobernanza aplica?",
+          "opciones": [
+            { "texto": "Certificar el semantic model oficial (endorsement Certified)", "correcta": true, "explicacion": "La certificación por revisores autorizados señala el contenido de confianza y lo prioriza en la búsqueda." },
+            { "texto": "Renombrar los otros con 'NO USAR'", "correcta": false, "explicacion": "Parche manual sin garantía ni visibilidad en el catálogo." },
+            { "texto": "Poner sensitivity label Confidencial al oficial", "correcta": false, "explicacion": "Las etiquetas protegen información, no señalan calidad o confianza." },
+            { "texto": "Mover todo a un solo dashboard", "correcta": false, "explicacion": "No resuelve qué modelo es la fuente fiable." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q08",
+          "pregunta": "El report exportado a Excel debe conservar la clasificación 'Confidencial' y su protección. ¿Qué lo garantiza?",
+          "opciones": [
+            { "texto": "Aplicar sensitivity labels de Microsoft Purview al item", "correcta": true, "explicacion": "Las etiquetas persisten en las exportaciones y aplican la protección definida por la organización." },
+            { "texto": "El endorsement Promoted", "correcta": false, "explicacion": "Señala contenido listo para usar; no protege exportaciones." },
+            { "texto": "RLS en el modelo", "correcta": false, "explicacion": "RLS filtra filas visibles, pero no clasifica ni protege el archivo exportado." },
+            { "texto": "Deshabilitar el export", "correcta": false, "explicacion": "Es una alternativa restrictiva, pero la pregunta pide conservar la clasificación al exportar." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q09",
+          "pregunta": "¿Qué rol de workspace es el mínimo para publicar un report desde Power BI Desktop a un workspace?",
+          "opciones": [
+            { "texto": "Contributor", "correcta": true, "explicacion": "Contributor puede crear y editar contenido en el workspace, incluida la publicación desde Desktop." },
+            { "texto": "Viewer", "correcta": false, "explicacion": "Viewer solo consume contenido." },
+            { "texto": "Admin", "correcta": false, "explicacion": "Puede publicar, pero no es el mínimo: viola el principio de mínimo privilegio." },
+            { "texto": "Cualquier usuario con Build", "correcta": false, "explicacion": "Build aplica al semantic model, no da derechos de publicación en el workspace." }
+          ]
+        },
+        {
+          "id": "pl300-d4-q10",
+          "pregunta": "El CFO quiere un vistazo único con KPIs procedentes de tres reports distintos. ¿Qué construyes?",
+          "opciones": [
+            { "texto": "Un dashboard anclando tiles de los tres reports", "correcta": true, "explicacion": "El dashboard agrega tiles de múltiples reports en una sola vista de monitorización." },
+            { "texto": "Un report nuevo con live connection a tres modelos a la vez", "correcta": false, "explicacion": "Un report se conecta a un modelo (o composite con trabajo extra); el dashboard resuelve el caso directamente." },
+            { "texto": "Tres subscriptions diarias", "correcta": false, "explicacion": "Recibiría tres correos, no una vista única." },
+            { "texto": "Una app sin más", "correcta": false, "explicacion": "La app distribuye contenido; el vistazo único agregado es el dashboard (que puede incluirse en la app)." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "pl300-d4-s01",
+          "situacion": "Tu equipo publica en un workspace donde todos son Admin 'por comodidad'. Auditoría interna lo señala como riesgo.",
+          "pregunta": "¿Cómo reorganizas roles y accesos sin bloquear el trabajo?",
+          "respuestaEsperada": "Mapear quién necesita qué: desarrolladores como Contributor/Member, responsables de publicación como Member, gestión del workspace en 1-2 Admins, consumidores fuera del workspace vía app o Viewer. Usar grupos de seguridad en lugar de individuos y documentar el modelo de acceso.",
+          "razonamiento": "El principio de mínimo privilegio reduce el riesgo sin frenar el trabajo: cada función tiene el rol justo y los grupos hacen el mantenimiento escalable."
+        },
+        {
+          "id": "pl300-d4-s02",
+          "situacion": "Implementaste RLS por país, pero un manager reporta que ve TODOS los países cuando abre el report desde el workspace (es Member).",
+          "pregunta": "¿Qué está pasando y cómo lo corriges?",
+          "respuestaEsperada": "RLS no aplica a usuarios con permisos de edición en el workspace (Admin/Member/Contributor): la ven sin filtrar. La corrección es sacar a los consumidores del workspace y distribuir por app o acceso Viewer, verificando con 'View as role' y con un usuario de prueba.",
+          "razonamiento": "Entender a quién aplica RLS es clave: protege a consumidores, no a editores del workspace. La validación con Test as role evita sorpresas en producción."
+        },
+        {
+          "id": "pl300-d4-s03",
+          "situacion": "El refresh nocturno falla de forma intermitente desde hace una semana; el origen es una base local tras el gateway del departamento.",
+          "pregunta": "¿Qué secuencia de diagnóstico sigues?",
+          "respuestaEsperada": "Revisar el historial de refresh y el mensaje de error; comprobar estado y versión del gateway; validar credenciales del origen en la configuración del semantic model; probar la conectividad del origen; revisar solapamientos de horario o timeouts; y configurar notificaciones de fallo de refresh para reaccionar antes.",
+          "razonamiento": "El diagnóstico ordenado (log → gateway → credenciales → origen → programación) aísla la causa raíz en lugar de reintentar a ciegas, y las notificaciones convierten fallos silenciosos en avisos accionables."
+        }
+      ]
+    }
+  ]
+}

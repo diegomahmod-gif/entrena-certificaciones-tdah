@@ -1,0 +1,198 @@
+{
+  "examen": "AZ-500",
+  "nombre": "Microsoft Azure Security Technologies",
+  "certificacion": "Microsoft Certified: Azure Security Engineer Associate",
+  "estado": "retiro-anunciado",
+  "avisoRetiro": "⚠️ Este examen se retira el 31 de agosto de 2026. Sucesor orientativo: SC-500 (Implementing End-to-End Security Controls for Cloud and AI Workloads). Si planeas rendirlo, hazlo antes de esa fecha.",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-01-22",
+    "retirementDate": "2026-08-31",
+    "sucesor": "SC-500",
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-500"
+  },
+  "cobertura": "muestra",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "az500-d1",
+      "dominio": "Secure identity and access",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Controles de identidad: roles built-in y custom, Privileged Identity Management (PIM), MFA, Conditional Access",
+        "Acceso de aplicaciones: enterprise apps, app registrations, permission scopes y consent, service principals, managed identities"
+      ],
+      "flashcards": [
+        { "id": "az500-d1-f01", "concepto": "Privileged Identity Management (PIM)", "explicacion": "Acceso privilegiado just-in-time: los roles sensibles se activan bajo demanda, con aprobación, MFA, duración limitada y auditoría, en lugar de asignaciones permanentes." },
+        { "id": "az500-d1-f02", "concepto": "Service principal vs managed identity", "explicacion": "El service principal es la identidad de una app registrada (con secreto/certificado que gestionas tú); la managed identity es un service principal cuyas credenciales gestiona y rota Azure automáticamente." }
+      ],
+      "preguntas": [
+        {
+          "id": "az500-d1-q01",
+          "pregunta": "Los administradores tienen Owner permanente 'por si acaso'. Seguridad exige reducir el privilegio permanente sin bloquear las operaciones. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "PIM con roles elegibles activables just-in-time con aprobación y MFA", "correcta": true, "explicacion": "El privilegio existe solo cuando se necesita, con control y trazabilidad: el estándar para acceso privilegiado." },
+            { "texto": "Quitar Owner a todos definitivamente", "correcta": false, "explicacion": "Bloquea las operaciones legítimas: PIM resuelve sin ese coste." },
+            { "texto": "Compartir una cuenta de emergencia entre todos", "correcta": false, "explicacion": "Las cuentas compartidas destruyen la trazabilidad y son un anti-patrón (los break-glass son excepcionales y controlados)." },
+            { "texto": "Pasarlos a Contributor permanente", "correcta": false, "explicacion": "Sigue siendo privilegio permanente amplio; no cambia el modelo." }
+          ]
+        },
+        {
+          "id": "az500-d1-q02",
+          "pregunta": "Una aplicación pide permisos delegados de lectura de correo para todos los usuarios del tenant. ¿Qué control gobierna si puede obtenerlos?",
+          "opciones": [
+            { "texto": "La configuración de admin consent y las políticas de consentimiento del tenant", "correcta": true, "explicacion": "Los permission scopes que afectan a toda la organización requieren consentimiento de administrador según la política configurada." },
+            { "texto": "El NSG de la subnet de la app", "correcta": false, "explicacion": "Los NSG filtran red, no permisos de API de identidad." },
+            { "texto": "Azure Policy", "correcta": false, "explicacion": "Gobierna recursos de Azure, no el consent de aplicaciones en Entra ID." },
+            { "texto": "El firewall de Key Vault", "correcta": false, "explicacion": "Controla acceso de red a un vault; irrelevante para el consentimiento OAuth." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az500-d1-s01",
+          "situacion": "Un pentest interno demostró que, robando el token de un desarrollador, se podía llegar a producción: mismos privilegios todo el día, sin MFA para operaciones sensibles.",
+          "pregunta": "¿Qué plan de endurecimiento de identidad propones?",
+          "respuestaEsperada": "Conditional Access exigiendo MFA (idealmente phishing-resistant) y dispositivo conforme; PIM para todos los roles privilegiados con activación JIT y aprobación; separar cuentas de administración de las de uso diario; revisar service principals y secretos (migrar a managed identities); y access reviews periódicos.",
+          "razonamiento": "La defensa de identidad se construye en capas: reducir la ventana de privilegio (PIM), subir el coste del robo de credenciales (MFA/CA) y eliminar credenciales estáticas (managed identities)."
+        }
+      ]
+    },
+    {
+      "id": "az500-d2",
+      "dominio": "Secure networking",
+      "ponderacion": "20-25%",
+      "subtemas": [
+        "Seguridad de VNets: NSGs/ASGs, Virtual Network Manager, UDRs, peering/VPN, Virtual WAN, cifrado, Network Watcher",
+        "Acceso privado: service endpoints, private endpoints, Private Link, integración de App Service/Functions, ASE, SQL MI",
+        "Acceso público: TLS, Azure Firewall y políticas, Application Gateway, Front Door, WAF, DDoS Protection"
+      ],
+      "flashcards": [
+        { "id": "az500-d2-f01", "concepto": "Service endpoint vs private endpoint", "explicacion": "El service endpoint optimiza y restringe la ruta hacia el servicio PaaS, pero el servicio mantiene IP pública. El private endpoint le da una IP privada de tu VNet: el tráfico y la exposición quedan en la red privada." },
+        { "id": "az500-d2-f02", "concepto": "WAF (Web Application Firewall)", "explicacion": "Filtro de capa 7 en Application Gateway o Front Door que bloquea ataques web comunes (inyección SQL, XSS) con reglas administradas OWASP y reglas propias, en modo detección o prevención." }
+      ],
+      "preguntas": [
+        {
+          "id": "az500-d2-q01",
+          "pregunta": "Compliance exige que el tráfico entre tus VMs y la cuenta de storage no sea accesible desde internet en absoluto. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Private endpoint para el storage y deshabilitar el acceso público de la cuenta", "correcta": true, "explicacion": "El storage pasa a tener IP privada en la VNet y la puerta pública se cierra: exposición cero a internet." },
+            { "texto": "Solo un service endpoint", "correcta": false, "explicacion": "Mejora la ruta y limita orígenes, pero el endpoint público del servicio sigue existiendo." },
+            { "texto": "Reglas NSG en la subnet de las VMs", "correcta": false, "explicacion": "Filtran el tráfico de las VMs, pero no eliminan el endpoint público del storage." },
+            { "texto": "HTTPS obligatorio en la cuenta", "correcta": false, "explicacion": "Cifra el tráfico, pero sigue siendo alcanzable desde internet." }
+          ]
+        },
+        {
+          "id": "az500-d2-q02",
+          "pregunta": "Tu app pública sufre intentos de inyección SQL y un ataque volumétrico el mes pasado. ¿Qué pareja de servicios ataca ambos problemas?",
+          "opciones": [
+            { "texto": "WAF (en App Gateway/Front Door) + Azure DDoS Protection", "correcta": true, "explicacion": "El WAF bloquea ataques de aplicación (SQLi/XSS); DDoS Protection mitiga ataques volumétricos de red." },
+            { "texto": "NSG + resource locks", "correcta": false, "explicacion": "El NSG no inspecciona capa 7 y los locks no tienen relación con ataques." },
+            { "texto": "Azure Bastion + Key Vault", "correcta": false, "explicacion": "Bastion es acceso administrativo y Key Vault custodia secretos: ninguno protege la app pública." },
+            { "texto": "VNet peering + UDRs", "correcta": false, "explicacion": "Son conectividad y enrutado, no protección frente a ataques." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az500-d2-s01",
+          "situacion": "Arquitectura actual: VMs con IPs públicas, storage y SQL accesibles por endpoints públicos con firewall de IPs, y administración por RDP abierto. Te piden un diseño de red 'cerrado por defecto'.",
+          "pregunta": "¿Qué transformación planteas?",
+          "respuestaEsperada": "Hub-and-spoke con Azure Firewall en el hub inspeccionando el egress; eliminar IPs públicas de las VMs y administrar por Bastion; private endpoints para storage/SQL con acceso público deshabilitado; NSGs deny-by-default por subnet; publicación de apps solo a través de Application Gateway/Front Door con WAF; y Network Watcher + logs del firewall para visibilidad.",
+          "razonamiento": "'Cerrado por defecto' significa que nada expone endpoints públicos salvo el punto de publicación controlado (WAF), todo el tráfico interno es privado y el egress está inspeccionado: cada pieza del diseño elimina una clase de exposición."
+        }
+      ]
+    },
+    {
+      "id": "az500-d3",
+      "dominio": "Secure compute, storage, and databases",
+      "ponderacion": "20-25%",
+      "subtemas": [
+        "Compute avanzado: Bastion y JIT VM access, seguridad de AKS/ACI/ACA, ACR, cifrado de discos, API Management",
+        "Storage: control de acceso, access keys, Azure Files y Blob, soft delete/backup/versioning/inmutabilidad, BYOK, doble cifrado",
+        "Bases de datos: autenticación Entra, auditoría, dynamic masking, Transparent Data Encryption, Always Encrypted"
+      ],
+      "flashcards": [
+        { "id": "az500-d3-f01", "concepto": "Just-in-time (JIT) VM access", "explicacion": "Defender for Cloud abre los puertos de administración (RDP/SSH) solo bajo petición aprobada, desde IPs concretas y por tiempo limitado; el resto del tiempo permanecen cerrados." },
+        { "id": "az500-d3-f02", "concepto": "TDE vs Always Encrypted", "explicacion": "TDE cifra los archivos de la base en reposo (transparente para las apps). Always Encrypted cifra columnas sensibles en el cliente: ni los DBAs ni el servicio ven los datos en claro." }
+      ],
+      "preguntas": [
+        {
+          "id": "az500-d3-q01",
+          "pregunta": "Los DBAs no deben poder ver los números de tarjeta almacenados en una tabla, ni siquiera con acceso total a la base. ¿Qué tecnología lo garantiza?",
+          "opciones": [
+            { "texto": "Always Encrypted sobre las columnas sensibles", "correcta": true, "explicacion": "El cifrado ocurre en el cliente y las claves no residen en el servidor: el DBA solo ve ciphertext." },
+            { "texto": "Transparent Data Encryption (TDE)", "correcta": false, "explicacion": "TDE protege los archivos en reposo, pero quien consulta la base ve los datos en claro." },
+            { "texto": "Dynamic data masking", "correcta": false, "explicacion": "Enmascara en la presentación, pero usuarios privilegiados pueden ver o inferir el dato real: no es cifrado." },
+            { "texto": "Auditoría de base de datos", "correcta": false, "explicacion": "Registra accesos; no impide ver los datos." }
+          ]
+        },
+        {
+          "id": "az500-d3-q02",
+          "pregunta": "Normativa exige que los backups en blob no puedan modificarse ni borrarse durante 5 años, ni siquiera por administradores. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Immutable storage con una política de retención time-based (WORM)", "correcta": true, "explicacion": "La inmutabilidad WORM bloquea escritura y borrado durante la retención, también para admins." },
+            { "texto": "Soft delete con 5 años", "correcta": false, "explicacion": "Soft delete permite recuperar borrados, pero no impide borrar ni modifica el modelo de permisos." },
+            { "texto": "Tier Archive", "correcta": false, "explicacion": "Es un nivel de coste; los datos siguen siendo modificables/borrables." },
+            { "texto": "Una access key guardada en Key Vault", "correcta": false, "explicacion": "Protege la credencial, no la inmutabilidad del dato." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az500-d3-s01",
+          "situacion": "Tras un incidente, descubres VMs con el 3389 abierto a internet, discos sin cifrar y una cuenta de storage con la access key filtrada en un repositorio.",
+          "pregunta": "¿Qué remediación priorizas y qué controles dejas permanentes?",
+          "respuestaEsperada": "Inmediato: rotar las access keys, cerrar el 3389 (NSG) y activar JIT/Bastion. Corto plazo: cifrado de discos (encryption at host/ADE), migrar el acceso al storage a Entra ID + SAS de corta vida, escaneo de secretos en repos. Permanente: Defender for Cloud con recomendaciones y JIT, policy que impida puertos de gestión expuestos y discos sin cifrar.",
+          "razonamiento": "La respuesta a incidentes ordena por explotabilidad (credencial filtrada > puerto expuesto > cifrado), y los controles permanentes (policy + Defender) evitan la reintroducción de las mismas configuraciones inseguras."
+        }
+      ]
+    },
+    {
+      "id": "az500-d4",
+      "dominio": "Secure Azure using Microsoft Defender for Cloud and Microsoft Sentinel",
+      "ponderacion": "30-35%",
+      "subtemas": [
+        "Gobernanza: Azure Policy (policies e initiatives), Key Vault (accesos, rotación, backup), protección de backups y asset management",
+        "Postura con Defender for Cloud: secure score, inventory, compliance frente a frameworks, estándares custom, multicloud (AWS/GCP), EASM",
+        "Protección de cargas: planes de Defender (Servers, Databases, Storage), agentless scanning, vulnerability management, DevOps security",
+        "Monitorización y automatización: alertas, workflow automation, DCRs en Azure Monitor, Sentinel (data connectors, analytics rules, automation)"
+      ],
+      "flashcards": [
+        { "id": "az500-d4-f01", "concepto": "Secure score", "explicacion": "Métrica de Defender for Cloud que resume tu postura de seguridad: cada recomendación remediada suma. Sirve para priorizar y para reportar la evolución a dirección." },
+        { "id": "az500-d4-f02", "concepto": "Microsoft Sentinel", "explicacion": "SIEM/SOAR nativo de nube: ingiere logs con data connectors, detecta con analytics rules (KQL), investiga incidentes y responde automáticamente con playbooks (Logic Apps)." }
+      ],
+      "preguntas": [
+        {
+          "id": "az500-d4-q01",
+          "pregunta": "El SOC quiere que, al detectarse un inicio de sesión imposible (dos países en minutos), se deshabilite la cuenta y se abra ticket automáticamente. ¿Qué combinación usas?",
+          "opciones": [
+            { "texto": "Una analytics rule de Sentinel con una automation rule que ejecuta un playbook", "correcta": true, "explicacion": "La regla detecta el patrón, la automatización lanza el playbook (Logic App) que deshabilita la cuenta y crea el ticket: SOAR de libro." },
+            { "texto": "Un data alert de Power BI", "correcta": false, "explicacion": "Power BI monitoriza métricas de negocio, no incidentes de seguridad." },
+            { "texto": "Revisar los sign-in logs cada mañana", "correcta": false, "explicacion": "La respuesta manual llega horas tarde para un compromiso de cuenta." },
+            { "texto": "Una policy con efecto deny", "correcta": false, "explicacion": "Policy gobierna configuraciones de recursos, no responde a eventos de identidad." }
+          ]
+        },
+        {
+          "id": "az500-d4-q02",
+          "pregunta": "Tu empresa tiene cargas en Azure y AWS y quiere una vista única de postura y cumplimiento CIS. ¿Qué capacidad usas?",
+          "opciones": [
+            { "texto": "Conectar AWS a Defender for Cloud y evaluar ambos entornos contra el estándar", "correcta": true, "explicacion": "Defender for Cloud es multicloud: con los conectores de AWS/GCP evalúa postura y compliance desde un solo panel." },
+            { "texto": "Duplicar los recursos de AWS en Azure", "correcta": false, "explicacion": "Migrar no es un mecanismo de evaluación de postura." },
+            { "texto": "Un workbook manual en Excel", "correcta": false, "explicacion": "Inventario manual: obsoleto al minuto siguiente y sin evaluación continua." },
+            { "texto": "Azure Service Health", "correcta": false, "explicacion": "Informa de incidencias de la plataforma Azure, no de postura multicloud." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az500-d4-s01",
+          "situacion": "Te contratan como primer security engineer: hay 3 suscripciones sin Defender, sin SIEM, secretos en app settings y nadie mira los logs.",
+          "pregunta": "¿Cuál es tu plan de los primeros 90 días?",
+          "respuestaEsperada": "Mes 1: activar Defender for Cloud (CSPM), remediar el quick-wins del secure score, mover secretos a Key Vault. Mes 2: desplegar Sentinel con los connectors clave (Entra ID, activity logs, Defender), analytics rules básicas y triage de incidentes. Mes 3: automatizar respuestas frecuentes con playbooks, definir estándares de compliance y establecer el reporte mensual de postura.",
+          "razonamiento": "El orden importa: primero visibilidad y postura (barato y de alto impacto), luego detección centralizada, y por último automatización — cada fase se apoya en la anterior."
+        }
+      ]
+    }
+  ]
+}

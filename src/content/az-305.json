@@ -1,0 +1,196 @@
+{
+  "examen": "AZ-305",
+  "nombre": "Designing Microsoft Azure Infrastructure Solutions",
+  "certificacion": "Microsoft Certified: Azure Solutions Architect Expert",
+  "estado": "activo",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-04-17",
+    "retirementDate": null,
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-305"
+  },
+  "cobertura": "muestra",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "az305-d1",
+      "dominio": "Design identity, governance, and monitoring solutions",
+      "ponderacion": "25-30%",
+      "subtemas": [
+        "Logging y monitoring: soluciones de logs, routing de logs, monitorización",
+        "Autenticación y autorización: identidades, acceso a recursos Azure y on-premises, secretos/certificados/claves (Key Vault)",
+        "Gobernanza: estructura de management groups/subscriptions/resource groups, tagging, cumplimiento, identity governance"
+      ],
+      "flashcards": [
+        { "id": "az305-d1-f01", "concepto": "Managed identity", "explicacion": "Identidad administrada por Azure para que un recurso (VM, App Service, Function) se autentique contra otros servicios (Key Vault, Storage) sin credenciales en el código. System-assigned vive con el recurso; user-assigned es reutilizable." },
+        { "id": "az305-d1-f02", "concepto": "Azure Key Vault", "explicacion": "Servicio para custodiar secretos, certificados y claves criptográficas con control de acceso (RBAC/access policies), rotación y auditoría. Pieza estándar de cualquier diseño que maneje credenciales." }
+      ],
+      "preguntas": [
+        {
+          "id": "az305-d1-q01",
+          "pregunta": "Una App Service debe leer secretos de Key Vault sin almacenar ninguna credencial en configuración. ¿Qué diseño recomiendas?",
+          "opciones": [
+            { "texto": "Managed identity de la app con acceso RBAC al Key Vault", "correcta": true, "explicacion": "La identidad administrada elimina credenciales del código/config: Azure emite y rota los tokens." },
+            { "texto": "Un service principal con secreto guardado en app settings", "correcta": false, "explicacion": "Vuelve a poner una credencial en configuración: el problema que se quería evitar." },
+            { "texto": "Las access keys del storage en variables de entorno", "correcta": false, "explicacion": "Ni siquiera involucra Key Vault y expone claves de larga duración." },
+            { "texto": "Credenciales de un usuario con MFA", "correcta": false, "explicacion": "Las identidades de usuario no son para servicios; MFA además rompe la automatización." }
+          ]
+        },
+        {
+          "id": "az305-d1-q02",
+          "pregunta": "La empresa exige que los logs de actividad de 60 suscripciones se conserven centralizados 2 años para auditoría. ¿Qué recomiendas?",
+          "opciones": [
+            { "texto": "Diagnostic settings enrutando a un Log Analytics workspace central (con export/archive a storage para retención larga)", "correcta": true, "explicacion": "El enrutado centralizado con retención configurada cumple auditoría; el archivo a storage abarata la retención de 2 años." },
+            { "texto": "Consultar el activity log de cada suscripción cuando haga falta", "correcta": false, "explicacion": "El activity log nativo tiene retención corta (90 días) y no está centralizado." },
+            { "texto": "Exportar manualmente a Excel cada mes", "correcta": false, "explicacion": "Proceso manual, frágil y sin garantías de integridad para auditoría." },
+            { "texto": "Habilitar solo Azure Advisor", "correcta": false, "explicacion": "Advisor recomienda mejoras; no retiene logs." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az305-d1-s01",
+          "situacion": "Una multinacional aterriza en Azure: 4 unidades de negocio, entornos prod/dev separados, requisitos de cumplimiento distintos por país y necesidad de informes de coste por unidad.",
+          "pregunta": "¿Qué estructura de gobierno diseñas?",
+          "respuestaEsperada": "Jerarquía de management groups por unidad de negocio (y/o entorno), suscripciones separadas prod/dev por unidad, iniciativas de Azure Policy por requisito regulatorio asignadas al nivel adecuado, convención de tags obligatoria (CostCenter, Env, Owner) forzada por policy, y RBAC con grupos de Entra ID al scope mínimo.",
+          "razonamiento": "La estructura jerárquica traduce la organización real a Azure: la herencia de policy y RBAC automatiza el cumplimiento por país/unidad y los tags habilitan el reporte financiero."
+        }
+      ]
+    },
+    {
+      "id": "az305-d2",
+      "dominio": "Design data storage solutions",
+      "ponderacion": "20-25%",
+      "subtemas": [
+        "Datos relacionales: servicio, tier de servicio y compute, escalabilidad, protección de datos",
+        "Datos semi-estructurados y no estructurados: elección de almacén, balance features/rendimiento/coste, durabilidad",
+        "Integración de datos: soluciones de integración y de análisis"
+      ],
+      "flashcards": [
+        { "id": "az305-d2-f01", "concepto": "Azure SQL Database vs Managed Instance vs SQL en VM", "explicacion": "SQL Database: PaaS puro, mínima administración. Managed Instance: compatibilidad casi total con SQL Server (agent, cross-db) sin gestionar SO. SQL en VM: control total cuando se necesitan features de instancia u OS." },
+        { "id": "az305-d2-f02", "concepto": "Azure Cosmos DB", "explicacion": "Base NoSQL global multi-modelo con latencia de milisegundos, distribución multi-región y niveles de consistencia configurables. Diseño indicado para apps globales con esquemas flexibles." }
+      ],
+      "preguntas": [
+        {
+          "id": "az305-d2-q01",
+          "pregunta": "Debes migrar un SQL Server que depende de SQL Agent y consultas cross-database, minimizando administración de SO. ¿Qué recomiendas?",
+          "opciones": [
+            { "texto": "Azure SQL Managed Instance", "correcta": true, "explicacion": "Mantiene compatibilidad de instancia (Agent, cross-db) sin administrar el sistema operativo." },
+            { "texto": "Azure SQL Database single database", "correcta": false, "explicacion": "No soporta todas las características de instancia que la app requiere." },
+            { "texto": "SQL Server en una VM", "correcta": false, "explicacion": "Cumple compatibilidad pero te deja administrando SO y parches: no minimiza la gestión." },
+            { "texto": "Azure Cosmos DB", "correcta": false, "explicacion": "Cambiar el motor a NoSQL implica reescribir la aplicación." }
+          ]
+        },
+        {
+          "id": "az305-d2-q02",
+          "pregunta": "Una app global necesita lecturas de baja latencia en Europa, Asia y América con esquema flexible de documentos JSON. ¿Qué almacén encaja?",
+          "opciones": [
+            { "texto": "Azure Cosmos DB con réplicas multi-región", "correcta": true, "explicacion": "Distribución global nativa, modelo de documentos y latencia de milisegundos en cada región." },
+            { "texto": "Azure SQL Database en una sola región", "correcta": false, "explicacion": "La latencia intercontinental y el esquema rígido no cumplen los requisitos." },
+            { "texto": "Azure Files", "correcta": false, "explicacion": "Es un file share, no una base de datos de documentos." },
+            { "texto": "Blob storage con tier Hot", "correcta": false, "explicacion": "Sirve objetos, pero no ofrece consultas de documentos ni distribución transaccional global." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az305-d2-s01",
+          "situacion": "Una plataforma de e-commerce guarda: catálogo (lecturas masivas, esquema variable), pedidos (transaccional, integridad crítica) e imágenes de producto (estáticas, mucho volumen).",
+          "pregunta": "¿Qué almacén asignas a cada tipo de dato y por qué?",
+          "respuestaEsperada": "Catálogo en Cosmos DB (esquema flexible, lecturas globales), pedidos en Azure SQL Database (ACID, integridad relacional, tier según carga), imágenes en Blob Storage con CDN delante y lifecycle hacia tiers fríos para versiones antiguas.",
+          "razonamiento": "El diseño 'polyglot persistence' asigna cada carga al motor cuyo modelo de coste y consistencia le corresponde, en lugar de forzar un único almacén para todo."
+        }
+      ]
+    },
+    {
+      "id": "az305-d3",
+      "dominio": "Design business continuity solutions",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Backup y disaster recovery: recuperación para Azure e híbrido según objetivos, backup de compute, bases de datos y datos no estructurados",
+        "Alta disponibilidad: compute, datos relacionales, datos semi/no estructurados"
+      ],
+      "flashcards": [
+        { "id": "az305-d3-f01", "concepto": "RTO y RPO", "explicacion": "RTO: tiempo máximo tolerable hasta restaurar el servicio. RPO: pérdida máxima de datos tolerable (tiempo desde el último punto de recuperación). Dictan la solución: cuanto menores, más costosa la arquitectura." },
+        { "id": "az305-d3-f02", "concepto": "Estrategias de HA para compute", "explicacion": "Escalera de resiliencia: availability sets (fallo de host) < availability zones (fallo de datacenter) < multi-región con Front Door/Traffic Manager (fallo regional). Elegir según SLA objetivo y presupuesto." }
+      ],
+      "preguntas": [
+        {
+          "id": "az305-d3-q01",
+          "pregunta": "El negocio define RPO de 5 minutos y RTO de 1 hora para una app en VMs ante un desastre regional. ¿Qué diseño lo cumple con mejor coste?",
+          "opciones": [
+            { "texto": "Azure Site Recovery replicando a la región secundaria con failover orquestado", "correcta": true, "explicacion": "ASR ofrece replicación casi continua (RPO de minutos) y recovery plans que cumplen un RTO de una hora sin duplicar el coste de un activo-activo." },
+            { "texto": "Backup diario a un vault geo-redundante", "correcta": false, "explicacion": "Un backup diario implica RPO de hasta 24 horas: incumple los 5 minutos." },
+            { "texto": "Activo-activo multi-región con balanceo global", "correcta": false, "explicacion": "Cumpliría de sobra, pero duplica costes: no es la opción de mejor coste para RTO de 1 hora." },
+            { "texto": "Snapshots manuales semanales", "correcta": false, "explicacion": "RPO de una semana y proceso manual: muy lejos de los objetivos." }
+          ]
+        },
+        {
+          "id": "az305-d3-q02",
+          "pregunta": "Una base Azure SQL Database crítica debe sobrevivir a la caída de la región con mínimo esfuerzo operativo. ¿Qué capacidad usas?",
+          "opciones": [
+            { "texto": "Failover groups (auto-failover) hacia una región secundaria", "correcta": true, "explicacion": "Replican la base y conmutan el endpoint automáticamente: DR administrado por la plataforma." },
+            { "texto": "Copias .bacpac semanales a un storage local", "correcta": false, "explicacion": "RPO enorme y restauración manual: no es continuidad de negocio." },
+            { "texto": "Redimensionar al tier Business Critical en la misma región", "correcta": false, "explicacion": "Mejora HA local, pero no protege ante fallo regional." },
+            { "texto": "Read replicas en la misma región", "correcta": false, "explicacion": "Escalan lecturas; no cubren el desastre regional." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az305-d3-s01",
+          "situacion": "Dirección pide 'cero caídas' para todos los sistemas. Al presentar el coste del activo-activo multi-región para todo, piden 'algo razonable'.",
+          "pregunta": "¿Cómo aterrizas los requisitos de continuidad de forma realista?",
+          "respuestaEsperada": "Clasificar aplicaciones por criticidad y acordar RTO/RPO por clase: crítico (activo-activo o ASR con RTO corto), importante (ASR/failover groups), resto (backup geo-redundante). Presentar coste por clase y dejar que el negocio decida el nivel que paga cada sistema.",
+          "razonamiento": "La continuidad se diseña por objetivos medibles, no por eslóganes: la matriz criticidad→RTO/RPO→solución→coste convierte 'cero caídas' en decisiones económicas informadas."
+        }
+      ]
+    },
+    {
+      "id": "az305-d4",
+      "dominio": "Design infrastructure solutions",
+      "ponderacion": "30-35%",
+      "subtemas": [
+        "Compute: VMs, contenedores, serverless, batch según la carga",
+        "Arquitectura de aplicaciones: mensajería, eventos, APIs, caching, configuración, despliegue automatizado",
+        "Migraciones: Cloud Adoption Framework, evaluación de servidores/datos/apps, destino IaaS/PaaS, bases de datos, datos no estructurados",
+        "Redes: conectividad a internet y on-premises, optimización de rendimiento y seguridad, balanceo y routing"
+      ],
+      "flashcards": [
+        { "id": "az305-d4-f01", "concepto": "Mensajería vs eventos", "explicacion": "Mensaje: el emisor espera procesamiento (Service Bus para colas fiables, orden, transacciones). Evento: notificación ligera de que algo ocurrió (Event Grid reactivo, Event Hubs para telemetría masiva)." },
+        { "id": "az305-d4-f02", "concepto": "Elección de load balancer", "explicacion": "Azure Load Balancer: capa 4 regional. Application Gateway: capa 7 regional con WAF. Front Door: capa 7 global con CDN/WAF. Traffic Manager: DNS global. Se combinan: global delante, regional detrás." }
+      ],
+      "preguntas": [
+        {
+          "id": "az305-d4-q01",
+          "pregunta": "Pedidos de e-commerce deben procesarse exactamente en orden, con reintentos fiables y sin pérdida aunque el consumidor caiga. ¿Qué recomiendas?",
+          "opciones": [
+            { "texto": "Azure Service Bus con colas/sesiones", "correcta": true, "explicacion": "Mensajería empresarial con entrega fiable, orden por sesión, dead-lettering y transacciones." },
+            { "texto": "Azure Event Grid", "correcta": false, "explicacion": "Eventos ligeros de notificación: no garantiza orden ni patrón de cola de trabajo." },
+            { "texto": "Llamadas HTTP síncronas entre servicios", "correcta": false, "explicacion": "Acopla los servicios: si el consumidor cae, se pierden pedidos." },
+            { "texto": "Un cron que revise una tabla cada 5 minutos", "correcta": false, "explicacion": "Polling frágil, con latencia y sin semántica de entrega." }
+          ]
+        },
+        {
+          "id": "az305-d4-q02",
+          "pregunta": "Una app web global necesita TLS, WAF, enrutado al backend más cercano y failover automático entre regiones. ¿Qué servicio pones delante?",
+          "opciones": [
+            { "texto": "Azure Front Door (con WAF)", "correcta": true, "explicacion": "Capa 7 global: acelera con el edge, aplica WAF y enruta/failover entre regiones." },
+            { "texto": "Un Azure Load Balancer público", "correcta": false, "explicacion": "Capa 4 y regional: sin WAF, sin routing global." },
+            { "texto": "Application Gateway en una región", "correcta": false, "explicacion": "Capa 7 con WAF pero regional: no da failover global por sí solo." },
+            { "texto": "VNet peering entre regiones", "correcta": false, "explicacion": "Conecta redes privadas; no publica ni balancea la app." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az305-d4-s01",
+          "situacion": "Debes migrar 120 servidores (apps .NET, file servers, SQL) a Azure en 9 meses. El comité pregunta '¿todo a VMs o modernizamos?'.",
+          "pregunta": "¿Qué enfoque de migración propones?",
+          "respuestaEsperada": "Seguir el Cloud Adoption Framework: descubrir y evaluar con Azure Migrate, clasificar por las 5R (rehost, refactor, rearchitect, rebuild, retire). Rehost a VMs lo urgente y legado, mover apps web estándar a App Service y SQL a opciones PaaS cuando la compatibilidad lo permita, retirar lo obsoleto, y planificar landing zone (redes, identidad, gobernanza) antes de la primera ola.",
+          "razonamiento": "La respuesta correcta nunca es binaria: la evaluación por carga determina el destino de cada app equilibrando plazo, coste y deuda técnica, sobre una landing zone que evita rehacer los cimientos después."
+        }
+      ]
+    }
+  ]
+}

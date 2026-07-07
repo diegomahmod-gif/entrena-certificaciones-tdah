@@ -1,0 +1,241 @@
+{
+  "examen": "AZ-104",
+  "nombre": "Microsoft Azure Administrator",
+  "certificacion": "Microsoft Certified: Azure Administrator Associate",
+  "estado": "activo",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-04-17",
+    "retirementDate": null,
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-104"
+  },
+  "cobertura": "muestra",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "az104-d1",
+      "dominio": "Manage Azure identities and governance",
+      "ponderacion": "20-25%",
+      "subtemas": [
+        "Usuarios y grupos de Microsoft Entra (propiedades, licencias, usuarios externos, SSPR)",
+        "Acceso a recursos: roles built-in, asignación por scopes, interpretación de asignaciones",
+        "Suscripciones y gobernanza: Azure Policy, resource locks, tags, resource groups, costes, management groups"
+      ],
+      "flashcards": [
+        { "id": "az104-d1-f01", "concepto": "Scope de una asignación RBAC", "explicacion": "Nivel donde aplica el rol: management group, subscription, resource group o recurso. La asignación se hereda hacia abajo; siempre asignar al scope más bajo que cumpla la necesidad." },
+        { "id": "az104-d1-f02", "concepto": "Self-service password reset (SSPR)", "explicacion": "Permite a los usuarios restablecer su contraseña verificando métodos registrados (app, SMS, correo alternativo), reduciendo tickets de helpdesk. Se habilita por grupo en Entra ID." }
+      ],
+      "preguntas": [
+        {
+          "id": "az104-d1-q01",
+          "pregunta": "Un usuario tiene Reader en la suscripción y Contributor en un resource group de esa suscripción. ¿Qué puede hacer en ese resource group?",
+          "opciones": [
+            { "texto": "Crear y gestionar recursos: las asignaciones RBAC son aditivas y gana el permiso más amplio en ese scope", "correcta": true, "explicacion": "RBAC suma permisos: Contributor en el RG prevalece sobre el Reader heredado." },
+            { "texto": "Solo leer, porque Reader en la suscripción restringe todo lo inferior", "correcta": false, "explicacion": "Las asignaciones no restringen hacia abajo: se acumulan." },
+            { "texto": "Nada, porque los roles entran en conflicto", "correcta": false, "explicacion": "No existe conflicto: los permisos efectivos son la unión de las asignaciones." },
+            { "texto": "Solo borrar recursos", "correcta": false, "explicacion": "Contributor permite gestionar, no únicamente borrar." }
+          ]
+        },
+        {
+          "id": "az104-d1-q02",
+          "pregunta": "Necesitas que todos los resource groups nuevos lleven el tag 'CostCenter' obligatoriamente. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Una Azure Policy que exija (o añada) el tag en la creación", "correcta": true, "explicacion": "Policy evalúa los despliegues y puede denegar o autocompletar el tag: es el mecanismo de gobernanza a escala." },
+            { "texto": "Un correo recordatorio al equipo", "correcta": false, "explicacion": "Los procesos manuales no garantizan cumplimiento." },
+            { "texto": "Un resource lock", "correcta": false, "explicacion": "Los locks impiden cambios o borrados; no exigen tags." },
+            { "texto": "Un rol RBAC personalizado", "correcta": false, "explicacion": "RBAC controla acciones permitidas, no la conformidad de propiedades." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az104-d1-s01",
+          "situacion": "Tu organización crece de 1 a 8 suscripciones y cada equipo aplica sus propias reglas: regiones dispares, sin tags, permisos concedidos ad hoc.",
+          "pregunta": "¿Cómo estructuras la gobernanza?",
+          "respuestaEsperada": "Diseñar una jerarquía de management groups (p. ej. por entorno o unidad de negocio), asignar Azure Policy y RBAC en los niveles altos para que se hereden, definir iniciativas de policy (regiones, tags, SKUs), presupuestos por suscripción y revisar accesos con el principio de mínimo privilegio.",
+          "razonamiento": "La gobernanza escala por herencia: definir una vez arriba (management groups) evita configurar ocho veces abajo y elimina la deriva entre equipos."
+        }
+      ]
+    },
+    {
+      "id": "az104-d2",
+      "dominio": "Implement and manage storage",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Acceso a storage: firewalls y VNets, SAS tokens, stored access policies, access keys, acceso por identidad a Azure Files",
+        "Cuentas de storage: creación, redundancia, replicación de objetos, cifrado, Storage Explorer y AzCopy",
+        "Azure Files y Blob Storage: shares, containers, tiers, soft delete, snapshots, lifecycle management, versioning"
+      ],
+      "flashcards": [
+        { "id": "az104-d2-f01", "concepto": "SAS token", "explicacion": "Firma de acceso compartido: concede acceso delegado y limitado (permisos, IP, caducidad) a recursos de storage sin compartir las access keys. Asociarlo a una stored access policy permite revocarlo." },
+        { "id": "az104-d2-f02", "concepto": "Blob lifecycle management", "explicacion": "Reglas automáticas que mueven blobs entre tiers (Hot→Cool→Archive) o los eliminan según antigüedad o último acceso: optimizan coste sin intervención manual." }
+      ],
+      "preguntas": [
+        {
+          "id": "az104-d2-q01",
+          "pregunta": "Debes dar a un proveedor externo acceso de solo lectura a un container durante 48 horas, revocable, sin crear cuenta. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Un SAS token de lectura con caducidad, vinculado a una stored access policy", "correcta": true, "explicacion": "El SAS delega acceso limitado en el tiempo; la stored access policy permite revocarlo antes si hace falta." },
+            { "texto": "Compartir la access key de la cuenta", "correcta": false, "explicacion": "La key da control total sobre toda la cuenta: riesgo inaceptable." },
+            { "texto": "Hacer el container público", "correcta": false, "explicacion": "Expondría los datos a cualquiera, no solo al proveedor." },
+            { "texto": "Asignar Owner al proveedor", "correcta": false, "explicacion": "Requiere cuenta y otorga muchísimo más de lo necesario." }
+          ]
+        },
+        {
+          "id": "az104-d2-q02",
+          "pregunta": "Un blob crítico fue sobrescrito ayer con datos incorrectos. ¿Qué característica te permite recuperar la versión anterior?",
+          "opciones": [
+            { "texto": "Blob versioning", "correcta": true, "explicacion": "El versionado guarda automáticamente versiones anteriores al sobrescribir: se restaura la previa." },
+            { "texto": "El tier Archive", "correcta": false, "explicacion": "Es un nivel de coste de acceso, no un mecanismo de recuperación." },
+            { "texto": "Object replication", "correcta": false, "explicacion": "Replica cambios a otra cuenta, incluida la sobrescritura errónea." },
+            { "texto": "El firewall de storage", "correcta": false, "explicacion": "Controla desde dónde se accede, no recupera datos." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az104-d2-s01",
+          "situacion": "Tu cuenta de storage acumula 40 TB de logs: los del último mes se consultan a diario, los de 1-12 meses rara vez, y por normativa hay que guardar 7 años.",
+          "pregunta": "¿Cómo optimizas el coste sin perder cumplimiento?",
+          "respuestaEsperada": "Definir lifecycle management: mantener Hot 30 días, mover a Cool (o Cold) hasta 12 meses, luego Archive hasta 7 años y eliminar después. Activar soft delete/versioning según riesgo y validar que el tiempo de rehidratación de Archive es aceptable para auditorías.",
+          "razonamiento": "El patrón de acceso decreciente en el tiempo es el caso ideal de tiering automático: cada franja de edad paga el nivel de almacenamiento que corresponde a su uso real."
+        }
+      ]
+    },
+    {
+      "id": "az104-d3",
+      "dominio": "Deploy and manage Azure compute resources",
+      "ponderacion": "20-25%",
+      "subtemas": [
+        "Automatización con ARM templates y Bicep (interpretar, modificar, desplegar, exportar/convertir)",
+        "VMs: creación, cifrado, movimiento, tamaños, discos, availability zones/sets, VM Scale Sets",
+        "Contenedores: Azure Container Registry, Container Instances, Container Apps, sizing y escalado",
+        "App Service: planes, escalado, certificados/TLS, DNS personalizado, backup, networking, deployment slots"
+      ],
+      "flashcards": [
+        { "id": "az104-d3-f01", "concepto": "Bicep", "explicacion": "Lenguaje declarativo que simplifica los ARM templates JSON con sintaxis legible. Se transpila a ARM; se puede convertir un template existente a Bicep y viceversa." },
+        { "id": "az104-d3-f02", "concepto": "Deployment slots", "explicacion": "Entornos paralelos de una App Service (p. ej. staging) con su propio hostname. Permiten validar una versión y hacer swap a producción sin downtime, con rollback inmediato." }
+      ],
+      "preguntas": [
+        {
+          "id": "az104-d3-q01",
+          "pregunta": "Tu web app debe actualizarse sin downtime y con posibilidad de rollback inmediato si algo falla. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Deployment slots con swap entre staging y producción", "correcta": true, "explicacion": "El swap intercambia slots ya calientes: sin corte y con rollback re-swapeando." },
+            { "texto": "Publicar directamente sobre producción de madrugada", "correcta": false, "explicacion": "Sigue habiendo riesgo y el rollback exige redeployar." },
+            { "texto": "Duplicar el App Service plan", "correcta": false, "explicacion": "Duplicar el plan no orquesta el cambio de versión." },
+            { "texto": "Un VM Scale Set", "correcta": false, "explicacion": "Es infraestructura de VMs, no el mecanismo de release de App Service." }
+          ]
+        },
+        {
+          "id": "az104-d3-q02",
+          "pregunta": "Una VM de producción debe sobrevivir al fallo de un datacenter de la región. ¿Cómo la despliegas?",
+          "opciones": [
+            { "texto": "Instancias distribuidas en availability zones distintas tras un load balancer", "correcta": true, "explicacion": "Las zones son datacenters independientes: la caída de uno no afecta a la instancia de otra zone." },
+            { "texto": "Una sola VM en un availability set", "correcta": false, "explicacion": "El availability set protege frente a fallos de rack/host, no de datacenter, y con una sola VM no aporta." },
+            { "texto": "Una VM con disco premium", "correcta": false, "explicacion": "El tipo de disco mejora IOPS, no la resiliencia zonal." },
+            { "texto": "Una VM más grande", "correcta": false, "explicacion": "El tamaño no da redundancia." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az104-d3-s01",
+          "situacion": "El equipo crea VMs a mano en el portal: cada una sale con configuraciones distintas y auditar cuesta horas. Quieren estandarizar dev, test y prod.",
+          "pregunta": "¿Cómo industrializas los despliegues?",
+          "respuestaEsperada": "Exportar una VM de referencia como template, convertirla a Bicep y parametrizar (tamaño, entorno, tags). Versionar en un repositorio, desplegar con Azure CLI/pipelines por entorno y prohibir por policy la creación manual fuera del proceso en producción.",
+          "razonamiento": "IaC convierte la infraestructura en código revisable y repetible: elimina la deriva entre entornos y hace la auditoría trivial (el código ES la documentación)."
+        }
+      ]
+    },
+    {
+      "id": "az104-d4",
+      "dominio": "Implement and manage virtual networking",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "VNets y subnets, peering, IPs públicas, user-defined routes, troubleshooting de conectividad",
+        "Acceso seguro: NSGs y ASGs, reglas efectivas, Azure Bastion, service endpoints, private endpoints",
+        "Name resolution (Azure DNS) y balanceo (load balancer interno/público, troubleshooting)"
+      ],
+      "flashcards": [
+        { "id": "az104-d4-f01", "concepto": "NSG (Network Security Group)", "explicacion": "Conjunto de reglas allow/deny por prioridad que filtra tráfico a nivel de subnet o NIC. Las reglas efectivas resultan de combinar ambos niveles; la de menor número gana." },
+        { "id": "az104-d4-f02", "concepto": "Azure Bastion", "explicacion": "Servicio PaaS que da acceso RDP/SSH a las VMs desde el portal por TLS, sin exponer IPs públicas ni abrir puertos 3389/22 a internet." }
+      ],
+      "preguntas": [
+        {
+          "id": "az104-d4-q01",
+          "pregunta": "Auditoría exige eliminar las IPs públicas de las VMs pero los admins necesitan RDP. ¿Qué solución aplica?",
+          "opciones": [
+            { "texto": "Azure Bastion", "correcta": true, "explicacion": "Acceso RDP/SSH por el portal sin IP pública en las VMs ni puertos de gestión expuestos." },
+            { "texto": "Abrir el 3389 en el NSG a 'Any'", "correcta": false, "explicacion": "Es exactamente la exposición que auditoría quiere eliminar." },
+            { "texto": "Un public load balancer con NAT al 3389", "correcta": false, "explicacion": "Sigue exponiendo el puerto de gestión a internet." },
+            { "texto": "Quitar el RDP y usar solo el serial console", "correcta": false, "explicacion": "Operativamente insuficiente para administración habitual." }
+          ]
+        },
+        {
+          "id": "az104-d4-q02",
+          "pregunta": "Una VM no alcanza a otra en una subnet distinta de la misma VNet. ¿Qué herramienta te da el diagnóstico más directo?",
+          "opciones": [
+            { "texto": "Las reglas de seguridad efectivas (effective security rules) y Network Watcher (IP flow verify)", "correcta": true, "explicacion": "Muestran qué regla NSG (o ruta) bloquea realmente el flujo, combinando NIC y subnet." },
+            { "texto": "Redimensionar la VM", "correcta": false, "explicacion": "El tamaño no afecta a la conectividad entre subnets." },
+            { "texto": "Recrear la VNet", "correcta": false, "explicacion": "Destructivo y sin diagnóstico: el problema suele ser una regla o ruta." },
+            { "texto": "Cambiar el DNS de la VM", "correcta": false, "explicacion": "Si la conexión por IP falla, no es un problema de resolución de nombres." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az104-d4-s01",
+          "situacion": "Tu app de tres capas (web, API, base de datos) corre en una sola subnet con un NSG que permite casi todo 'para que funcione'.",
+          "pregunta": "¿Cómo segmentas la red aplicando mínimo privilegio?",
+          "respuestaEsperada": "Separar cada capa en su subnet con NSGs propios: web acepta 443 desde internet, API solo desde la subnet web, base de datos solo desde la API. Usar ASGs para agrupar VMs por función, denegar el resto por defecto, y private endpoints para servicios PaaS.",
+          "razonamiento": "La segmentación por capas limita el movimiento lateral: cada NSG codifica qué flujo es legítimo y todo lo demás queda denegado, auditable regla a regla."
+        }
+      ]
+    },
+    {
+      "id": "az104-d5",
+      "dominio": "Monitor and maintain Azure resources",
+      "ponderacion": "10-15%",
+      "subtemas": [
+        "Azure Monitor: métricas, logs, alert rules, action groups, Insights de VMs/storage/redes, Network Watcher",
+        "Backup y recovery: Recovery Services vault, Backup vault, políticas, restore, Azure Site Recovery, failover, reportes"
+      ],
+      "flashcards": [
+        { "id": "az104-d5-f01", "concepto": "Action group", "explicacion": "Conjunto reutilizable de destinos de notificación y acciones (email, SMS, webhook, Logic App, runbook) que las alert rules invocan al dispararse." },
+        { "id": "az104-d5-f02", "concepto": "Recovery Services vault vs Azure Site Recovery", "explicacion": "El vault almacena backups y configuraciones de recuperación (restore puntual de datos/VMs); Site Recovery replica cargas a otra región para failover de disaster recovery con RTO bajo." }
+      ],
+      "preguntas": [
+        {
+          "id": "az104-d5-q01",
+          "pregunta": "Necesitas avisar al equipo por email y Teams cuando la CPU de las VMs de producción supere 90% durante 10 minutos. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Una alert rule de métrica con un action group con esos destinos", "correcta": true, "explicacion": "La regla evalúa la métrica con umbral y ventana; el action group ejecuta las notificaciones." },
+            { "texto": "Un dashboard con la métrica de CPU", "correcta": false, "explicacion": "El dashboard requiere que alguien mire: no notifica." },
+            { "texto": "Un runbook programado cada hora", "correcta": false, "explicacion": "El polling programado llega tarde y duplica lo que la alerta hace nativamente." },
+            { "texto": "Azure Service Health", "correcta": false, "explicacion": "Avisa de incidencias de la plataforma, no de métricas de tus VMs." }
+          ]
+        },
+        {
+          "id": "az104-d5-q02",
+          "pregunta": "Borraron una VM de producción y el negocio exige poder recuperar el entorno completo en otra región si cae la principal. ¿Qué combinación cubre ambas necesidades?",
+          "opciones": [
+            { "texto": "Azure Backup para restaurar la VM + Azure Site Recovery para el failover regional", "correcta": true, "explicacion": "Backup cubre recuperación puntual de datos/VMs; Site Recovery cubre continuidad con réplica y failover a región secundaria." },
+            { "texto": "Solo snapshots manuales de discos", "correcta": false, "explicacion": "Sin política ni orquestación: no cubre DR regional ni es fiable operativamente." },
+            { "texto": "Solo GRS en la cuenta de storage", "correcta": false, "explicacion": "Replica blobs, pero no orquesta la recuperación de VMs ni el failover de cargas." },
+            { "texto": "Exportar ARM templates", "correcta": false, "explicacion": "Recrea infraestructura vacía: no recupera datos ni estado." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az104-d5-s01",
+          "situacion": "El backup nocturno de 30 VMs 'siempre ha funcionado', pero nadie ha probado jamás una restauración ni revisa los reportes.",
+          "pregunta": "¿Qué plan pones en marcha para que el backup sea confiable de verdad?",
+          "respuestaEsperada": "Revisar la política (frecuencia, retención, coherencia con RPO), configurar alertas y reportes de fallo de backup, y calendarizar pruebas de restauración periódicas (restore de archivo, de disco y de VM completa) documentando tiempos reales contra el RTO objetivo.",
+          "razonamiento": "Un backup no probado es una hipótesis. Las alertas detectan fallos silenciosos y los ensayos de restore validan que el RPO/RTO prometido es alcanzable."
+        }
+      ]
+    }
+  ]
+}

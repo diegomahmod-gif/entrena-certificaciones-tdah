@@ -1,0 +1,520 @@
+{
+  "examen": "AZ-900",
+  "nombre": "Microsoft Azure Fundamentals",
+  "certificacion": "Microsoft Certified: Azure Fundamentals",
+  "estado": "activo",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-07-20",
+    "retirementDate": null,
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-900"
+  },
+  "cobertura": "completa",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "az900-d1",
+      "dominio": "Describe cloud concepts (Conceptos de nube)",
+      "ponderacion": "25-30%",
+      "subtemas": [
+        "Definición de cloud computing y shared responsibility model",
+        "Modelos de nube: pública, privada, híbrida y casos de uso",
+        "Modelo basado en consumo y comparación de precios; serverless",
+        "Beneficios: alta disponibilidad, escalabilidad, fiabilidad, predictibilidad, seguridad, gobernanza, manejabilidad",
+        "Tipos de servicio: IaaS, PaaS, SaaS y casos de uso"
+      ],
+      "flashcards": [
+        { "id": "az900-d1-f01", "concepto": "Cloud computing", "explicacion": "Entrega de recursos de computación (servidores, almacenamiento, redes, software) a través de internet, pagando por lo que se usa en lugar de poseer la infraestructura." },
+        { "id": "az900-d1-f02", "concepto": "Shared responsibility model", "explicacion": "Reparto de responsabilidades entre proveedor y cliente: el proveedor asegura la infraestructura física; el cliente siempre es responsable de sus datos, identidades y accesos. El reparto varía según IaaS/PaaS/SaaS." },
+        { "id": "az900-d1-f03", "concepto": "Nube pública", "explicacion": "Servicios ofrecidos por un proveedor a múltiples clientes sobre infraestructura compartida. Sin CapEx inicial, escalado rápido; el hardware no es dedicado." },
+        { "id": "az900-d1-f04", "concepto": "Nube privada", "explicacion": "Infraestructura de nube dedicada a una sola organización (propia o alojada). Máximo control y cumplimiento, a cambio de coste y responsabilidad de hardware." },
+        { "id": "az900-d1-f05", "concepto": "Nube híbrida", "explicacion": "Combinación de nube pública y privada/on-premises trabajando juntas. Permite mantener cargas sensibles locales y aprovechar la elasticidad de la pública." },
+        { "id": "az900-d1-f06", "concepto": "Consumption-based model", "explicacion": "Pagas solo por los recursos que usas (pay-as-you-go), sin inversión inicial: convierte CapEx (gasto de capital) en OpEx (gasto operativo)." },
+        { "id": "az900-d1-f07", "concepto": "CapEx vs OpEx", "explicacion": "CapEx: inversión inicial en activos físicos (comprar servidores). OpEx: gasto recurrente por servicios consumidos (alquilar capacidad en la nube). La nube desplaza el gasto hacia OpEx." },
+        { "id": "az900-d1-f08", "concepto": "Serverless", "explicacion": "Modelo donde el proveedor gestiona toda la infraestructura y el código se ejecuta bajo demanda (p. ej. Azure Functions): pagas por ejecución, escala a cero cuando no hay uso." },
+        { "id": "az900-d1-f09", "concepto": "Alta disponibilidad (HA)", "explicacion": "Capacidad de un sistema de seguir operando pese a fallos, medida como porcentaje de uptime (SLA, p. ej. 99,9%). Se logra con redundancia y eliminación de puntos únicos de fallo." },
+        { "id": "az900-d1-f10", "concepto": "Escalabilidad vertical vs horizontal", "explicacion": "Vertical (scale up): dar más potencia a la misma máquina. Horizontal (scale out): añadir más instancias. La horizontal es la base de la elasticidad en la nube." },
+        { "id": "az900-d1-f11", "concepto": "Elasticidad", "explicacion": "Ajuste automático de recursos a la demanda: escala hacia fuera en picos y hacia dentro en valles, optimizando coste y rendimiento sin intervención manual." },
+        { "id": "az900-d1-f12", "concepto": "Fiabilidad y predictibilidad", "explicacion": "Fiabilidad: el sistema se recupera de fallos (diseño resiliente, múltiples regiones). Predictibilidad: rendimiento y costes anticipables gracias a autoscaling, SLAs y herramientas de análisis de gasto." },
+        { "id": "az900-d1-f13", "concepto": "IaaS (Infrastructure as a Service)", "explicacion": "El proveedor da la infraestructura (VMs, redes, discos); tú gestionas SO, parches y aplicaciones. Máxima flexibilidad y máxima responsabilidad. Ejemplo: Azure Virtual Machines." },
+        { "id": "az900-d1-f14", "concepto": "PaaS (Platform as a Service)", "explicacion": "El proveedor gestiona infraestructura y plataforma (SO, runtime); tú despliegas tu código y datos. Ejemplo: Azure App Service, Azure SQL Database." },
+        { "id": "az900-d1-f15", "concepto": "SaaS (Software as a Service)", "explicacion": "Aplicación completa lista para usar por suscripción; el proveedor gestiona todo excepto tus datos y usuarios. Ejemplo: Microsoft 365." },
+        { "id": "az900-d1-f16", "concepto": "Beneficio de gobernanza en la nube", "explicacion": "Plantillas, políticas y estándares aplicados automáticamente sobre los recursos (p. ej. Azure Policy) facilitan cumplir normativas y auditar el entorno a escala." }
+      ],
+      "preguntas": [
+        {
+          "id": "az900-d1-q01",
+          "pregunta": "En una VM IaaS de Azure, ¿de qué es SIEMPRE responsable el cliente según el shared responsibility model?",
+          "opciones": [
+            { "texto": "Sus datos, identidades y la gestión de accesos", "correcta": true, "explicacion": "Datos, cuentas e identidades permanecen bajo responsabilidad del cliente en todos los modelos, incluido IaaS." },
+            { "texto": "La seguridad física del datacenter", "correcta": false, "explicacion": "La seguridad física es siempre del proveedor." },
+            { "texto": "El mantenimiento del hipervisor", "correcta": false, "explicacion": "El hipervisor lo gestiona Azure en todos los modelos de servicio." },
+            { "texto": "La red física entre datacenters", "correcta": false, "explicacion": "La infraestructura de red física corresponde al proveedor." }
+          ]
+        },
+        {
+          "id": "az900-d1-q02",
+          "pregunta": "Un banco debe mantener datos regulados en su datacenter, pero quiere absorber picos de campaña en la nube. ¿Qué modelo de nube encaja?",
+          "opciones": [
+            { "texto": "Nube híbrida", "correcta": true, "explicacion": "Combina on-premises (datos regulados) con nube pública (elasticidad para picos): el caso de uso clásico de hybrid." },
+            { "texto": "Nube pública exclusivamente", "correcta": false, "explicacion": "Incumpliría el requisito de mantener los datos regulados en el datacenter propio." },
+            { "texto": "Nube privada exclusivamente", "correcta": false, "explicacion": "No aprovecharía la elasticidad de la pública para los picos." },
+            { "texto": "Multi-tenant SaaS", "correcta": false, "explicacion": "SaaS es un tipo de servicio, no responde a la combinación pedida." }
+          ]
+        },
+        {
+          "id": "az900-d1-q03",
+          "pregunta": "¿Qué caracteriza al modelo basado en consumo?",
+          "opciones": [
+            { "texto": "Pagas por lo que usas, sin inversión inicial en hardware", "correcta": true, "explicacion": "Es la definición: costes proporcionales al uso real, convirtiendo CapEx en OpEx." },
+            { "texto": "Una cuota fija mensual independiente del uso", "correcta": false, "explicacion": "Eso es una suscripción plana, lo contrario del consumo." },
+            { "texto": "Comprar licencias perpetuas por adelantado", "correcta": false, "explicacion": "Modelo de licenciamiento tradicional, no de consumo." },
+            { "texto": "Pagar solo si el SLA se incumple", "correcta": false, "explicacion": "Los créditos por SLA son compensaciones, no el modelo de facturación." }
+          ]
+        },
+        {
+          "id": "az900-d1-q04",
+          "pregunta": "Tu aplicación web duplica usuarios cada Navidad y vuelve a la normalidad en enero. ¿Qué propiedad de la nube resuelve esto sin sobredimensionar todo el año?",
+          "opciones": [
+            { "texto": "Elasticidad (autoscaling)", "correcta": true, "explicacion": "El escalado automático añade instancias en el pico y las retira después: pagas la capacidad extra solo cuando existe la demanda." },
+            { "texto": "Alta disponibilidad", "correcta": false, "explicacion": "HA protege frente a fallos; no dimensiona capacidad según demanda." },
+            { "texto": "Gobernanza", "correcta": false, "explicacion": "La gobernanza aplica políticas y estándares, no capacidad." },
+            { "texto": "Latencia reducida", "correcta": false, "explicacion": "La cercanía de regiones mejora latencia, pero no gestiona picos de carga." }
+          ]
+        },
+        {
+          "id": "az900-d1-q05",
+          "pregunta": "¿Cuál es un ejemplo de escalado horizontal (scale out)?",
+          "opciones": [
+            { "texto": "Pasar de 2 a 6 instancias del web server tras un pico de tráfico", "correcta": true, "explicacion": "Añadir instancias es escalar horizontalmente: la base del autoscaling en la nube." },
+            { "texto": "Ampliar la VM de 8 a 32 GB de RAM", "correcta": false, "explicacion": "Aumentar recursos de la misma máquina es escalado vertical." },
+            { "texto": "Migrar la app a una región más cercana", "correcta": false, "explicacion": "Es un cambio de ubicación, no de escala." },
+            { "texto": "Comprimir la base de datos", "correcta": false, "explicacion": "Optimización de almacenamiento, no escalado." }
+          ]
+        },
+        {
+          "id": "az900-d1-q06",
+          "pregunta": "Necesitas ejecutar un fragmento de código solo cuando llega un evento, sin administrar servidores y pagando por ejecución. ¿Qué concepto aplica?",
+          "opciones": [
+            { "texto": "Serverless computing", "correcta": true, "explicacion": "El código se ejecuta bajo demanda (p. ej. Azure Functions), escala a cero y se factura por ejecución." },
+            { "texto": "IaaS con una VM siempre encendida", "correcta": false, "explicacion": "Pagarías 24/7 y administrarías el SO: lo contrario del requisito." },
+            { "texto": "Nube privada", "correcta": false, "explicacion": "Es un modelo de despliegue, no una forma de ejecutar código por eventos." },
+            { "texto": "SaaS", "correcta": false, "explicacion": "SaaS es software terminado, no una plataforma para tu código." }
+          ]
+        },
+        {
+          "id": "az900-d1-q07",
+          "pregunta": "¿Cuál de estos servicios es el mejor ejemplo de PaaS?",
+          "opciones": [
+            { "texto": "Azure App Service para alojar tu aplicación web", "correcta": true, "explicacion": "Despliegas tu código y Azure gestiona SO, parches y runtime: la definición de PaaS." },
+            { "texto": "Una Azure Virtual Machine con Windows Server", "correcta": false, "explicacion": "Es IaaS: tú administras el sistema operativo." },
+            { "texto": "Microsoft 365", "correcta": false, "explicacion": "Es SaaS: aplicación terminada por suscripción." },
+            { "texto": "Un servidor físico en tu oficina", "correcta": false, "explicacion": "Es on-premises, fuera de los modelos de servicio en la nube." }
+          ]
+        },
+        {
+          "id": "az900-d1-q08",
+          "pregunta": "¿En qué modelo de servicio asume el CLIENTE la mayor responsabilidad de gestión?",
+          "opciones": [
+            { "texto": "IaaS", "correcta": true, "explicacion": "En IaaS el cliente gestiona SO, parches, middleware, datos y accesos; el proveedor solo la infraestructura." },
+            { "texto": "PaaS", "correcta": false, "explicacion": "El proveedor asume SO y plataforma; el cliente, código y datos." },
+            { "texto": "SaaS", "correcta": false, "explicacion": "Es el modelo con menor responsabilidad del cliente." },
+            { "texto": "Todas por igual", "correcta": false, "explicacion": "La responsabilidad varía precisamente según el modelo." }
+          ]
+        },
+        {
+          "id": "az900-d1-q09",
+          "pregunta": "Un CFO quiere evitar la compra de servidores que se deprecian y pasar a gasto operativo mensual. ¿Qué beneficio de la nube responde a esto?",
+          "opciones": [
+            { "texto": "El cambio de CapEx a OpEx del modelo de consumo", "correcta": true, "explicacion": "La nube elimina la inversión inicial en activos y la sustituye por gasto operativo proporcional al uso." },
+            { "texto": "La escalabilidad horizontal", "correcta": false, "explicacion": "Es un beneficio técnico de capacidad, no la transformación financiera descrita." },
+            { "texto": "El modelo de nube privada", "correcta": false, "explicacion": "La privada suele implicar más CapEx, no menos." },
+            { "texto": "La redundancia geográfica", "correcta": false, "explicacion": "Mejora la resiliencia, no cambia el modelo de gasto." }
+          ]
+        },
+        {
+          "id": "az900-d1-q10",
+          "pregunta": "¿Qué describe mejor la 'predictibilidad' como beneficio de la nube?",
+          "opciones": [
+            { "texto": "Poder anticipar rendimiento y costes gracias a autoscaling, SLAs y herramientas de análisis de gasto", "correcta": true, "explicacion": "La predictibilidad abarca rendimiento (capacidad ante demanda) y coste (previsión y control del gasto)." },
+            { "texto": "Que la nube nunca falla", "correcta": false, "explicacion": "Ningún proveedor garantiza cero fallos; para eso existen SLAs y diseño resiliente." },
+            { "texto": "Que los precios nunca cambian", "correcta": false, "explicacion": "Los precios pueden variar; la predictibilidad viene de las herramientas de estimación y control." },
+            { "texto": "Que todos los servicios tienen el mismo SLA", "correcta": false, "explicacion": "Cada servicio define su propio SLA." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az900-d1-s01",
+          "situacion": "Una pyme con un servidor físico envejecido debe decidir: comprar hardware nuevo (30k CHF) o migrar a la nube. Su carga es estable de lunes a viernes y casi nula el fin de semana.",
+          "pregunta": "¿Qué argumentos de modelo de coste y elasticidad darías para la decisión?",
+          "respuestaEsperada": "Migrar convierte el CapEx de 30k en OpEx mensual; con una carga que baja los fines de semana, el autoscaling o el apagado programado reducen el coste real. Añadir el ahorro en mantenimiento, energía y renovación de hardware, y la mejora de disponibilidad frente a un único servidor físico.",
+          "razonamiento": "El caso combina consumo (pagar por uso), elasticidad (carga variable) y shared responsibility (menos gestión de hardware): los tres pilares conceptuales del dominio."
+        },
+        {
+          "id": "az900-d1-s02",
+          "situacion": "Tu equipo debate si llevar una app interna a IaaS (lift-and-shift a VMs) o modernizarla a PaaS (App Service + Azure SQL).",
+          "pregunta": "¿Qué criterios usas para recomendar una opción?",
+          "respuestaEsperada": "IaaS: migración rápida, mínimo cambio de código, pero sigues gestionando SO y parches. PaaS: menos administración, parcheo y escalado gestionados, mejor coste operativo a medio plazo, pero puede requerir adaptar la app. Si la app es estándar y hay capacidad de adaptación, PaaS; si urge salir del datacenter, IaaS primero y modernizar después.",
+          "razonamiento": "La elección IaaS/PaaS es un balance entre velocidad de migración y responsabilidad de gestión: exactamente el eje del shared responsibility model."
+        },
+        {
+          "id": "az900-d1-s03",
+          "situacion": "Un directivo pregunta: '¿Por qué el proveedor no es responsable si nos roban la cuenta de un administrador y borran datos?'",
+          "pregunta": "¿Cómo lo explicas con el shared responsibility model?",
+          "respuestaEsperada": "Las identidades, credenciales y accesos son responsabilidad del cliente en todos los modelos de servicio. El proveedor protege la infraestructura, pero la gestión de cuentas (MFA, contraseñas, mínimo privilegio) y la protección de los datos propios corresponden a la organización.",
+          "razonamiento": "Distinguir 'seguridad DE la nube' (proveedor) de 'seguridad EN la nube' (cliente) es el corazón del modelo de responsabilidad compartida."
+        }
+      ]
+    },
+    {
+      "id": "az900-d2",
+      "dominio": "Describe Azure architecture and services (Arquitectura y servicios de Azure)",
+      "ponderacion": "35-40%",
+      "subtemas": [
+        "Componentes arquitectónicos: regiones, region pairs, availability zones, datacenters",
+        "Jerarquía: recursos, resource groups, subscriptions, management groups",
+        "Compute: VMs, VM Scale Sets, availability sets, contenedores, functions, Azure Virtual Desktop, hosting de apps",
+        "Networking: VNets, subnets, peering, DNS, VPN Gateway, ExpressRoute, endpoints públicos/privados",
+        "Storage: servicios, tiers, redundancia, AzCopy/Storage Explorer/File Sync, Azure Migrate y Data Box",
+        "Identidad y seguridad: Entra ID, MFA/SSO/passwordless, Conditional Access, RBAC, Zero Trust, defense-in-depth, Defender for Cloud"
+      ],
+      "flashcards": [
+        { "id": "az900-d2-f01", "concepto": "Región de Azure", "explicacion": "Área geográfica con uno o más datacenters conectados con baja latencia. Eliges la región por cercanía al usuario, cumplimiento normativo y disponibilidad de servicios." },
+        { "id": "az900-d2-f02", "concepto": "Region pair", "explicacion": "Cada región se empareja con otra de la misma geografía (a ≥ 480 km) para recuperación ante desastres: las actualizaciones se despliegan escalonadas y la replicación geo usa el par." },
+        { "id": "az900-d2-f03", "concepto": "Availability zones", "explicacion": "Ubicaciones físicamente separadas dentro de una región (datacenters propios con energía, red y refrigeración independientes). Protegen frente al fallo de un datacenter completo." },
+        { "id": "az900-d2-f04", "concepto": "Resource group", "explicacion": "Contenedor lógico de recursos que comparten ciclo de vida. Un recurso pertenece a un solo resource group; borrar el grupo borra sus recursos." },
+        { "id": "az900-d2-f05", "concepto": "Jerarquía de gobierno", "explicacion": "Management groups > subscriptions > resource groups > recursos. Políticas y permisos aplicados arriba se heredan hacia abajo." },
+        { "id": "az900-d2-f06", "concepto": "Subscription", "explicacion": "Unidad de facturación y límite lógico de acceso a servicios de Azure. Una organización puede separar entornos (prod/dev) o departamentos por suscripción." },
+        { "id": "az900-d2-f07", "concepto": "VM Scale Sets vs availability sets", "explicacion": "Scale Sets: grupo de VMs idénticas con autoscaling. Availability sets: distribuyen VMs en fault/update domains dentro de un datacenter para tolerar fallos de hardware y mantenimientos." },
+        { "id": "az900-d2-f08", "concepto": "Contenedores vs VMs vs Functions", "explicacion": "VM: virtualiza hardware, incluye SO completo. Contenedor: virtualiza el SO, ligero y portable. Function: solo código por eventos, sin gestionar infraestructura. De más control a más abstracción." },
+        { "id": "az900-d2-f09", "concepto": "Azure Virtual Desktop", "explicacion": "Escritorios y aplicaciones Windows virtualizados en la nube, accesibles desde cualquier dispositivo: útil para trabajo remoto y equipos con hardware ligero." },
+        { "id": "az900-d2-f10", "concepto": "Virtual network (VNet) y subnets", "explicacion": "Red privada en Azure donde despliegas recursos, segmentada en subnets. Base del aislamiento y la comunicación entre servicios." },
+        { "id": "az900-d2-f11", "concepto": "VNet peering", "explicacion": "Conexión directa entre dos VNets (misma región o distintas) por la red troncal de Microsoft, sin pasar por internet." },
+        { "id": "az900-d2-f12", "concepto": "VPN Gateway vs ExpressRoute", "explicacion": "VPN Gateway: túnel cifrado sobre internet público, económico. ExpressRoute: conexión privada dedicada con el datacenter, mayor ancho de banda y fiabilidad, sin tránsito por internet." },
+        { "id": "az900-d2-f13", "concepto": "Public vs private endpoint", "explicacion": "El endpoint público expone el servicio a internet; el private endpoint le da una IP privada dentro de tu VNet para que el tráfico no salga de la red privada." },
+        { "id": "az900-d2-f14", "concepto": "Storage tiers (Hot/Cool/Cold/Archive)", "explicacion": "Niveles según frecuencia de acceso: Hot para acceso frecuente, Cool y Cold para acceso esporádico con menor coste de almacenamiento, Archive para retención a largo plazo con horas de rehidratación." },
+        { "id": "az900-d2-f15", "concepto": "Redundancia de storage (LRS/ZRS/GRS/GZRS)", "explicacion": "LRS: 3 copias en un datacenter. ZRS: copias entre availability zones. GRS/GZRS: añaden réplica en la región emparejada. Más letras, más resiliencia y coste." },
+        { "id": "az900-d2-f16", "concepto": "AzCopy, Storage Explorer y File Sync", "explicacion": "AzCopy: CLI para transferir datos a/desde storage. Storage Explorer: interfaz gráfica de gestión. File Sync: sincroniza file shares de Azure con servidores Windows locales (caché local + nube)." },
+        { "id": "az900-d2-f17", "concepto": "Azure Migrate y Data Box", "explicacion": "Azure Migrate: descubre, evalúa y migra servidores, bases de datos y apps hacia Azure. Data Box: dispositivo físico para transferir volúmenes masivos cuando la red no es viable." },
+        { "id": "az900-d2-f18", "concepto": "Microsoft Entra ID", "explicacion": "Servicio de identidad y acceso en la nube (antes Azure AD): autentica usuarios, aplica SSO a aplicaciones y es la base de Conditional Access y RBAC." },
+        { "id": "az900-d2-f19", "concepto": "MFA, SSO y passwordless", "explicacion": "MFA exige un segundo factor además de la contraseña; SSO permite una sola autenticación para múltiples apps; passwordless sustituye la contraseña por biometría, Windows Hello o llaves FIDO2." },
+        { "id": "az900-d2-f20", "concepto": "Conditional Access", "explicacion": "Políticas de Entra ID que evalúan señales (usuario, ubicación, dispositivo, riesgo) y deciden permitir, bloquear o exigir MFA en cada inicio de sesión." },
+        { "id": "az900-d2-f21", "concepto": "Azure RBAC", "explicacion": "Control de acceso basado en roles: asignas un rol (Reader, Contributor, Owner o personalizados) a un principal sobre un scope (management group, subscription, resource group o recurso), con herencia hacia abajo." },
+        { "id": "az900-d2-f22", "concepto": "Zero Trust", "explicacion": "Modelo de seguridad que no confía por defecto en nada: verificar explícitamente cada acceso, conceder mínimo privilegio y asumir que ya hay brecha (assume breach)." },
+        { "id": "az900-d2-f23", "concepto": "Defense-in-depth", "explicacion": "Capas sucesivas de protección (física, identidad, perímetro, red, compute, aplicación, datos) para que la caída de una capa no comprometa el conjunto." },
+        { "id": "az900-d2-f24", "concepto": "Microsoft Defender for Cloud", "explicacion": "Servicio de gestión de postura de seguridad (CSPM) y protección de cargas: evalúa configuraciones, da recomendaciones con secure score y detecta amenazas en recursos Azure, híbridos y multicloud." }
+      ],
+      "preguntas": [
+        {
+          "id": "az900-d2-q01",
+          "pregunta": "Tu aplicación debe seguir funcionando aunque falle un datacenter completo de la región. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Desplegar en múltiples availability zones", "correcta": true, "explicacion": "Las zones son datacenters independientes dentro de la región: el fallo de uno no afecta a las réplicas en los demás." },
+            { "texto": "Un availability set", "correcta": false, "explicacion": "Protege frente a fallos de rack/host dentro de un datacenter, no frente a la caída del datacenter completo." },
+            { "texto": "Discos premium", "correcta": false, "explicacion": "Mejoran rendimiento, no disponibilidad ante fallo de datacenter." },
+            { "texto": "Una VM más grande", "correcta": false, "explicacion": "El escalado vertical no aporta redundancia." }
+          ]
+        },
+        {
+          "id": "az900-d2-q02",
+          "pregunta": "Necesitas aplicar una política a 15 suscripciones de la empresa de una sola vez. ¿Dónde la asignas?",
+          "opciones": [
+            { "texto": "En un management group que contenga esas suscripciones", "correcta": true, "explicacion": "Los management groups agrupan suscripciones y las políticas asignadas se heredan a todas." },
+            { "texto": "En cada resource group, uno a uno", "correcta": false, "explicacion": "Sería repetitivo y propenso a inconsistencias." },
+            { "texto": "En la tabla de rutas de la VNet", "correcta": false, "explicacion": "Las rutas gestionan tráfico de red, no gobernanza." },
+            { "texto": "En el portal de facturación", "correcta": false, "explicacion": "La facturación no asigna políticas de gobernanza." }
+          ]
+        },
+        {
+          "id": "az900-d2-q03",
+          "pregunta": "¿Qué opción de compute conviene para un proceso que se ejecuta 30 segundos cuando llega un mensaje, unas pocas veces al día?",
+          "opciones": [
+            { "texto": "Azure Functions", "correcta": true, "explicacion": "Ejecución por eventos, pago por uso y escala a cero: ideal para cargas esporádicas y cortas." },
+            { "texto": "Una VM dedicada 24/7", "correcta": false, "explicacion": "Pagarías todo el día por 30 segundos de trabajo ocasional." },
+            { "texto": "Azure Virtual Desktop", "correcta": false, "explicacion": "AVD sirve escritorios a usuarios, no procesos por eventos." },
+            { "texto": "Un VM Scale Set", "correcta": false, "explicacion": "Orientado a granjas de VMs con carga sostenida, no a ejecuciones puntuales." }
+          ]
+        },
+        {
+          "id": "az900-d2-q04",
+          "pregunta": "Dos VNets de proyectos distintos deben comunicarse de forma privada sin atravesar internet. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "VNet peering", "correcta": true, "explicacion": "El peering conecta VNets por la red troncal de Microsoft con tráfico privado." },
+            { "texto": "IPs públicas en todas las VMs", "correcta": false, "explicacion": "Expondría el tráfico a internet: lo contrario de lo pedido." },
+            { "texto": "Un tier de storage Cool", "correcta": false, "explicacion": "No tiene relación con conectividad de redes." },
+            { "texto": "Azure DNS", "correcta": false, "explicacion": "Resuelve nombres; no crea la conectividad entre redes." }
+          ]
+        },
+        {
+          "id": "az900-d2-q05",
+          "pregunta": "Tu sede necesita una conexión con Azure de alta capacidad, fiable y que NO pase por internet público. ¿Qué eliges?",
+          "opciones": [
+            { "texto": "ExpressRoute", "correcta": true, "explicacion": "Conexión privada dedicada con Azure: mayor ancho de banda y fiabilidad, sin tránsito por internet." },
+            { "texto": "VPN site-to-site", "correcta": false, "explicacion": "Cifra el tráfico pero viaja por internet público: no cumple el requisito." },
+            { "texto": "VNet peering", "correcta": false, "explicacion": "Conecta VNets dentro de Azure, no la sede on-premises." },
+            { "texto": "Un public endpoint", "correcta": false, "explicacion": "Es exactamente exposición a internet." }
+          ]
+        },
+        {
+          "id": "az900-d2-q06",
+          "pregunta": "Debes retener backups 10 años por normativa, con acceso casi nunca y al mínimo coste. ¿Qué tier de blob usas?",
+          "opciones": [
+            { "texto": "Archive", "correcta": true, "explicacion": "El coste de almacenamiento más bajo; a cambio, la recuperación tarda horas (rehidratación), aceptable para retención legal." },
+            { "texto": "Hot", "correcta": false, "explicacion": "El más caro de almacenar: pensado para acceso frecuente." },
+            { "texto": "Cool", "correcta": false, "explicacion": "Más barato que Hot pero no es el mínimo para datos que casi nunca se leen." },
+            { "texto": "Premium", "correcta": false, "explicacion": "Optimizado para latencia baja, el extremo opuesto del caso." }
+          ]
+        },
+        {
+          "id": "az900-d2-q07",
+          "pregunta": "¿Qué redundancia de storage protege los datos incluso si una región completa queda inutilizada?",
+          "opciones": [
+            { "texto": "GRS (geo-redundant storage)", "correcta": true, "explicacion": "Replica los datos a la región emparejada: sobreviven a un desastre regional." },
+            { "texto": "LRS", "correcta": false, "explicacion": "Tres copias en un único datacenter: no protege ni ante la caída del datacenter." },
+            { "texto": "ZRS", "correcta": false, "explicacion": "Protege entre zonas de la misma región, no ante desastre regional." },
+            { "texto": "Discos administrados premium", "correcta": false, "explicacion": "Tipo de disco de VM, no una estrategia de redundancia geográfica." }
+          ]
+        },
+        {
+          "id": "az900-d2-q08",
+          "pregunta": "Quieres que los inicios de sesión desde fuera de Suiza exijan MFA y los de la oficina no. ¿Qué capacidad de Entra ID usas?",
+          "opciones": [
+            { "texto": "Conditional Access", "correcta": true, "explicacion": "Evalúa señales como la ubicación y aplica el control adecuado (exigir MFA, bloquear, permitir) por política." },
+            { "texto": "Azure RBAC", "correcta": false, "explicacion": "RBAC autoriza acciones sobre recursos; no gobierna las condiciones del login." },
+            { "texto": "Resource locks", "correcta": false, "explicacion": "Evitan borrados/cambios de recursos; nada que ver con autenticación." },
+            { "texto": "Azure DNS", "correcta": false, "explicacion": "Resolución de nombres, sin relación con MFA." }
+          ]
+        },
+        {
+          "id": "az900-d2-q09",
+          "pregunta": "Un desarrollador necesita crear y administrar recursos en un resource group, pero sin poder conceder permisos a otros. ¿Qué rol RBAC le asignas?",
+          "opciones": [
+            { "texto": "Contributor sobre el resource group", "correcta": true, "explicacion": "Contributor gestiona recursos pero no puede asignar roles; Owner sí podría, violando el mínimo privilegio." },
+            { "texto": "Owner sobre la suscripción", "correcta": false, "explicacion": "Scope y privilegios muy superiores a lo necesario." },
+            { "texto": "Reader sobre el resource group", "correcta": false, "explicacion": "Solo lectura: no podría crear recursos." },
+            { "texto": "Global Administrator de Entra ID", "correcta": false, "explicacion": "Rol de administración del directorio, no de recursos Azure; además desproporcionado." }
+          ]
+        },
+        {
+          "id": "az900-d2-q10",
+          "pregunta": "¿Qué principio define al modelo Zero Trust?",
+          "opciones": [
+            { "texto": "Verificar explícitamente cada acceso, aplicar mínimo privilegio y asumir brecha", "correcta": true, "explicacion": "Los tres pilares de Zero Trust: nada es de confianza por estar 'dentro de la red'." },
+            { "texto": "Confiar en todo el tráfico interno de la red corporativa", "correcta": false, "explicacion": "Es el modelo perimetral clásico que Zero Trust reemplaza." },
+            { "texto": "Usar solo nube privada", "correcta": false, "explicacion": "Zero Trust es independiente del modelo de despliegue." },
+            { "texto": "Eliminar todas las contraseñas", "correcta": false, "explicacion": "Passwordless puede formar parte, pero no define el modelo." }
+          ]
+        },
+        {
+          "id": "az900-d2-q11",
+          "pregunta": "Necesitas mover 300 TB iniciales a Azure desde una sede con conexión de 50 Mbps. ¿Qué opción es realista?",
+          "opciones": [
+            { "texto": "Azure Data Box", "correcta": true, "explicacion": "El dispositivo físico evita meses de transferencia por una línea lenta: es el caso de uso diseñado para volúmenes masivos." },
+            { "texto": "AzCopy por la línea de 50 Mbps", "correcta": false, "explicacion": "A esa velocidad tardaría en torno a un año y medio: inviable." },
+            { "texto": "Azure File Sync", "correcta": false, "explicacion": "Sincroniza file shares en operación continua, no está pensado para el seed masivo inicial por línea lenta." },
+            { "texto": "Subirlo por el portal", "correcta": false, "explicacion": "El portal no es una herramienta de migración masiva." }
+          ]
+        },
+        {
+          "id": "az900-d2-q12",
+          "pregunta": "¿Qué servicio evalúa continuamente tu postura de seguridad en Azure y te da recomendaciones priorizadas con un secure score?",
+          "opciones": [
+            { "texto": "Microsoft Defender for Cloud", "correcta": true, "explicacion": "Es el CSPM de Azure: evalúa configuraciones, puntúa la postura y recomienda remediaciones, también en entornos híbridos y multicloud." },
+            { "texto": "Azure Monitor", "correcta": false, "explicacion": "Recoge métricas y logs de rendimiento; no es la herramienta de postura de seguridad." },
+            { "texto": "Azure Advisor", "correcta": false, "explicacion": "Da recomendaciones generales (coste, rendimiento, fiabilidad y también seguridad básica), pero el servicio de postura y protección es Defender for Cloud." },
+            { "texto": "Azure Service Health", "correcta": false, "explicacion": "Informa de incidencias de la plataforma Azure, no de tu configuración." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az900-d2-s01",
+          "situacion": "Tu empresa suiza quiere desplegar una app para clientes en Europa con requisito de residencia de datos en Suiza y tolerancia al fallo de un datacenter.",
+          "pregunta": "¿Qué decisiones de región y resiliencia tomas?",
+          "respuestaEsperada": "Elegir una región suiza (p. ej. Switzerland North) por residencia de datos, desplegar la app en múltiples availability zones para tolerar el fallo de un datacenter, y evaluar la región emparejada/backups geo para recuperación ante desastres respetando las restricciones de residencia.",
+          "razonamiento": "El caso une los tres conceptos arquitectónicos clave: elección de región por cumplimiento, zones para HA intra-región y estrategia de DR consciente de la residencia de datos."
+        },
+        {
+          "id": "az900-d2-s02",
+          "situacion": "Un nuevo administrador recibió Owner en toda la suscripción 'para ir rápido'. Seguridad pide corregirlo tras una auditoría.",
+          "pregunta": "¿Cómo rediseñas los accesos aplicando RBAC y Zero Trust?",
+          "respuestaEsperada": "Asignar roles según función y al scope mínimo (p. ej. Contributor en los resource groups que administra, Reader en el resto), activar MFA y Conditional Access, y revisar periódicamente las asignaciones. Owner queda reservado a muy pocos, idealmente con acceso elevado solo temporal.",
+          "razonamiento": "Mínimo privilegio + verificación explícita: los principios de Zero Trust aterrizados con las herramientas concretas de Azure (RBAC por scope, MFA, Conditional Access)."
+        },
+        {
+          "id": "az900-d2-s03",
+          "situacion": "El equipo debe compartir archivos entre la oficina (servidor Windows local) y equipos remotos, manteniendo acceso rápido local pero centralizando en la nube.",
+          "pregunta": "¿Qué combinación de servicios de storage propones?",
+          "respuestaEsperada": "Azure Files como file share central en la nube y Azure File Sync en el servidor local como caché: los archivos se centralizan en Azure, la oficina mantiene acceso a velocidad LAN y los remotos acceden al share directamente. Elegir redundancia (p. ej. ZRS/GRS) según criticidad.",
+          "razonamiento": "El patrón Files + File Sync resuelve el híbrido clásico: única fuente en la nube con rendimiento local, en lugar de duplicar servidores o VPNs complejas."
+        }
+      ]
+    },
+    {
+      "id": "az900-d3",
+      "dominio": "Describe Azure management and governance (Administración y gobernanza)",
+      "ponderacion": "30-35%",
+      "subtemas": [
+        "Gestión de costes: factores, pricing calculator, Cost Management, tags",
+        "Gobernanza y cumplimiento: Microsoft Purview, Azure Policy, resource locks",
+        "Herramientas de administración: portal, Cloud Shell, CLI, PowerShell, Azure Arc",
+        "Infrastructure as code: ARM templates",
+        "Monitorización: Azure Advisor, Service Health, Azure Monitor (Log Analytics, alerts, Application Insights)"
+      ],
+      "flashcards": [
+        { "id": "az900-d3-f01", "concepto": "Factores que afectan al coste", "explicacion": "Tipo y tamaño de recurso, región, tiempo de uso, tráfico de red saliente (egress), licencias y modelo de facturación (pay-as-you-go vs reservas). Apagar o redimensionar recursos reduce coste." },
+        { "id": "az900-d3-f02", "concepto": "Pricing calculator vs TCO calculator", "explicacion": "Pricing calculator estima el coste mensual de una arquitectura Azure concreta; TCO calculator compara el coste total de tu infraestructura on-premises frente a migrarla a Azure." },
+        { "id": "az900-d3-f03", "concepto": "Microsoft Cost Management", "explicacion": "Herramienta para analizar el gasto real, crear presupuestos (budgets) y alertas de coste, y detectar anomalías de consumo en las suscripciones." },
+        { "id": "az900-d3-f04", "concepto": "Tags", "explicacion": "Pares clave-valor sobre recursos (p. ej. CostCenter=IT, Env=Prod) para organizar, filtrar informes de coste y automatizar gobernanza. No se heredan por defecto." },
+        { "id": "az900-d3-f05", "concepto": "Azure Policy", "explicacion": "Servicio que define y evalúa reglas sobre recursos (regiones permitidas, SKUs prohibidas, tags obligatorios): audita el cumplimiento y puede denegar o corregir configuraciones no conformes." },
+        { "id": "az900-d3-f06", "concepto": "Resource locks", "explicacion": "Bloqueos a nivel de recurso, grupo o suscripción: ReadOnly impide cambios, CannotDelete impide el borrado incluso a Owners hasta retirar el lock. Protegen frente a errores humanos." },
+        { "id": "az900-d3-f07", "concepto": "Microsoft Purview", "explicacion": "Familia de gobernanza de datos y cumplimiento: cataloga y clasifica datos en todo el estate (Azure, on-premises, multicloud) y ayuda a gestionar riesgos y normativa." },
+        { "id": "az900-d3-f08", "concepto": "Azure portal, CLI y PowerShell", "explicacion": "Tres vías de administración: portal web (visual e interactiva), Azure CLI (comandos 'az', multiplataforma) y Azure PowerShell (cmdlets 'Az'). CLI y PowerShell permiten automatizar." },
+        { "id": "az900-d3-f09", "concepto": "Azure Cloud Shell", "explicacion": "Terminal en el navegador (Bash o PowerShell) ya autenticado y con las herramientas instaladas: administras Azure sin instalar nada en tu equipo." },
+        { "id": "az900-d3-f10", "concepto": "Azure Arc", "explicacion": "Extiende la administración de Azure (Policy, RBAC, monitorización) a servidores, Kubernetes y datos que están fuera de Azure: on-premises u otras nubes, gestionados como recursos Azure." },
+        { "id": "az900-d3-f11", "concepto": "Infrastructure as code (IaC)", "explicacion": "Definir la infraestructura en archivos declarativos versionables en lugar de clics manuales: despliegues repetibles, revisables y sin desviaciones entre entornos." },
+        { "id": "az900-d3-f12", "concepto": "ARM templates", "explicacion": "Plantillas JSON declarativas de Azure Resource Manager que describen los recursos a desplegar. ARM es la capa de gestión que procesa todas las peticiones (portal, CLI, PowerShell, templates)." },
+        { "id": "az900-d3-f13", "concepto": "Azure Advisor", "explicacion": "Recomendaciones personalizadas y gratuitas en cinco pilares: coste, seguridad, fiabilidad, excelencia operativa y rendimiento, basadas en tu uso real." },
+        { "id": "az900-d3-f14", "concepto": "Azure Service Health", "explicacion": "Informa de incidencias de la plataforma que te afectan: cortes de servicio (service issues), mantenimientos planificados y avisos de salud, con alertas configurables." },
+        { "id": "az900-d3-f15", "concepto": "Azure Monitor", "explicacion": "Plataforma de observabilidad: recoge métricas y logs de recursos y aplicaciones, los analiza (Log Analytics con KQL) y actúa (alerts, dashboards)." },
+        { "id": "az900-d3-f16", "concepto": "Log Analytics y Application Insights", "explicacion": "Log Analytics: workspace donde consultas logs con KQL. Application Insights: APM para aplicaciones (rendimiento, excepciones, dependencias, disponibilidad), parte de Azure Monitor." }
+      ],
+      "preguntas": [
+        {
+          "id": "az900-d3-q01",
+          "pregunta": "Antes de migrar, el CFO pide comparar el coste actual on-premises (hardware, energía, personal) contra Azure. ¿Qué herramienta usas?",
+          "opciones": [
+            { "texto": "TCO calculator", "correcta": true, "explicacion": "Compara el coste total de propiedad on-premises frente al equivalente en Azure: exactamente ese análisis." },
+            { "texto": "Pricing calculator", "correcta": false, "explicacion": "Estima el coste de una arquitectura Azure, pero no modela tus costes actuales on-premises." },
+            { "texto": "Azure Advisor", "correcta": false, "explicacion": "Recomienda sobre recursos ya desplegados, no compara escenarios de migración." },
+            { "texto": "Cost Management", "correcta": false, "explicacion": "Analiza gasto real existente en Azure, no proyecciones comparativas." }
+          ]
+        },
+        {
+          "id": "az900-d3-q02",
+          "pregunta": "Quieres recibir un aviso cuando el gasto mensual de la suscripción supere 5.000 CHF. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Un budget con alerta en Microsoft Cost Management", "correcta": true, "explicacion": "Los budgets definen umbrales de gasto y disparan alertas al alcanzarlos." },
+            { "texto": "Un resource lock", "correcta": false, "explicacion": "Los locks impiden cambios o borrados, no monitorizan gasto." },
+            { "texto": "Una policy de tags", "correcta": false, "explicacion": "Los tags ayudan a atribuir costes, pero no generan alertas de gasto por sí mismos." },
+            { "texto": "Azure Service Health", "correcta": false, "explicacion": "Avisa de incidencias de la plataforma, no de costes." }
+          ]
+        },
+        {
+          "id": "az900-d3-q03",
+          "pregunta": "Necesitas impedir que se creen recursos fuera de las regiones suizas en toda la suscripción. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Azure Policy con efecto deny sobre las ubicaciones permitidas", "correcta": true, "explicacion": "Policy evalúa cada despliegue y deniega los que incumplen la regla de regiones permitidas." },
+            { "texto": "RBAC con rol Reader", "correcta": false, "explicacion": "RBAC controla quién hace qué, no dónde se crean los recursos." },
+            { "texto": "Un resource lock ReadOnly", "correcta": false, "explicacion": "Congelaría todos los cambios, no solo los de región incorrecta." },
+            { "texto": "Tags obligatorios", "correcta": false, "explicacion": "Los tags clasifican; no restringen ubicaciones." }
+          ]
+        },
+        {
+          "id": "az900-d3-q04",
+          "pregunta": "Alguien borró por error la VNet de producción el mes pasado. ¿Qué medida simple evita que se repita?",
+          "opciones": [
+            { "texto": "Un resource lock CannotDelete sobre los recursos críticos", "correcta": true, "explicacion": "El lock impide el borrado incluso a usuarios con permisos, hasta que se retire conscientemente." },
+            { "texto": "Quitar el rol Owner a todo el mundo", "correcta": false, "explicacion": "Drástico y poco operativo; además otros roles también pueden borrar." },
+            { "texto": "Un tag 'NoBorrar'", "correcta": false, "explicacion": "Los tags son informativos: no impiden ninguna acción." },
+            { "texto": "Mover la VNet a otra suscripción", "correcta": false, "explicacion": "Cambiar de sitio el recurso no lo protege de borrados." }
+          ]
+        },
+        {
+          "id": "az900-d3-q05",
+          "pregunta": "Finanzas quiere informes de coste desglosados por departamento y entorno (prod/dev). ¿Qué práctica lo habilita?",
+          "opciones": [
+            { "texto": "Aplicar tags consistentes (p. ej. CostCenter, Env) y filtrar en Cost Management", "correcta": true, "explicacion": "Los tags permiten agrupar y filtrar el gasto por las dimensiones del negocio." },
+            { "texto": "Crear una región por departamento", "correcta": false, "explicacion": "Las regiones son geográficas, no unidades contables." },
+            { "texto": "Usar solo el pricing calculator", "correcta": false, "explicacion": "Estima costes futuros; no desglosa el gasto real." },
+            { "texto": "Un lock por departamento", "correcta": false, "explicacion": "Los locks protegen recursos, no clasifican costes." }
+          ]
+        },
+        {
+          "id": "az900-d3-q06",
+          "pregunta": "Debes administrar Azure desde un portátil ajeno sin instalar herramientas. ¿Cuál es la opción más directa?",
+          "opciones": [
+            { "texto": "Azure Cloud Shell desde el navegador", "correcta": true, "explicacion": "Terminal Bash/PowerShell en el navegador, autenticada y con CLI y módulos ya instalados." },
+            { "texto": "Instalar Azure CLI", "correcta": false, "explicacion": "Contradice el requisito de no instalar nada." },
+            { "texto": "Instalar los módulos Az de PowerShell", "correcta": false, "explicacion": "También requiere instalación local." },
+            { "texto": "Pedir acceso RDP a un domain controller", "correcta": false, "explicacion": "Innecesario y una mala práctica de seguridad." }
+          ]
+        },
+        {
+          "id": "az900-d3-q07",
+          "pregunta": "Tu empresa tiene 40 servidores on-premises y quiere aplicarles Azure Policy y verlos en el portal como recursos de Azure. ¿Qué servicio lo permite?",
+          "opciones": [
+            { "texto": "Azure Arc", "correcta": true, "explicacion": "Arc proyecta servidores externos como recursos Azure, habilitando Policy, RBAC y monitorización sobre ellos." },
+            { "texto": "Azure Migrate", "correcta": false, "explicacion": "Evalúa y migra hacia Azure; no gestiona lo que permanece fuera." },
+            { "texto": "VPN Gateway", "correcta": false, "explicacion": "Da conectividad de red, no gestión ni gobernanza." },
+            { "texto": "Azure DNS", "correcta": false, "explicacion": "Resolución de nombres; sin relación con la gestión de servidores." }
+          ]
+        },
+        {
+          "id": "az900-d3-q08",
+          "pregunta": "El despliegue de tu entorno (VNet + VMs + storage) debe ser repetible e idéntico en dev, test y prod. ¿Qué enfoque corresponde?",
+          "opciones": [
+            { "texto": "Infrastructure as code con ARM templates", "correcta": true, "explicacion": "Las plantillas declarativas garantizan despliegues consistentes y versionados entre entornos." },
+            { "texto": "Crear los recursos a mano en el portal siguiendo una checklist", "correcta": false, "explicacion": "Los procesos manuales generan desviaciones inevitables entre entornos." },
+            { "texto": "Clonar discos de las VMs", "correcta": false, "explicacion": "Copia contenido de máquinas, no define la infraestructura completa." },
+            { "texto": "Exportar un CSV de recursos", "correcta": false, "explicacion": "Un inventario no despliega nada." }
+          ]
+        },
+        {
+          "id": "az900-d3-q09",
+          "pregunta": "¿Qué servicio te avisa de un mantenimiento planificado de Azure que reiniciará tus VMs la próxima semana?",
+          "opciones": [
+            { "texto": "Azure Service Health", "correcta": true, "explicacion": "Comunica incidencias y mantenimientos planificados de la plataforma que afectan a tus recursos, con alertas configurables." },
+            { "texto": "Azure Advisor", "correcta": false, "explicacion": "Recomienda mejoras; no anuncia eventos de la plataforma." },
+            { "texto": "Cost Management", "correcta": false, "explicacion": "Gestiona gasto, no salud de la plataforma." },
+            { "texto": "Application Insights", "correcta": false, "explicacion": "Monitoriza tu aplicación, no los avisos de mantenimiento de Azure." }
+          ]
+        },
+        {
+          "id": "az900-d3-q10",
+          "pregunta": "Los usuarios reportan lentitud en tu web app y quieres ver tiempos de respuesta, excepciones y dependencias lentas. ¿Qué herramienta usas?",
+          "opciones": [
+            { "texto": "Application Insights (Azure Monitor)", "correcta": true, "explicacion": "Es el APM de Azure: rastrea rendimiento, errores y dependencias de la aplicación." },
+            { "texto": "Azure Policy", "correcta": false, "explicacion": "Gobierna configuraciones; no monitoriza rendimiento." },
+            { "texto": "Azure Service Health", "correcta": false, "explicacion": "Salud de la plataforma Azure, no de tu código." },
+            { "texto": "Pricing calculator", "correcta": false, "explicacion": "Estimación de costes; irrelevante aquí." }
+          ]
+        },
+        {
+          "id": "az900-d3-q11",
+          "pregunta": "¿Qué servicio recomienda redimensionar VMs infrautilizadas para ahorrar, además de sugerencias de seguridad y fiabilidad?",
+          "opciones": [
+            { "texto": "Azure Advisor", "correcta": true, "explicacion": "Advisor analiza tu uso real y recomienda en coste, seguridad, fiabilidad, operación y rendimiento." },
+            { "texto": "Azure Arc", "correcta": false, "explicacion": "Extiende la gestión a recursos externos; no emite recomendaciones de optimización." },
+            { "texto": "Log Analytics", "correcta": false, "explicacion": "Es el motor de consultas de logs; las recomendaciones personalizadas vienen de Advisor." },
+            { "texto": "Microsoft Purview", "correcta": false, "explicacion": "Gobernanza de datos, no optimización de recursos." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az900-d3-s01",
+          "situacion": "Tras 6 meses en Azure, la factura creció un 40% y nadie sabe qué proyecto lo causa. Hay recursos sin etiquetar y suscripciones compartidas entre equipos.",
+          "pregunta": "¿Qué plan de gobernanza de costes propones?",
+          "respuestaEsperada": "Definir una taxonomía de tags obligatorios (CostCenter, Project, Env) forzada con Azure Policy; analizar el gasto en Cost Management por esas dimensiones; crear budgets con alertas por equipo; revisar recomendaciones de coste de Advisor (VMs infrautilizadas, discos huérfanos) y considerar reservas para cargas estables.",
+          "razonamiento": "El control de costes une los conceptos del dominio: tags para atribución, Policy para forzarlos, Cost Management para visibilidad y presupuestos, Advisor para optimización."
+        },
+        {
+          "id": "az900-d3-s02",
+          "situacion": "Auditoría exige demostrar que ningún recurso de producción puede desplegarse fuera de Suiza y que los recursos críticos no pueden borrarse por accidente.",
+          "pregunta": "¿Qué combinación de herramientas de gobernanza implementas?",
+          "respuestaEsperada": "Azure Policy con efecto deny para restringir ubicaciones a las regiones suizas (asignada al management group de producción para que se herede), resource locks CannotDelete en los recursos críticos, y el dashboard de cumplimiento de Policy como evidencia para la auditoría.",
+          "razonamiento": "Policy previene la no conformidad futura y documenta el cumplimiento; los locks cubren el riesgo operativo de borrado. Asignar en el nivel jerárquico correcto garantiza herencia."
+        },
+        {
+          "id": "az900-d3-s03",
+          "situacion": "Tu web app de producción sufre caídas intermitentes. El equipo revisa a mano el portal cada mañana para ver si 'todo está verde'.",
+          "pregunta": "¿Cómo montas una monitorización proactiva básica?",
+          "respuestaEsperada": "Instrumentar la app con Application Insights (disponibilidad, excepciones, tiempos), centralizar logs en Log Analytics, definir alertas de Azure Monitor (p. ej. disponibilidad < umbral, errores 5xx) hacia el equipo, y suscribirse a alertas de Service Health para distinguir incidencias propias de las de plataforma.",
+          "razonamiento": "Pasar de revisión manual a alertas convierte la monitorización en proactiva. Separar 'mi app falla' (App Insights) de 'Azure tiene una incidencia' (Service Health) acorta el diagnóstico."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "generadoEl": "2026-07-07",
+  "idiomaContenido": "es (términos técnicos en inglés)",
+  "examenes": [
+    {
+      "codigo": "PL-300",
+      "archivo": "pl-300.json",
+      "prioridad": 1,
+      "cobertura": "completa"
+    },
+    {
+      "codigo": "AZ-900",
+      "archivo": "az-900.json",
+      "prioridad": 1,
+      "cobertura": "completa"
+    },
+    {
+      "codigo": "AZ-104",
+      "archivo": "az-104.json",
+      "prioridad": 2,
+      "cobertura": "muestra"
+    },
+    {
+      "codigo": "AZ-305",
+      "archivo": "az-305.json",
+      "prioridad": 2,
+      "cobertura": "muestra"
+    },
+    {
+      "codigo": "AZ-500",
+      "archivo": "az-500.json",
+      "prioridad": 2,
+      "cobertura": "muestra",
+      "aviso": "Se retira el 2026-08-31; sucesor SC-500"
+    },
+    {
+      "codigo": "AZ-800",
+      "archivo": "az-800.json",
+      "prioridad": 2,
+      "cobertura": "muestra"
+    }
+  ]
+}

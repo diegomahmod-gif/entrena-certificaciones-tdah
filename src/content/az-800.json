@@ -1,0 +1,242 @@
+{
+  "examen": "AZ-800",
+  "nombre": "Administering Windows Server Hybrid Core Infrastructure",
+  "certificacion": "Microsoft Certified: Windows Server Hybrid Administrator Associate (requiere también AZ-801)",
+  "estado": "activo",
+  "vigencia": {
+    "verificadoEl": "2026-07-07",
+    "skillsMeasuredDesde": "2026-01-21",
+    "retirementDate": null,
+    "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-800"
+  },
+  "cobertura": "muestra",
+  "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
+  "dominios": [
+    {
+      "id": "az800-d1",
+      "dominio": "Deploy and manage AD DS in on-premises and cloud environments",
+      "ponderacion": "30-35%",
+      "subtemas": [
+        "Domain controllers on-premises y en Azure, RODCs, roles FSMO",
+        "Multi-site/multi-domain/multi-forest: trusts, sites, replicación",
+        "Security principals: usuarios, grupos, cuentas de servicio, join a AD DS/Entra Domain Services/Entra",
+        "Identidad híbrida: Entra Connect Sync, Cloud Sync, Entra Domain Services, Connect Health, autenticación híbrida",
+        "Group Policy en AD DS y en Entra Domain Services, preferences"
+      ],
+      "flashcards": [
+        { "id": "az800-d1-f01", "concepto": "Roles FSMO", "explicacion": "Cinco roles de operación única: Schema Master y Domain Naming Master (por bosque), PDC Emulator, RID Master e Infrastructure Master (por dominio). Se transfieren en frío o se 'seizan' si el titular murió." },
+        { "id": "az800-d1-f02", "concepto": "Entra Connect Sync vs Cloud Sync", "explicacion": "Connect Sync: agente pesado con todas las opciones (filtrado avanzado, grupos grandes, escritura diferida). Cloud Sync: agente ligero gestionado desde la nube, ideal para multi-forest y despliegues simples de alta disponibilidad." }
+      ],
+      "preguntas": [
+        {
+          "id": "az800-d1-q01",
+          "pregunta": "Una sucursal pequeña sin sala de servidores segura necesita autenticación local rápida. ¿Qué despliegas?",
+          "opciones": [
+            { "texto": "Un read-only domain controller (RODC)", "correcta": true, "explicacion": "El RODC cachea credenciales seleccionadas y no permite escrituras: diseñado para ubicaciones con seguridad física limitada." },
+            { "texto": "Un DC escribible estándar", "correcta": false, "explicacion": "Un DC completo robado compromete todo el dominio: riesgo inaceptable sin seguridad física." },
+            { "texto": "Solo una VPN hacia la sede", "correcta": false, "explicacion": "La autenticación dependería del enlace: sin él, nadie inicia sesión." },
+            { "texto": "Entra ID sin AD local", "correcta": false, "explicacion": "Las apps y equipos legacy del dominio siguen requiriendo AD DS local en este escenario." }
+          ]
+        },
+        {
+          "id": "az800-d1-q02",
+          "pregunta": "Los usuarios deben iniciar sesión en Microsoft 365 con sus cuentas de AD local sin infraestructura ADFS. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Entra Connect con password hash sync (o pass-through authentication)", "correcta": true, "explicacion": "Sincroniza identidades hacia Entra ID y habilita el login con las credenciales corporativas sin granjas de federación." },
+            { "texto": "Cuentas cloud separadas para cada usuario", "correcta": false, "explicacion": "Duplicar identidades genera contraseñas divergentes y caos de administración." },
+            { "texto": "Una relación de trust entre bosques", "correcta": false, "explicacion": "Los trusts conectan bosques AD, no AD con Entra ID." },
+            { "texto": "Group Policy", "correcta": false, "explicacion": "GPO configura equipos y usuarios del dominio; no sincroniza identidades a la nube." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az800-d1-s01",
+          "situacion": "Tu empresa extiende el datacenter a Azure y quiere DCs también en la nube para que las VMs de Azure autentiquen localmente, manteniendo la replicación con la sede.",
+          "pregunta": "¿Cómo diseñas la extensión de AD DS a Azure?",
+          "respuestaEsperada": "Conectividad híbrida (VPN/ExpressRoute), DCs en VMs de Azure en su propio AD site con subnets correctamente mapeadas para dirigir la autenticación local, discos de base de datos AD sin caché de escritura, evaluar RODC si aplica, y configurar la replicación entre sites con costes/schedules adecuados.",
+          "razonamiento": "Extender AD a Azure es un problema de sites y replicación: definir el site de Azure evita que las VMs autentiquen a través del túnel y la topología de replicación controla el tráfico entre ubicaciones."
+        }
+      ]
+    },
+    {
+      "id": "az800-d2",
+      "dominio": "Manage Windows Servers and workloads in a hybrid environment",
+      "ponderacion": "10-15%",
+      "subtemas": [
+        "Administración remota: Windows Admin Center, PowerShell remoting (incl. second hop), JEA, SSH, RDP",
+        "Gestión con Azure: Azure Arc (Connected Machine Agent), Machine Configuration, extensiones de VM, Azure Update Manager, Automation y runbooks"
+      ],
+      "flashcards": [
+        { "id": "az800-d2-f01", "concepto": "Just Enough Administration (JEA)", "explicacion": "PowerShell remoting restringido: endpoints que exponen solo los cmdlets necesarios para una tarea, ejecutados con cuentas virtuales. Delegas administración sin dar admin completo." },
+        { "id": "az800-d2-f02", "concepto": "Azure Arc para servidores", "explicacion": "El Connected Machine Agent proyecta servidores on-premises/otras nubes como recursos de Azure: les aplicas Policy, Update Manager, extensiones y monitorización como si fueran VMs de Azure." }
+      ],
+      "preguntas": [
+        {
+          "id": "az800-d2-q01",
+          "pregunta": "El equipo de helpdesk debe poder reiniciar servicios en los servidores, pero nada más. ¿Qué mecanismo usas?",
+          "opciones": [
+            { "texto": "Endpoints JEA que expongan solo los cmdlets de servicios", "correcta": true, "explicacion": "JEA da exactamente la capacidad necesaria con auditoría, sin membresías de administrador." },
+            { "texto": "Añadirlos a Administradores locales", "correcta": false, "explicacion": "Concede control total del servidor: máximo sobre-privilegio." },
+            { "texto": "Compartir la cuenta de un admin", "correcta": false, "explicacion": "Rompe trazabilidad y multiplica el riesgo de la credencial." },
+            { "texto": "Darles RDP a todos los servidores", "correcta": false, "explicacion": "RDP no limita lo que pueden hacer una vez dentro." }
+          ]
+        },
+        {
+          "id": "az800-d2-q02",
+          "pregunta": "Tienes 60 servidores Windows en 3 sedes y quieres parchearlos con la misma herramienta y calendario que tus VMs de Azure. ¿Qué habilitas?",
+          "opciones": [
+            { "texto": "Azure Arc en los servidores y Azure Update Manager", "correcta": true, "explicacion": "Arc los convierte en recursos de Azure y Update Manager orquesta el parcheo unificado con maintenance windows." },
+            { "texto": "Windows Update automático sin control", "correcta": false, "explicacion": "Sin ventanas ni orquestación: reinicios imprevisibles en producción." },
+            { "texto": "Un script de PSWindowsUpdate por sede", "correcta": false, "explicacion": "Mantenible a pequeña escala pero sin visibilidad central ni cumplimiento unificado." },
+            { "texto": "Migrar los 60 servidores a Azure primero", "correcta": false, "explicacion": "Innecesario: Arc trae la gestión de Azure a los servidores donde están." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az800-d2-s01",
+          "situacion": "Un script remoto que copia archivos desde un file share falla con 'Access Denied' solo cuando se ejecuta vía PowerShell remoting, aunque el usuario tiene permisos.",
+          "pregunta": "¿Qué está ocurriendo y qué soluciones existen?",
+          "respuestaEsperada": "Es el problema del 'second hop': la credencial no viaja del servidor intermedio al file share. Soluciones: CredSSP (con cautela), delegación restringida basada en recursos (resource-based Kerberos constrained delegation) — la opción recomendada — o rediseñar para evitar el salto.",
+          "razonamiento": "Reconocer el second hop es el diagnóstico clave del remoting; elegir la delegación restringida sobre CredSSP refleja el criterio de seguridad que mide el examen."
+        }
+      ]
+    },
+    {
+      "id": "az800-d3",
+      "dominio": "Manage virtual machines and containers",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Hyper-V y VMs guest: enhanced session, nested virtualization, memoria, checkpoints, alta disponibilidad, discos, redes/NIC teaming, switch, shielded VMs",
+        "Contenedores: host Windows Server, imágenes, redes de contenedores, instancias, AKS en Windows Server",
+        "VMs Windows Server en Azure: storage, resize/scale sets, availability, JIT y Bastion"
+      ],
+      "flashcards": [
+        { "id": "az800-d3-f01", "concepto": "Checkpoints de Hyper-V", "explicacion": "Instantáneas del estado de una VM (estándar: incluye memoria; producción: usa VSS, consistente para cargas como SQL). Útiles antes de cambios; no sustituyen al backup." },
+        { "id": "az800-d3-f02", "concepto": "Nested virtualization", "explicacion": "Permite ejecutar Hyper-V dentro de una VM (exponer las extensiones de virtualización al guest). Necesario para labs, contenedores con aislamiento Hyper-V o emular hosts en Azure." }
+      ],
+      "preguntas": [
+        {
+          "id": "az800-d3-q01",
+          "pregunta": "Antes de aplicar un parche crítico a una VM con SQL Server, quieres un punto de retorno consistente con la aplicación. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Un production checkpoint", "correcta": true, "explicacion": "Usa VSS dentro del guest: estado consistente para aplicaciones transaccionales como SQL." },
+            { "texto": "Un standard checkpoint", "correcta": false, "explicacion": "Congela memoria y procesos en vuelo: al restaurar, SQL puede quedar en estado inconsistente." },
+            { "texto": "Copiar el VHDX con la VM encendida", "correcta": false, "explicacion": "Copia caliente sin coordinación: archivo probablemente corrupto." },
+            { "texto": "Exportar la VM la semana próxima", "correcta": false, "explicacion": "No protege el cambio de hoy." }
+          ]
+        },
+        {
+          "id": "az800-d3-q02",
+          "pregunta": "Necesitas que las VMs críticas de Hyper-V sigan corriendo aunque falle un host físico. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Un failover cluster de hosts Hyper-V con las VMs como recursos en clúster", "correcta": true, "explicacion": "El clúster reinicia/migra las VMs a los nodos supervivientes: la solución de HA para Hyper-V." },
+            { "texto": "Checkpoints automáticos cada hora", "correcta": false, "explicacion": "Los checkpoints son puntos de retorno, no alta disponibilidad." },
+            { "texto": "NIC teaming en cada host", "correcta": false, "explicacion": "Protege la red del host, no la caída del host completo." },
+            { "texto": "Más memoria en cada VM", "correcta": false, "explicacion": "Los recursos del guest no aportan tolerancia a fallos del host." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az800-d3-s01",
+          "situacion": "Desarrollo pide contenedores Windows para modernizar una app .NET Framework, con orquestación, y Operaciones quiere seguir gestionando el hardware actual.",
+          "pregunta": "¿Qué plataforma propones y qué preparas en los hosts?",
+          "respuestaEsperada": "Preparar Windows Server como container host (rol Containers, runtime, imágenes base Windows compatibles con la versión del host), registry para las imágenes (p. ej. ACR), y desplegar AKS habilitado en Windows Server para la orquestación on-premises, con las consideraciones de red de contenedores (NAT/transparent/overlay).",
+          "razonamiento": "La app .NET Framework exige contenedores Windows (no Linux); AKS on Windows Server da orquestación estándar sin abandonar el datacenter, que era la restricción de Operaciones."
+        }
+      ]
+    },
+    {
+      "id": "az800-d4",
+      "dominio": "Implement and manage on-premises and hybrid networking",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Name resolution híbrido: DNS con AD DS, zonas y registros, forwarding, integración con Azure DNS (público, privado, Private Resolver), políticas DNS, DNSSEC",
+        "IP addressing: IPAM, DHCP (scopes, reservas, alta disponibilidad), troubleshooting híbrido",
+        "Conectividad: Remote Access, Azure Network Adapter, extended network, NPAS, Web Application Proxy, site-to-site VPN, Azure Relay, Entra Private Access, Application Proxy"
+      ],
+      "flashcards": [
+        { "id": "az800-d4-f01", "concepto": "Conditional forwarding", "explicacion": "Regla del DNS de Windows Server que reenvía las consultas de un dominio concreto (p. ej. la zona privada de Azure) a servidores específicos: pieza clave de la resolución híbrida." },
+        { "id": "az800-d4-f02", "concepto": "DHCP failover", "explicacion": "Alta disponibilidad del DHCP en Windows Server: dos servidores comparten un scope en modo load balance o hot standby, sin necesidad de clúster." }
+      ],
+      "preguntas": [
+        {
+          "id": "az800-d4-q01",
+          "pregunta": "Los servidores on-premises no resuelven los nombres de los private endpoints de Azure (privatelink.*). ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Conditional forwarders hacia Azure DNS Private Resolver (o hacia un DNS en la VNet)", "correcta": true, "explicacion": "Las zonas privadas de Azure solo se resuelven desde dentro: el forwarding condicional dirige esas consultas al resolver correcto." },
+            { "texto": "Añadir registros en el archivo hosts de cada servidor", "correcta": false, "explicacion": "Inmantenible y se rompe cuando cambian las IPs de los endpoints." },
+            { "texto": "Cambiar el DNS de los servidores a 8.8.8.8", "correcta": false, "explicacion": "Un resolver público no conoce (ni debe conocer) las zonas privadas." },
+            { "texto": "Habilitar DNSSEC", "correcta": false, "explicacion": "DNSSEC firma respuestas; no resuelve el enrutamiento de consultas híbrido." }
+          ]
+        },
+        {
+          "id": "az800-d4-q02",
+          "pregunta": "La sede pierde DHCP cuando el único servidor se reinicia por mantenimiento. ¿Cuál es la solución nativa más simple?",
+          "opciones": [
+            { "texto": "Configurar DHCP failover con un segundo servidor (hot standby o load balance)", "correcta": true, "explicacion": "El failover nativo replica scopes y leases entre dos servidores sin clúster ni almacenamiento compartido." },
+            { "texto": "Aumentar la duración del lease a 30 días", "correcta": false, "explicacion": "Mitiga a los clientes ya servidos pero no atiende a los nuevos durante la caída." },
+            { "texto": "Un failover cluster con storage compartido", "correcta": false, "explicacion": "Funciona pero es mucho más complejo que el failover nativo de DHCP." },
+            { "texto": "IPs estáticas para todos", "correcta": false, "explicacion": "Renuncia a DHCP: carga administrativa enorme y propensa a conflictos." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az800-d4-s01",
+          "situacion": "Tras montar la VPN site-to-site con Azure, las VMs de Azure resuelven los servidores locales, pero los equipos locales no resuelven las VMs de Azure ni los private endpoints.",
+          "pregunta": "¿Cómo completas la resolución de nombres híbrida?",
+          "respuestaEsperada": "Desplegar Azure DNS Private Resolver (inbound endpoint) en la VNet y crear conditional forwarders en los DNS locales hacia ese endpoint para las zonas de Azure (incluidas las privatelink). Verificar que las private DNS zones están vinculadas a la VNet y que el tráfico DNS pasa por el túnel.",
+          "razonamiento": "La resolución híbrida es bidireccional: cada lado necesita saber a quién reenviar las zonas del otro. El Private Resolver es el punto de entrada soportado para consultas on-premises→Azure."
+        }
+      ]
+    },
+    {
+      "id": "az800-d5",
+      "dominio": "Manage storage and file services",
+      "ponderacion": "15-20%",
+      "subtemas": [
+        "Azure Files: shares, permisos, Azure File Sync (configurar, monitorizar, migrar desde DFS)",
+        "File shares de Windows Server: acceso, FSRM, BranchCache, DFS, SMB over QUIC y opciones SMB",
+        "Storage local: discos y volúmenes, Storage Spaces, Storage Replica, deduplicación, SMB Direct, Storage QoS, sistemas de archivos, iSCSI"
+      ],
+      "flashcards": [
+        { "id": "az800-d5-f01", "concepto": "Azure File Sync: cloud tiering", "explicacion": "El servidor local actúa como caché: los archivos calientes se mantienen locales y los fríos se convierten en punteros hacia Azure Files, liberando espacio sin cambiar la experiencia de usuario." },
+        { "id": "az800-d5-f02", "concepto": "Storage Replica", "explicacion": "Replicación a nivel de bloque entre servidores o clústeres (síncrona para RPO cero en distancias cortas, asíncrona para largas): base de la recuperación ante desastres de file servers." }
+      ],
+      "preguntas": [
+        {
+          "id": "az800-d5-q01",
+          "pregunta": "El file server de la sucursal se queda sin disco: 80% de los archivos no se tocan hace más de un año, pero deben seguir accesibles en la misma ruta. ¿Qué solución encaja?",
+          "opciones": [
+            { "texto": "Azure File Sync con cloud tiering", "correcta": true, "explicacion": "Los archivos fríos pasan a Azure y quedan como punteros locales: mismo path para el usuario, disco liberado." },
+            { "texto": "Comprar otro disco y mover archivos a mano", "correcta": false, "explicacion": "Pospone el problema y rompe rutas si se mueven carpetas." },
+            { "texto": "Borrar lo antiguo", "correcta": false, "explicacion": "El requisito es que sigan accesibles." },
+            { "texto": "Activar deduplicación solamente", "correcta": false, "explicacion": "Ayuda con el espacio pero no escala como el tiering ilimitado hacia la nube." }
+          ]
+        },
+        {
+          "id": "az800-d5-q02",
+          "pregunta": "Necesitas que un volumen crítico de un file server tenga réplica exacta en el datacenter secundario con RPO cero. ¿Qué tecnología usas?",
+          "opciones": [
+            { "texto": "Storage Replica en modo síncrono", "correcta": true, "explicacion": "Replica bloques de forma síncrona: la escritura se confirma en ambos lados, RPO cero." },
+            { "texto": "DFS Replication", "correcta": false, "explicacion": "Replica archivos cerrados de forma asíncrona: no da RPO cero ni replica archivos en uso." },
+            { "texto": "Robocopy programado cada noche", "correcta": false, "explicacion": "RPO de horas: lejos del requisito." },
+            { "texto": "BranchCache", "correcta": false, "explicacion": "Es caché de lectura para sucursales, no replicación." }
+          ]
+        }
+      ],
+      "escenarios": [
+        {
+          "id": "az800-d5-s01",
+          "situacion": "Tu empresa tiene un DFS Namespace con réplicas en 3 sedes vía DFS-R, con conflictos frecuentes y usuarios quejándose de versiones pisadas. Quieren centralizar en la nube manteniendo acceso rápido local.",
+          "pregunta": "¿Cómo migras a una arquitectura híbrida más sana?",
+          "respuestaEsperada": "Migrar a Azure Files como única fuente de verdad con Azure File Sync en cada sede (server endpoints con cloud tiering), conservando el DFS Namespace para no cambiar las rutas de usuario. Planificar la migración por shares, validar permisos NTFS/identidad, y monitorizar la sincronización antes de retirar DFS-R.",
+          "razonamiento": "File Sync elimina la replicación multi-master (origen de los conflictos de DFS-R) centralizando el estado en Azure, mientras el namespace preserva la experiencia y el tiering mantiene el rendimiento local."
+        }
+      ]
+    }
+  ]
+}
