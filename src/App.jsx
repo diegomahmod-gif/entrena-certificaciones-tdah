@@ -4,6 +4,7 @@ import { cargar, guardar } from './lib/storage.js'
 import { cargarExamenes, obtenerIndice } from './lib/contenido.js'
 import Home from './pages/Home.jsx'
 import Session from './pages/Session.jsx'
+import Rafaga from './pages/Rafaga.jsx'
 import Progress from './pages/Progress.jsx'
 import Settings from './pages/Settings.jsx'
 import Pomodoro from './components/Pomodoro.jsx'
@@ -52,7 +53,7 @@ export default function App() {
   const codigoActivo = estado.examenActivo ?? obtenerIndice().examenes[0]?.codigo
   const examenActivo = carga.examenes.find((e) => e.meta.codigo === codigoActivo)
   const enItem =
-    vista === 'sesion' && estado.sesion && !estado.sesion.terminada
+    (vista === 'sesion' && estado.sesion && !estado.sesion.terminada) || vista === 'rafaga'
 
   const contexto = {
     estado,
@@ -90,6 +91,7 @@ export default function App() {
             </button>
             <nav className="flex items-center gap-1" aria-label="Navegación principal">
               {navBoton('inicio', 'Inicio')}
+              {navBoton('rafaga', 'Ráfaga')}
               {navBoton('progreso', 'Progreso')}
               {navBoton('ajustes', 'Ajustes')}
             </nav>
@@ -103,6 +105,7 @@ export default function App() {
         <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
           {vista === 'inicio' && <Home />}
           {vista === 'sesion' && <Session />}
+          {vista === 'rafaga' && <Rafaga />}
           {vista === 'progreso' && <Progress />}
           {vista === 'ajustes' && <Settings />}
         </main>

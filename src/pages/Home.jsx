@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useEstado } from '../estado.js'
 import { construirSesion } from '../lib/sessionBuilder.js'
 import { nivelDesdeXp } from '../lib/xp.js'
+import { rafagaInicial } from '../lib/rafaga.js'
 import { progresoExamen } from '../lib/progreso.js'
 import { AnilloExamen } from '../components/ProgressBar.jsx'
 import BannerRetiro from '../components/BannerRetiro.jsx'
@@ -17,6 +18,7 @@ export default function Home() {
   const datosExamen = estado.examenes[codigo] ?? { xp: 0, leitner: {} }
   const { nivel } = nivelDesdeXp(datosExamen.xp)
   const progreso = progresoExamen(examenActivo.datos, datosExamen.leitner)
+  const rafaga = estado.rafaga?.[codigo] ?? rafagaInicial()
 
   const sesionPendiente =
     estado.sesion && !estado.sesion.terminada && estado.sesion.indice < estado.sesion.items.length
@@ -72,11 +74,28 @@ export default function Home() {
         <AnilloExamen porcentaje={progreso} etiqueta="dominado" />
       </div>
 
-      {/* El único botón primario de la home */}
-      <button className="btn-primario mb-3" onClick={accionPrimaria}>
+      {/* Acción primaria: 60 segundos y cero decisiones. Lo que decide si se
+          estudia o no es el coste de arrancar, así que esto va antes que nada. */}
+      <button
+        className="mb-3 flex w-full items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 p-5 text-left text-white shadow-lg transition-transform hover:scale-[1.02] active:scale-95"
+        onClick={() => navegar('rafaga')}
+      >
+        <span>
+          <span className="block text-xl font-black">RÁFAGA · 60s</span>
+          <span className="block text-sm text-sky-100">Contrarreloj. Fallar cuesta tiempo.</span>
+        </span>
+        <span className="shrink-0 text-right">
+          <span className="block text-2xl font-black tabular-nums">{rafaga.rating}</span>
+          <span className="block text-xs text-sky-100">
+            {rafaga.record > 0 ? `récord ${rafaga.record}` : 'rating'}
+          </span>
+        </span>
+      </button>
+
+      <button className="btn-secundario mb-3 w-full" onClick={accionPrimaria}>
         {sesionPendiente
           ? `Reanudar sesión (quedan ${quedan})`
-          : 'Empezar siguiente sesión'}
+          : 'Sesión de estudio (con explicaciones)'}
       </button>
 
       {aviso && (

@@ -39,6 +39,16 @@
   }
 }
 
+/* Ráfaga: el número de puntos sale flotando hacia arriba al acertar. */
+@keyframes flotar {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.85); }
+  20%  { opacity: 1; transform: translateY(0) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-28px) scale(1); }
+}
+.flotar {
+  animation: flotar 0.75s ease-out forwards;
+}
+
 /* Respeta prefers-reduced-motion: sin animaciones ni transiciones */
 @media (prefers-reduced-motion: reduce) {
   *,

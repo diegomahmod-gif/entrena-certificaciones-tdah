@@ -21,6 +21,8 @@ export function estadoInicial() {
     examenActivo: null,
     // { [codigo]: { xp: number, leitner: { [itemId]: entradaLeitner } } }
     examenes: {},
+    // { [codigo]: { rating, record, carreras, ratingsPregunta, mejorCombo } }
+    rafaga: {},
     // Sesión en curso o null. Persistida para poder reanudar tras recargar.
     sesion: null,
     racha: { dias: 0, ultimoDia: null },
@@ -38,6 +40,7 @@ export function migrar(crudo) {
       ...crudo,
       ajustes: { ...base.ajustes, ...(crudo.ajustes || {}) },
       racha: { ...base.racha, ...(crudo.racha || {}) },
+      rafaga: { ...base.rafaga, ...(crudo.rafaga || {}) },
     }
   }
   // Versión desconocida (futura o corrupta): no arriesgamos, estado limpio.
