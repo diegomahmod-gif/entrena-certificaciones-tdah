@@ -37,8 +37,9 @@
     {
       "codigo": "AZ-800",
       "archivo": "az-800.json",
-      "prioridad": 2,
-      "cobertura": "muestra"
+      "prioridad": 1,
+      "cobertura": "completa",
+      "aviso": "Se retira el 2026-09-30; sucesor AZ-802 (examen único que reemplaza a AZ-800 + AZ-801)"
     }
   ]
 }

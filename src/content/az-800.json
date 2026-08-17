@@ -4,12 +4,14 @@
   "certificacion": "Microsoft Certified: Windows Server Hybrid Administrator Associate (requiere también AZ-801)",
   "estado": "activo",
   "vigencia": {
-    "verificadoEl": "2026-07-07",
+    "verificadoEl": "2026-08-17",
     "skillsMeasuredDesde": "2026-01-21",
-    "retirementDate": null,
+    "retirementDate": "2026-09-30",
+    "sucesor": "AZ-802 (Administering Windows Server), examen único que sustituye a AZ-800 + AZ-801",
     "fuente": "https://learn.microsoft.com/credentials/certifications/resources/study-guides/az-800"
   },
-  "cobertura": "muestra",
+  "avisoRetiro": "⚠️ AZ-800 y AZ-801 se retiran el 30.09.2026. La certificación exige aprobar los DOS: aprobar solo AZ-800 antes de esa fecha no da credencial. El sustituto es AZ-802, examen único y sin fecha de retirada, que conserva ~70% de este temario y añade seguridad, monitorización y troubleshooting.",
+  "cobertura": "completa",
   "notaLegal": "Contenido original creado para práctica. Basado únicamente en el esqueleto temático público de la guía oficial. No contiene preguntas reales de examen ni texto de Microsoft.",
   "dominios": [
     {
@@ -18,44 +20,180 @@
       "ponderacion": "30-35%",
       "subtemas": [
         "Domain controllers on-premises y en Azure, RODCs, roles FSMO",
-        "Multi-site/multi-domain/multi-forest: trusts, sites, replicación",
-        "Security principals: usuarios, grupos, cuentas de servicio, join a AD DS/Entra Domain Services/Entra",
-        "Identidad híbrida: Entra Connect Sync, Cloud Sync, Entra Domain Services, Connect Health, autenticación híbrida",
+        "Multi-site, multi-domain y multi-forest: trusts, sitios, replicación",
+        "Security principals: usuarios, grupos, cuentas de servicio, join a AD DS / Entra Domain Services / Entra",
+        "Identidad híbrida: Entra Connect Sync, Cloud Sync, Entra Domain Services, Connect Health, autenticación híbrida, staged rollout",
         "Group Policy en AD DS y en Entra Domain Services, preferences"
       ],
       "flashcards": [
-        { "id": "az800-d1-f01", "concepto": "Roles FSMO", "explicacion": "Cinco roles de operación única: Schema Master y Domain Naming Master (por bosque), PDC Emulator, RID Master e Infrastructure Master (por dominio). Se transfieren en frío o se 'seizan' si el titular murió." },
-        { "id": "az800-d1-f02", "concepto": "Entra Connect Sync vs Cloud Sync", "explicacion": "Connect Sync: agente pesado con todas las opciones (filtrado avanzado, grupos grandes, escritura diferida). Cloud Sync: agente ligero gestionado desde la nube, ideal para multi-forest y despliegues simples de alta disponibilidad." }
+        { "id": "az800-d1-f01", "concepto": "Bosque vs dominio", "explicacion": "El dominio es la unidad de administración y de política (usuarios, equipos, GPOs). El bosque es el conjunto de dominios que comparten esquema, configuración y catálogo global. La frontera real de seguridad es el BOSQUE, no el dominio: un administrador de dominio puede escalar dentro del bosque, por eso separar seguridad de verdad exige bosques distintos." },
+        { "id": "az800-d1-f02", "concepto": "Domain Controller y NTDS.dit", "explicacion": "Un DC guarda la base de datos de AD en NTDS.dit y las directivas en SYSVOL (replicado por DFSR). Se promociona con Install-ADDSDomainController o Install-ADDSForest tras instalar el rol AD-Domain-Services. Un DC necesita DNS que resuelva los registros SRV _ldap._tcp y _kerberos._tcp, o los clientes no lo encuentran." },
+        { "id": "az800-d1-f03", "concepto": "Global Catalog (GC)", "explicacion": "Réplica parcial de solo lectura de TODOS los objetos del bosque, con un subconjunto de atributos. Sirve para búsquedas entre dominios, para resolver la pertenencia a grupos universales y para el inicio de sesión con UPN. Escucha en el puerto 3268 (3269 con SSL). En un bosque de un solo dominio, todos los DCs suelen ser GC." },
+        { "id": "az800-d1-f04", "concepto": "Los 5 roles FSMO", "explicacion": "Operaciones que solo puede hacer un DC a la vez. De BOSQUE: Schema Master (cambia el esquema) y Domain Naming Master (añade o quita dominios). De DOMINIO: PDC Emulator (hora, bloqueos de cuenta, cambios de contraseña), RID Master (reparte bloques de RIDs para crear SIDs) e Infrastructure Master (referencias a objetos de otros dominios)." },
+        { "id": "az800-d1-f05", "concepto": "Transferir vs incautar (seize) un FSMO", "explicacion": "Transferir es el movimiento ordenado, con el titular vivo: Move-ADDirectoryServerOperationMasterRole. Incautar es forzarlo cuando el titular está muerto y no va a volver: mismo cmdlet con -Force. Regla de oro: si incautas, el DC antiguo NO debe volver a la red nunca; hay que borrarlo con metadata cleanup." },
+        { "id": "az800-d1-f06", "concepto": "RODC (Read-Only Domain Controller)", "explicacion": "DC con copia de solo lectura de AD, pensado para sucursales sin sala de servidores segura. No almacena contraseñas por defecto, no acepta escrituras (las reenvía a un DC de escritura), replica en un solo sentido y permite delegar administración local sin dar permisos de dominio. Requiere al menos un DC de escritura Windows Server 2008+ en el dominio." },
+        { "id": "az800-d1-f07", "concepto": "Password Replication Policy (PRP)", "explicacion": "Define qué contraseñas puede cachear un RODC. Dos grupos gobiernan el comportamiento por defecto: Allowed RODC Password Replication Group (vacío por defecto) y Denied RODC Password Replication Group (contiene cuentas sensibles como Domain Admins). Si roban el RODC, solo se comprometen las contraseñas cacheadas, y se resetean con Reset-ADAccountPassword." },
+        { "id": "az800-d1-f08", "concepto": "Tipos de trust", "explicacion": "Forest trust (entre raíces de dos bosques, transitivo dentro de cada bosque), External trust (a un dominio concreto, no transitivo), Realm trust (hacia un reino Kerberos no Windows, por ejemplo MIT), Shortcut trust (atajo dentro del mismo bosque para acortar la ruta de referencias). Dentro de un bosque los trusts padre-hijo son automáticos, bidireccionales y transitivos." },
+        { "id": "az800-d1-f09", "concepto": "Dirección de un trust (la trampa clásica)", "explicacion": "La dirección del trust es la INVERSA de la dirección del acceso. Si A confía en B (trust de A hacia B), entonces los usuarios de B pueden acceder a recursos de A. Regla mnemotécnica: la flecha del trust apunta hacia donde están los usuarios, el acceso fluye en sentido contrario." },
+        { "id": "az800-d1-f10", "concepto": "Selective authentication y SID filtering", "explicacion": "Selective authentication: en lugar de dejar entrar a todo el bosque de enfrente, exige conceder explícitamente el permiso Allowed to authenticate en cada servidor. SID filtering: descarta SIDs que no pertenecen al dominio de origen, para impedir ataques de inyección de SID history. Ambos son controles de confianza mínima entre organizaciones." },
+        { "id": "az800-d1-f11", "concepto": "Sitios de AD DS", "explicacion": "Un sitio representa una ubicación física con buena red interna. Asocias subredes IP a sitios, y AD usa esa información para dos cosas: que los clientes se autentiquen contra un DC cercano (localización de servicios) y para controlar cómo se replica entre ubicaciones. Se gestionan en Active Directory Sites and Services (dssite.msc)." },
+        { "id": "az800-d1-f12", "concepto": "Replicación intra-site vs inter-site", "explicacion": "INTRA-site: rápida, por notificación de cambio (unos 15 segundos), sin comprimir, topología en anillo con máximo 3 saltos. INTER-site: por horario (por defecto cada 180 minutos), comprimida para ahorrar ancho de banda, a través de site links con un coste que determina la ruta preferida. Menos coste igual a ruta preferida." },
+        { "id": "az800-d1-f13", "concepto": "KCC, ISTG y bridgehead", "explicacion": "El KCC (Knowledge Consistency Checker) calcula automáticamente la topología de replicación dentro del sitio. El ISTG (Inter-Site Topology Generator), uno por sitio, calcula las conexiones entre sitios y elige los bridgehead servers, que son los DCs que hablan con el otro sitio. Puedes fijar bridgeheads preferidos, pero si se caen la replicación entre sitios se para." },
+        { "id": "az800-d1-f14", "concepto": "Diagnóstico de replicación", "explicacion": "repadmin /replsummary da la foto global. repadmin /showrepl muestra el estado de un DC concreto. repadmin /syncall /AdeP fuerza una sincronización. dcdiag valida la salud del DC. El tombstone lifetime (180 días por defecto) marca cuánto puede estar un DC sin replicar antes de quedar aislado de forma irrecuperable." },
+        { "id": "az800-d1-f15", "concepto": "Ámbitos de grupo y AGDLP", "explicacion": "Global: contiene miembros de su dominio, se usa para agrupar usuarios por rol. Domain Local: puede contener miembros de cualquier dominio, se usa para asignar permisos a un recurso. Universal: miembros de cualquier dominio, se replica al catálogo global, para escenarios multi-dominio. AGDLP: cuentas (A) en grupos globales (G), los globales en domain local (DL), y a estos se les dan permisos (P)." },
+        { "id": "az800-d1-f16", "concepto": "gMSA (Group Managed Service Account)", "explicacion": "Cuenta de servicio cuya contraseña gestiona y rota AD automáticamente (30 días por defecto) y que pueden usar VARIOS servidores. Requiere crear antes la clave raíz KDS con Add-KdsRootKey. Se crea con New-ADServiceAccount -PrincipalsAllowedToRetrieveManagedPassword y se instala en el servidor con Install-ADServiceAccount. Elimina el problema de las contraseñas de servicio que nadie rota nunca." },
+        { "id": "az800-d1-f17", "concepto": "Elegir tipo de cuenta de servicio", "explicacion": "Cuenta de usuario normal: la peor, contraseña manual. sMSA: gestionada pero solo válida en UN servidor. gMSA: gestionada y compartida entre varios servidores o un clúster, es la respuesta correcta por defecto. Cuenta virtual (NT SERVICE\\nombre): local, sin contraseña, sin identidad de dominio, buena si el servicio no necesita acceder a la red." },
+        { "id": "az800-d1-f18", "concepto": "Entra Connect Sync vs Cloud Sync", "explicacion": "Connect Sync: agente pesado sobre un servidor propio, con todas las capacidades (reglas de sincronización personalizadas, filtrado avanzado, device writeback, escenarios híbridos de Exchange, pass-through authentication). Cloud Sync: agente ligero configurado desde el portal, varios agentes para alta disponibilidad, ideal para multi-forest y fusiones. Cloud Sync no cubre los escenarios complejos de Connect Sync." },
+        { "id": "az800-d1-f19", "concepto": "PHS, PTA y federación", "explicacion": "Password Hash Sync (PHS): se sincroniza un hash del hash de la contraseña a Entra ID; la nube autentica sola, resiste caídas del enlace, es la opción recomendada. Pass-through Authentication (PTA): la nube reenvía la validación a agentes on-premises; la contraseña nunca se guarda en la nube pero dependes del enlace. Federación (AD FS): infraestructura propia, máxima flexibilidad, máximo coste." },
+        { "id": "az800-d1-f20", "concepto": "Staged rollout", "explicacion": "Permite mover usuarios de federación (AD FS) a autenticación en la nube (PHS o PTA) por grupos, para probar con un piloto sin cambiar el ajuste de federación de todo el dominio. Es la ruta segura de migración: si algo falla, sacas al grupo del rollout y esos usuarios vuelven a federación." },
+        { "id": "az800-d1-f21", "concepto": "Microsoft Entra Domain Services", "explicacion": "Dominio gestionado en Azure con LDAP, Kerberos, NTLM y unión a dominio, sin desplegar ni parchear DCs. Restricciones clave: NO tienes Domain Admin, NO puedes extender el esquema, y la sincronización desde Entra ID es de un solo sentido. Sirve para aplicaciones heredadas que exigen dominio pero no quieres mantener servidores." },
+        { "id": "az800-d1-f22", "concepto": "GPO: orden de aplicación L-S-D-OU", "explicacion": "Se aplican en orden Local, Site, Domain, OU, y en OUs anidadas de fuera hacia dentro. La última en aplicarse gana en caso de conflicto, es decir, la OU más profunda tiene la última palabra. Refresco: cada 90 minutos más un desfase aleatorio de 0 a 30 minutos en clientes y miembros, cada 5 minutos en los DCs. Forzar con gpupdate /force, comprobar con gpresult /r." },
+        { "id": "az800-d1-f23", "concepto": "Block Inheritance, Enforced y loopback", "explicacion": "Block Inheritance: una OU rechaza las GPOs heredadas de arriba. Enforced: marca una GPO para que no pueda ser bloqueada ni sobrescrita, gana siempre. Enforced vence a Block Inheritance. Loopback processing: aplica la configuración de USUARIO en función del EQUIPO en el que inicia sesión, en modo merge o replace; es lo que se usa en quioscos, aulas y servidores de escritorio remoto." },
+        { "id": "az800-d1-f24", "concepto": "Policies vs Preferences", "explicacion": "Las policies se escriben en la rama Policies del registro, el usuario no puede cambiarlas y se revierten si la GPO deja de aplicarse. Las preferences escriben en la ubicación normal, el usuario SÍ puede cambiarlas, y por defecto persisten aunque la GPO desaparezca (tatuaje). Las preferences soportan item-level targeting, que permite condiciones muy finas (por sistema operativo, grupo, rango IP)." }
       ],
       "preguntas": [
         {
           "id": "az800-d1-q01",
-          "pregunta": "Una sucursal pequeña sin sala de servidores segura necesita autenticación local rápida. ¿Qué despliegas?",
+          "pregunta": "Una sucursal pequeña sin sala de servidores con llave necesita autenticación local rápida. ¿Qué despliegas?",
           "opciones": [
-            { "texto": "Un read-only domain controller (RODC)", "correcta": true, "explicacion": "El RODC cachea credenciales seleccionadas y no permite escrituras: diseñado para ubicaciones con seguridad física limitada." },
-            { "texto": "Un DC escribible estándar", "correcta": false, "explicacion": "Un DC completo robado compromete todo el dominio: riesgo inaceptable sin seguridad física." },
-            { "texto": "Solo una VPN hacia la sede", "correcta": false, "explicacion": "La autenticación dependería del enlace: sin él, nadie inicia sesión." },
-            { "texto": "Entra ID sin AD local", "correcta": false, "explicacion": "Las apps y equipos legacy del dominio siguen requiriendo AD DS local en este escenario." }
+            { "texto": "Un RODC con Password Replication Policy restrictiva", "correcta": true, "explicacion": "Es el caso de uso exacto del RODC: autenticación local sin exponer todas las contraseñas del dominio si roban el servidor." },
+            { "texto": "Un DC de escritura estándar", "correcta": false, "explicacion": "Un DC de escritura en un sitio inseguro expone toda la base de datos de AD, incluidas las credenciales." },
+            { "texto": "Un servidor miembro con caché de credenciales", "correcta": false, "explicacion": "La caché de credenciales del cliente es limitada y no sustituye a un DC para servicios y aplicaciones." },
+            { "texto": "Microsoft Entra Domain Services", "correcta": false, "explicacion": "Entra Domain Services vive en Azure; no resuelve la latencia ni la autenticación local si cae el enlace." }
           ]
         },
         {
           "id": "az800-d1-q02",
-          "pregunta": "Los usuarios deben iniciar sesión en Microsoft 365 con sus cuentas de AD local sin infraestructura ADFS. ¿Qué configuras?",
+          "pregunta": "El único DC que tenía el rol de Schema Master ha muerto de forma irrecuperable. ¿Qué haces?",
           "opciones": [
-            { "texto": "Entra Connect con password hash sync (o pass-through authentication)", "correcta": true, "explicacion": "Sincroniza identidades hacia Entra ID y habilita el login con las credenciales corporativas sin granjas de federación." },
-            { "texto": "Cuentas cloud separadas para cada usuario", "correcta": false, "explicacion": "Duplicar identidades genera contraseñas divergentes y caos de administración." },
-            { "texto": "Una relación de trust entre bosques", "correcta": false, "explicacion": "Los trusts conectan bosques AD, no AD con Entra ID." },
-            { "texto": "Group Policy", "correcta": false, "explicacion": "GPO configura equipos y usuarios del dominio; no sincroniza identidades a la nube." }
+            { "texto": "Incautar (seize) el rol en otro DC y hacer metadata cleanup del DC muerto", "correcta": true, "explicacion": "Con el titular muerto no cabe transferencia. Tras incautar, el DC antiguo nunca debe volver a la red y hay que limpiarlo de los metadatos de AD." },
+            { "texto": "Transferir el rol con Move-ADDirectoryServerOperationMasterRole sin -Force", "correcta": false, "explicacion": "La transferencia limpia requiere que el titular esté vivo y accesible." },
+            { "texto": "Esperar a que el KCC reasigne el rol automáticamente", "correcta": false, "explicacion": "Los roles FSMO nunca se reasignan solos: son de titularidad única y manual." },
+            { "texto": "Promover un DC nuevo, que tomará el rol al unirse", "correcta": false, "explicacion": "Un DC nuevo no adquiere roles FSMO por el hecho de promocionarse." }
+          ]
+        },
+        {
+          "id": "az800-d1-q03",
+          "pregunta": "Usuarios del bosque B deben acceder a un servidor de archivos del bosque A, pero solo a ese servidor. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Forest trust con selective authentication y el permiso Allowed to authenticate en ese servidor", "correcta": true, "explicacion": "Selective authentication no da acceso general: hay que conceder explícitamente el permiso en cada recurso, que es justo lo pedido." },
+            { "texto": "Forest trust con forest-wide authentication", "correcta": false, "explicacion": "Forest-wide authentication permite a los usuarios del otro bosque autenticarse contra cualquier recurso, más de lo necesario." },
+            { "texto": "Un shortcut trust entre los dos bosques", "correcta": false, "explicacion": "Los shortcut trusts sirven para acortar rutas dentro de UN mismo bosque, no entre bosques distintos." },
+            { "texto": "Sincronizar ambos bosques con Entra Connect Sync", "correcta": false, "explicacion": "La sincronización a la nube no concede acceso a recursos SMB on-premises del otro bosque." }
+          ]
+        },
+        {
+          "id": "az800-d1-q04",
+          "pregunta": "La replicación entre la sede de Zúrich y la de Ginebra satura el enlace WAN en horario laboral. ¿Qué ajustas?",
+          "opciones": [
+            { "texto": "El horario y el intervalo de replicación del site link entre ambos sitios", "correcta": true, "explicacion": "La replicación inter-site es programable: se puede restringir a horas valle y ampliar el intervalo. Además viaja comprimida." },
+            { "texto": "Convertir el DC de Ginebra en Global Catalog", "correcta": false, "explicacion": "Añadir el GC aumenta el volumen replicado, empeorando el problema." },
+            { "texto": "Poner los dos DCs en el mismo sitio de AD", "correcta": false, "explicacion": "En el mismo sitio la replicación pasa a ser por notificación, inmediata y sin comprimir: mucho peor para una WAN." },
+            { "texto": "Bajar el tombstone lifetime a 60 días", "correcta": false, "explicacion": "El tombstone lifetime afecta a la retención de objetos borrados, no al consumo de ancho de banda." }
+          ]
+        },
+        {
+          "id": "az800-d1-q05",
+          "pregunta": "Una aplicación se ejecutará en tres servidores en balanceo y necesita una identidad de dominio con contraseña rotada automáticamente. ¿Qué cuenta usas?",
+          "opciones": [
+            { "texto": "Una gMSA", "correcta": true, "explicacion": "La gMSA es exactamente esto: identidad de dominio compartida por varios hosts con contraseña gestionada y rotada por AD." },
+            { "texto": "Una sMSA", "correcta": false, "explicacion": "La sMSA solo puede usarse en un único servidor." },
+            { "texto": "Una cuenta virtual NT SERVICE", "correcta": false, "explicacion": "La cuenta virtual es local al servidor y no ofrece una identidad de dominio compartida." },
+            { "texto": "Una cuenta de usuario con la contraseña anotada en el gestor de contraseñas", "correcta": false, "explicacion": "Funciona, pero deja la rotación en manos humanas: es el antipatrón que las gMSA vienen a eliminar." }
+          ]
+        },
+        {
+          "id": "az800-d1-q06",
+          "pregunta": "Antes de crear la primera gMSA en un bosque nuevo, ¿qué paso es obligatorio?",
+          "opciones": [
+            { "texto": "Crear la clave raíz KDS con Add-KdsRootKey", "correcta": true, "explicacion": "El servicio KDS deriva las contraseñas de las gMSA a partir de esa clave raíz; sin ella New-ADServiceAccount falla." },
+            { "texto": "Elevar el nivel funcional del bosque a Windows Server 2025", "correcta": false, "explicacion": "Las gMSA requieren nivel funcional 2012 o superior, no el último disponible." },
+            { "texto": "Instalar Entra Connect Sync", "correcta": false, "explicacion": "Las gMSA son una funcionalidad puramente on-premises, sin relación con la sincronización a la nube." },
+            { "texto": "Habilitar la papelera de reciclaje de AD", "correcta": false, "explicacion": "Son funcionalidades independientes." }
+          ]
+        },
+        {
+          "id": "az800-d1-q07",
+          "pregunta": "Una empresa con varios bosques tras una fusión quiere sincronizar identidades a Entra ID con el mínimo de infraestructura. ¿Qué eliges?",
+          "opciones": [
+            { "texto": "Microsoft Entra Cloud Sync con varios agentes ligeros", "correcta": true, "explicacion": "Cloud Sync está pensado para multi-forest y fusiones: configuración en la nube, agentes ligeros y alta disponibilidad sin servidores dedicados." },
+            { "texto": "Entra Connect Sync con un servidor por bosque", "correcta": false, "explicacion": "Funciona, pero es la opción pesada; el requisito era el mínimo de infraestructura." },
+            { "texto": "Microsoft Entra Domain Services", "correcta": false, "explicacion": "Entra Domain Services proyecta un dominio gestionado hacia abajo, no sincroniza identidades locales hacia arriba." },
+            { "texto": "Un trust de bosque hacia Entra ID", "correcta": false, "explicacion": "No existen trusts de AD DS hacia Entra ID: son directorios de naturaleza distinta." }
+          ]
+        },
+        {
+          "id": "az800-d1-q08",
+          "pregunta": "Se quiere que los usuarios puedan seguir entrando en Microsoft 365 aunque se caiga el enlace con la oficina. ¿Qué método de autenticación híbrida eliges?",
+          "opciones": [
+            { "texto": "Password Hash Sync (PHS)", "correcta": true, "explicacion": "Con PHS la validación ocurre íntegramente en Entra ID, así que una caída del enlace on-premises no impide iniciar sesión en la nube." },
+            { "texto": "Pass-through Authentication (PTA)", "correcta": false, "explicacion": "PTA depende de agentes on-premises: si cae el enlace, la autenticación se detiene." },
+            { "texto": "Federación con AD FS", "correcta": false, "explicacion": "AD FS vive on-premises; si no es accesible, los usuarios federados no pueden autenticarse." },
+            { "texto": "Entra Domain Services", "correcta": false, "explicacion": "No es un método de autenticación híbrida para Microsoft 365." }
+          ]
+        },
+        {
+          "id": "az800-d1-q09",
+          "pregunta": "Una GPO enlazada al dominio configura el bloqueo de pantalla a los 5 minutos. La OU Diseño tiene Block Inheritance y su propia GPO con 30 minutos. La GPO de dominio está marcada como Enforced. ¿Qué se aplica en Diseño?",
+          "opciones": [
+            { "texto": "5 minutos: Enforced vence a Block Inheritance", "correcta": true, "explicacion": "Enforced es precisamente el mecanismo para que una directiva obligatoria no pueda ser bloqueada ni sobrescrita por niveles inferiores." },
+            { "texto": "30 minutos: la OU es el último nivel en aplicarse", "correcta": false, "explicacion": "El orden L-S-D-OU solo decide en ausencia de Enforced." },
+            { "texto": "Ninguna de las dos: entran en conflicto y se ignoran", "correcta": false, "explicacion": "Group Policy siempre resuelve el conflicto, nunca deja la configuración sin aplicar por empate." },
+            { "texto": "Se aplica la más restrictiva de las dos por diseño", "correcta": false, "explicacion": "Group Policy no elige por restrictividad; resuelve por precedencia." }
+          ]
+        },
+        {
+          "id": "az800-d1-q10",
+          "pregunta": "En una sala de formación, cualquier usuario que inicie sesión debe recibir la misma configuración de escritorio, sea quien sea. ¿Qué activas?",
+          "opciones": [
+            { "texto": "Loopback processing en modo Replace", "correcta": true, "explicacion": "Loopback aplica la configuración de usuario en función del equipo; en modo Replace descarta por completo la configuración de usuario habitual." },
+            { "texto": "Block Inheritance en la OU de los equipos", "correcta": false, "explicacion": "Block Inheritance actúa sobre la herencia de GPOs, no sobre qué configuración de usuario se aplica según el equipo." },
+            { "texto": "Security filtering sobre el grupo Domain Users", "correcta": false, "explicacion": "El filtrado de seguridad decide a quién se aplica una GPO, no cambia la lógica usuario/equipo." },
+            { "texto": "Un WMI filter que detecte el nombre del equipo", "correcta": false, "explicacion": "El filtro WMI condiciona la aplicación, pero la configuración de usuario seguiría viniendo de la OU del usuario." }
+          ]
+        },
+        {
+          "id": "az800-d1-q11",
+          "pregunta": "Necesitas mapear una unidad de red solo a los portátiles de ventas, y quieres que el usuario pueda desconectarla si lo desea. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Group Policy Preferences con item-level targeting", "correcta": true, "explicacion": "Las preferences no se imponen (el usuario puede modificarlas) y el item-level targeting permite condicionar por grupo, sistema operativo o rango IP." },
+            { "texto": "Una policy de la rama Administrative Templates", "correcta": false, "explicacion": "Las policies son impuestas y no permiten que el usuario las modifique." },
+            { "texto": "Un script de inicio de sesión enlazado al dominio", "correcta": false, "explicacion": "Se aplicaría a todo el dominio salvo que se filtre, y es menos mantenible que una preference." },
+            { "texto": "Loopback processing en modo Merge", "correcta": false, "explicacion": "Loopback resuelve qué configuración de usuario aplicar según el equipo, no el mapeo condicional de unidades." }
+          ]
+        },
+        {
+          "id": "az800-d1-q12",
+          "pregunta": "En un dominio gestionado de Microsoft Entra Domain Services, ¿qué NO puedes hacer?",
+          "opciones": [
+            { "texto": "Extender el esquema del directorio", "correcta": true, "explicacion": "El esquema de un dominio gestionado no es extensible: es una de las restricciones de diseño del servicio." },
+            { "texto": "Unir máquinas virtuales al dominio", "correcta": false, "explicacion": "Unir equipos al dominio es precisamente uno de los usos principales del servicio." },
+            { "texto": "Aplicar Group Policy con GPMC", "correcta": false, "explicacion": "Se pueden gestionar GPOs, partiendo de los contenedores integrados AADDC Computers y AADDC Users." },
+            { "texto": "Autenticar con Kerberos o NTLM", "correcta": false, "explicacion": "Ofrecer Kerberos, NTLM y LDAP para aplicaciones heredadas es la razón de ser del servicio." }
           ]
         }
       ],
       "escenarios": [
         {
           "id": "az800-d1-s01",
-          "situacion": "Tu empresa extiende el datacenter a Azure y quiere DCs también en la nube para que las VMs de Azure autentiquen localmente, manteniendo la replicación con la sede.",
-          "pregunta": "¿Cómo diseñas la extensión de AD DS a Azure?",
-          "respuestaEsperada": "Conectividad híbrida (VPN/ExpressRoute), DCs en VMs de Azure en su propio AD site con subnets correctamente mapeadas para dirigir la autenticación local, discos de base de datos AD sin caché de escritura, evaluar RODC si aplica, y configurar la replicación entre sites con costes/schedules adecuados.",
-          "razonamiento": "Extender AD a Azure es un problema de sites y replicación: definir el site de Azure evita que las VMs autentiquen a través del túnel y la topología de replicación controla el tráfico entre ubicaciones."
+          "situacion": "Una empresa suiza con sede en Berna y una filial recién adquirida en Lausana. Cada una tiene su propio bosque de AD. Dirección quiere que el personal de Lausana acceda a la intranet y al servidor de archivos de Berna, pero seguridad exige que un compromiso en Lausana no pueda escalar a Berna.",
+          "pregunta": "¿Qué diseño de confianza y qué controles propones, y por qué no fusionas los bosques?",
+          "respuestaEsperada": "Un forest trust unidireccional (Berna confía en Lausana) con selective authentication, concediendo el permiso Allowed to authenticate solo en el servidor de archivos y el servidor web de la intranet. Activar SID filtering. No fusionar los bosques porque el bosque es la verdadera frontera de seguridad: fusionarlos haría que un administrador comprometido en Lausana pudiera escalar a Berna.",
+          "razonamiento": "El caso obliga a distinguir dominio de bosque como frontera de seguridad, a razonar la dirección del trust (la flecha apunta hacia donde están los usuarios) y a elegir selective authentication frente a forest-wide."
+        },
+        {
+          "id": "az800-d1-s02",
+          "situacion": "Tras un corte eléctrico prolongado, los usuarios de una sede no pueden cambiar su contraseña y algunos reportan bloqueos de cuenta erráticos. La replicación aparece con errores en repadmin /replsummary y el DC que aloja el PDC Emulator lleva 12 días apagado.",
+          "pregunta": "¿Qué relación hay entre los síntomas y el rol caído, y cuál es tu plan de actuación?",
+          "respuestaEsperada": "El PDC Emulator es la autoridad para los cambios de contraseña (recibe las contraseñas nuevas con prioridad), para el procesamiento de bloqueos de cuenta y como fuente de tiempo del dominio. Con él caído aparecen exactamente esos síntomas. Plan: intentar recuperar el DC; si no es viable, incautar el rol en otro DC, hacer metadata cleanup del DC muerto, asegurarse de que no vuelva a conectarse a la red, verificar la jerarquía de tiempo y luego forzar la replicación y volver a comprobar con repadmin y dcdiag.",
+          "razonamiento": "Conecta los tres bloques del dominio: función concreta de cada FSMO, la decisión transferir contra incautar y el diagnóstico de replicación. Además refuerza que Kerberos depende de la hora."
+        },
+        {
+          "id": "az800-d1-s03",
+          "situacion": "Una pyme con 200 empleados quiere pasar a Microsoft 365 manteniendo su AD DS local. El director de IT teme que un fallo de la fibra deje a la plantilla sin correo, y también quiere probar el cambio con el equipo de IT antes de tocar a todo el mundo. Actualmente usan AD FS.",
+          "pregunta": "¿Qué combinación de sincronización, método de autenticación y estrategia de despliegue propones?",
+          "respuestaEsperada": "Sincronizar con Entra Connect Sync o Cloud Sync según la complejidad, y elegir Password Hash Sync como método de autenticación, porque la validación ocurre en la nube y una caída de la fibra no impide el acceso al correo. Para la transición desde AD FS, usar staged rollout: mover primero al grupo de IT a autenticación en la nube, validar, y luego ampliar por oleadas sin cambiar el ajuste de federación del dominio hasta el final.",
+          "razonamiento": "Obliga a comparar PHS, PTA y federación por su comportamiento ante fallos, y a conocer staged rollout como mecanismo de migración por fases, que es lo que el examen busca en este subtema."
         }
       ]
     },
@@ -64,42 +202,123 @@
       "dominio": "Manage Windows Servers and workloads in a hybrid environment",
       "ponderacion": "10-15%",
       "subtemas": [
-        "Administración remota: Windows Admin Center, PowerShell remoting (incl. second hop), JEA, SSH, RDP",
-        "Gestión con Azure: Azure Arc (Connected Machine Agent), Machine Configuration, extensiones de VM, Azure Update Manager, Automation y runbooks"
+        "Windows Admin Center on-premises y en Azure",
+        "PowerShell remoting, segundo salto, JEA",
+        "Acceso remoto por SSH y RDP",
+        "Azure Arc: Connected Machine Agent, Machine Configuration, extensiones de VM",
+        "Azure Update Manager y Azure Automation para cargas híbridas"
       ],
       "flashcards": [
-        { "id": "az800-d2-f01", "concepto": "Just Enough Administration (JEA)", "explicacion": "PowerShell remoting restringido: endpoints que exponen solo los cmdlets necesarios para una tarea, ejecutados con cuentas virtuales. Delegas administración sin dar admin completo." },
-        { "id": "az800-d2-f02", "concepto": "Azure Arc para servidores", "explicacion": "El Connected Machine Agent proyecta servidores on-premises/otras nubes como recursos de Azure: les aplicas Policy, Update Manager, extensiones y monitorización como si fueran VMs de Azure." }
+        { "id": "az800-d2-f01", "concepto": "Windows Admin Center (WAC)", "explicacion": "Consola web que administra servidores, clústeres y equipos sin agente, usando PowerShell y WMI por debajo. Dos modos: instalado en un escritorio (modo desktop) o en modo gateway sobre un servidor, que es lo apropiado para uso compartido. Habla con los nodos gestionados por WinRM, así que WinRM tiene que estar habilitado en ellos." },
+        { "id": "az800-d2-f02", "concepto": "WAC en el portal de Azure", "explicacion": "Windows Admin Center puede desplegarse dentro del portal de Azure para gestionar VMs de Azure y servidores conectados por Azure Arc, sin abrir RDP ni exponer puertos de administración a Internet. Es la forma moderna de administrar un servidor de la oficina desde el navegador." },
+        { "id": "az800-d2-f03", "concepto": "PowerShell remoting y WinRM", "explicacion": "Se apoya en WS-Management: puerto 5985 en HTTP y 5986 en HTTPS. Se habilita con Enable-PSRemoting. Enter-PSSession abre una sesión interactiva, Invoke-Command ejecuta contra muchos equipos a la vez, New-PSSession crea sesiones reutilizables. Por defecto autentica con Kerberos dentro del dominio." },
+        { "id": "az800-d2-f04", "concepto": "El problema del segundo salto (double hop)", "explicacion": "Te conectas por remoting al servidor A y desde ahí intentas alcanzar el servidor B: falla, porque las credenciales Kerberos no se reenvían por defecto. Es una protección deliberada contra el robo de credenciales, no un error de configuración." },
+        { "id": "az800-d2-f05", "concepto": "Soluciones al segundo salto", "explicacion": "Resource-Based Kerberos Constrained Delegation es la opción recomendada: se configura en el servidor DESTINO con Set-ADComputer B -PrincipalsAllowedToDelegateToAccount A, sin necesitar permisos de administrador de dominio. CredSSP funciona pero envía las credenciales al servidor intermedio, así que es la opción insegura y solo se acepta en laboratorio." },
+        { "id": "az800-d2-f06", "concepto": "JEA (Just Enough Administration)", "explicacion": "Limita lo que un usuario puede hacer en una sesión remota a una lista blanca de cmdlets y parámetros. Dos piezas: el role capability file (.psrc, creado con New-PSRoleCapabilityFile) que define qué se puede ejecutar, y el session configuration file (.pssc, con New-PSSessionConfigurationFile) que asocia roles a usuarios. Se activa con Register-PSSessionConfiguration." },
+        { "id": "az800-d2-f07", "concepto": "JEA y cuentas virtuales", "explicacion": "Una sesión JEA puede ejecutarse bajo una cuenta virtual temporal con privilegios de administrador local, o bajo una gMSA si necesita alcanzar recursos de red. Así el operador realiza tareas privilegiadas sin ser administrador ni conocer credenciales privilegiadas, y todo queda registrado en la transcripción de la sesión." },
+        { "id": "az800-d2-f08", "concepto": "OpenSSH en Windows Server", "explicacion": "Se instala como capacidad opcional: Add-WindowsCapability -Online -Name OpenSSH.Server. Luego se arranca y se pone en automático el servicio sshd. Se puede fijar PowerShell como shell por defecto mediante la clave DefaultShell del registro. Útil para administración multiplataforma y para equipos que ya usan SSH en Linux." },
+        { "id": "az800-d2-f09", "concepto": "Azure Arc y el Connected Machine Agent", "explicacion": "Instalas azcmagent en un servidor físico o virtual fuera de Azure y ese servidor pasa a ser un recurso de ARM con su propia identidad gestionada. A partir de ahí puedes aplicarle Azure Policy, inventario, etiquetas, RBAC y extensiones. Solo necesita salida HTTPS por 443 hacia los endpoints de Azure, sin puertos entrantes." },
+        { "id": "az800-d2-f10", "concepto": "Azure Machine Configuration", "explicacion": "La evolución de Guest Configuration: audita y aplica configuración DENTRO del sistema operativo (líneas base de seguridad, ajustes concretos) tanto en VMs de Azure como en servidores conectados con Arc. Puede limitarse a auditar (report only) o corregir activamente la desviación." },
+        { "id": "az800-d2-f11", "concepto": "Extensiones de VM sobre Arc", "explicacion": "Una vez conectado con Arc, un servidor de la oficina acepta las mismas extensiones que una VM de Azure: el agente de Azure Monitor, Custom Script Extension, Dependency Agent, Defender. Es la vía para desplegar agentes de forma centralizada sin tocar cada máquina a mano." },
+        { "id": "az800-d2-f12", "concepto": "Azure Update Manager", "explicacion": "Servicio de gestión de actualizaciones para VMs de Azure y servidores con Arc, sin necesidad de Log Analytics ni de Automation Account. Trabaja con evaluaciones periódicas y con maintenance configurations, que son ventanas de mantenimiento programadas con su ámbito. Sustituye a la vieja solución Update Management de Azure Automation." },
+        { "id": "az800-d2-f13", "concepto": "Azure Automation y Hybrid Runbook Worker", "explicacion": "Los runbooks de Azure Automation (PowerShell, Python o gráficos) se ejecutan en la nube por defecto. Para que actúen sobre recursos on-premises hay que registrar un Hybrid Runbook Worker en un servidor local, que ejecuta el runbook desde dentro de la red. Es la pieza que permite automatizar tareas locales desde Azure." }
       ],
       "preguntas": [
         {
           "id": "az800-d2-q01",
-          "pregunta": "El equipo de helpdesk debe poder reiniciar servicios en los servidores, pero nada más. ¿Qué mecanismo usas?",
+          "pregunta": "Un operador se conecta por PowerShell remoting al servidor SRV1 y desde ahí intenta leer un recurso compartido de SRV2. Falla con acceso denegado. ¿Cuál es la causa?",
           "opciones": [
-            { "texto": "Endpoints JEA que expongan solo los cmdlets de servicios", "correcta": true, "explicacion": "JEA da exactamente la capacidad necesaria con auditoría, sin membresías de administrador." },
-            { "texto": "Añadirlos a Administradores locales", "correcta": false, "explicacion": "Concede control total del servidor: máximo sobre-privilegio." },
-            { "texto": "Compartir la cuenta de un admin", "correcta": false, "explicacion": "Rompe trazabilidad y multiplica el riesgo de la credencial." },
-            { "texto": "Darles RDP a todos los servidores", "correcta": false, "explicacion": "RDP no limita lo que pueden hacer una vez dentro." }
+            { "texto": "El problema del segundo salto: las credenciales Kerberos no se reenvían", "correcta": true, "explicacion": "Es el comportamiento por defecto y deliberado: la sesión remota no puede reutilizar las credenciales para un tercer equipo." },
+            { "texto": "WinRM no está habilitado en SRV2", "correcta": false, "explicacion": "El acceso a un recurso compartido usa SMB, no WinRM." },
+            { "texto": "Falta abrir el puerto 5986 en SRV2", "correcta": false, "explicacion": "5986 es WinRM sobre HTTPS, no interviene en el acceso al recurso compartido." },
+            { "texto": "El operador no es administrador local en SRV1", "correcta": false, "explicacion": "Si no lo fuera, ni siquiera habría podido abrir la sesión remota." }
           ]
         },
         {
           "id": "az800-d2-q02",
-          "pregunta": "Tienes 60 servidores Windows en 3 sedes y quieres parchearlos con la misma herramienta y calendario que tus VMs de Azure. ¿Qué habilitas?",
+          "pregunta": "¿Cuál es la forma recomendada de resolver ese problema del segundo salto?",
           "opciones": [
-            { "texto": "Azure Arc en los servidores y Azure Update Manager", "correcta": true, "explicacion": "Arc los convierte en recursos de Azure y Update Manager orquesta el parcheo unificado con maintenance windows." },
-            { "texto": "Windows Update automático sin control", "correcta": false, "explicacion": "Sin ventanas ni orquestación: reinicios imprevisibles en producción." },
-            { "texto": "Un script de PSWindowsUpdate por sede", "correcta": false, "explicacion": "Mantenible a pequeña escala pero sin visibilidad central ni cumplimiento unificado." },
-            { "texto": "Migrar los 60 servidores a Azure primero", "correcta": false, "explicacion": "Innecesario: Arc trae la gestión de Azure a los servidores donde están." }
+            { "texto": "Resource-Based Kerberos Constrained Delegation, configurada en el servidor destino", "correcta": true, "explicacion": "Se configura desde el recurso destino, no requiere permisos de administrador de dominio y no expone credenciales en el servidor intermedio." },
+            { "texto": "Habilitar CredSSP en cliente y servidor", "correcta": false, "explicacion": "Funciona, pero envía las credenciales al servidor intermedio, lo que lo convierte en un riesgo si ese servidor está comprometido." },
+            { "texto": "Ejecutar la sesión con la cuenta Administrador del dominio", "correcta": false, "explicacion": "No resuelve el reenvío de credenciales y además concentra un riesgo enorme en la sesión." },
+            { "texto": "Cambiar la autenticación de WinRM a Basic", "correcta": false, "explicacion": "Basic transmite credenciales de forma insegura y no soluciona la delegación." }
+          ]
+        },
+        {
+          "id": "az800-d2-q03",
+          "pregunta": "Quieres que el servicio de soporte pueda reiniciar el servicio de impresión en los servidores, sin ser administradores ni poder hacer nada más. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Una sesión JEA con un role capability que solo permita Restart-Service sobre el servicio Spooler", "correcta": true, "explicacion": "JEA existe exactamente para esto: acotar la superficie de una sesión remota a una lista blanca de comandos y parámetros." },
+            { "texto": "Añadirlos al grupo Administradores locales de cada servidor", "correcta": false, "explicacion": "Concede muchísimo más de lo necesario, que es lo contrario del principio de mínimo privilegio." },
+            { "texto": "Darles acceso RDP y una cuenta estándar", "correcta": false, "explicacion": "Una cuenta estándar no puede reiniciar servicios, y elevarla volvería al problema anterior." },
+            { "texto": "Configurar RBKCD hacia los servidores de impresión", "correcta": false, "explicacion": "RBKCD resuelve la delegación de credenciales, no la limitación de comandos." }
+          ]
+        },
+        {
+          "id": "az800-d2-q04",
+          "pregunta": "Tienes 40 servidores físicos en tres oficinas y quieres aplicarles Azure Policy e inventariarlos desde el portal de Azure. ¿Qué despliegas?",
+          "opciones": [
+            { "texto": "El Connected Machine Agent de Azure Arc en cada servidor", "correcta": true, "explicacion": "Arc proyecta máquinas de fuera de Azure como recursos de ARM, habilitando Policy, RBAC, etiquetas, inventario y extensiones." },
+            { "texto": "Una VPN site-to-site hacia una red virtual de Azure", "correcta": false, "explicacion": "La VPN da conectividad de red, pero no convierte los servidores en recursos gestionables desde ARM." },
+            { "texto": "El agente de Azure Monitor en cada servidor", "correcta": false, "explicacion": "Aporta telemetría, pero no gobernanza ni gestión mediante Azure Policy." },
+            { "texto": "Windows Admin Center en modo gateway", "correcta": false, "explicacion": "WAC administra los servidores pero no los representa como recursos de Azure para aplicarles políticas." }
+          ]
+        },
+        {
+          "id": "az800-d2-q05",
+          "pregunta": "¿Qué requisito de red tiene el Connected Machine Agent de Azure Arc?",
+          "opciones": [
+            { "texto": "Salida HTTPS por el puerto 443 hacia los endpoints de Azure, sin puertos entrantes", "correcta": true, "explicacion": "El agente inicia siempre la conexión hacia fuera, lo que evita abrir la red perimetral." },
+            { "texto": "Un túnel VPN site-to-site permanente", "correcta": false, "explicacion": "Arc no necesita VPN: funciona sobre Internet con salida HTTPS." },
+            { "texto": "Publicar el puerto 5985 hacia Internet", "correcta": false, "explicacion": "Exponer WinRM a Internet sería un riesgo grave y no es requisito de Arc." },
+            { "texto": "ExpressRoute con peering privado", "correcta": false, "explicacion": "Es una opción de conectividad válida en general, pero no un requisito del agente." }
+          ]
+        },
+        {
+          "id": "az800-d2-q06",
+          "pregunta": "Necesitas parchear cada segundo martes de mes, en ventana nocturna, tanto VMs de Azure como servidores de la oficina conectados con Arc. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Azure Update Manager con una maintenance configuration programada", "correcta": true, "explicacion": "Update Manager cubre VMs de Azure y máquinas con Arc, y las maintenance configurations definen la ventana y el ámbito." },
+            { "texto": "WSUS con GPOs de Windows Update", "correcta": false, "explicacion": "Funcionaría on-premises, pero no ofrece una vista y una gestión unificada con las VMs de Azure." },
+            { "texto": "Azure Machine Configuration", "correcta": false, "explicacion": "Machine Configuration audita y corrige ajustes del sistema operativo, no gestiona actualizaciones." },
+            { "texto": "Extensiones de VM con Custom Script", "correcta": false, "explicacion": "Se podría improvisar, pero no aporta evaluación, cumplimiento ni programación nativa de parches." }
+          ]
+        },
+        {
+          "id": "az800-d2-q07",
+          "pregunta": "Un runbook de Azure Automation debe ejecutar un script contra un servidor de archivos que está en la oficina. ¿Qué necesitas?",
+          "opciones": [
+            { "texto": "Registrar un Hybrid Runbook Worker en un servidor de la red local", "correcta": true, "explicacion": "El worker híbrido ejecuta el runbook desde dentro de la red, que es lo que permite alcanzar recursos on-premises." },
+            { "texto": "Nada especial: los runbooks acceden a cualquier destino", "correcta": false, "explicacion": "Por defecto se ejecutan en la nube de Azure y no alcanzan la red interna." },
+            { "texto": "Habilitar CredSSP en el servidor de archivos", "correcta": false, "explicacion": "CredSSP trata la delegación de credenciales, no la conectividad desde Azure Automation." },
+            { "texto": "Instalar Windows Admin Center en el servidor de archivos", "correcta": false, "explicacion": "WAC no es el mecanismo de ejecución de runbooks." }
+          ]
+        },
+        {
+          "id": "az800-d2-q08",
+          "pregunta": "Quieres administrar por navegador un servidor Windows de la oficina desde el portal de Azure, sin abrir RDP a Internet. ¿Qué combinación resuelve el caso?",
+          "opciones": [
+            { "texto": "Conectar el servidor con Azure Arc y usar Windows Admin Center en el portal de Azure", "correcta": true, "explicacion": "Es el escenario canónico de administración híbrida: Arc lo representa como recurso y WAC en Azure da la consola sin exponer puertos." },
+            { "texto": "Publicar el puerto 3389 con una regla NAT en el firewall", "correcta": false, "explicacion": "Exponer RDP a Internet es exactamente lo que se pedía evitar." },
+            { "texto": "Instalar Windows Admin Center en modo desktop en un portátil", "correcta": false, "explicacion": "No permite administrar desde el portal de Azure ni resuelve el acceso desde fuera de la red." },
+            { "texto": "Habilitar OpenSSH y abrir el puerto 22", "correcta": false, "explicacion": "Sigue exponiendo un puerto de administración a Internet y no es administración por navegador." }
           ]
         }
       ],
       "escenarios": [
         {
           "id": "az800-d2-s01",
-          "situacion": "Un script remoto que copia archivos desde un file share falla con 'Access Denied' solo cuando se ejecuta vía PowerShell remoting, aunque el usuario tiene permisos.",
-          "pregunta": "¿Qué está ocurriendo y qué soluciones existen?",
-          "respuestaEsperada": "Es el problema del 'second hop': la credencial no viaja del servidor intermedio al file share. Soluciones: CredSSP (con cautela), delegación restringida basada en recursos (resource-based Kerberos constrained delegation) — la opción recomendada — o rediseñar para evitar el salto.",
-          "razonamiento": "Reconocer el second hop es el diagnóstico clave del remoting; elegir la delegación restringida sobre CredSSP refleja el criterio de seguridad que mide el examen."
+          "situacion": "Una empresa con 60 servidores repartidos entre la oficina y Azure quiere: inventario único, líneas base de seguridad auditadas, parcheo programado y que el equipo de soporte pueda reiniciar servicios sin ser administrador.",
+          "pregunta": "Diseña la solución indicando qué servicio cubre cada requisito.",
+          "respuestaEsperada": "Azure Arc con el Connected Machine Agent en los servidores de la oficina, para tener inventario y RBAC unificados en ARM. Azure Machine Configuration para auditar y aplicar las líneas base de seguridad dentro del sistema operativo. Azure Update Manager con maintenance configurations para el parcheo programado sobre VMs de Azure y máquinas con Arc. JEA con role capabilities limitadas a Restart-Service para el equipo de soporte, ejecutándose bajo cuenta virtual.",
+          "razonamiento": "Obliga a separar cuatro servicios que se confunden con frecuencia: Arc (representación y gobernanza), Machine Configuration (estado interno del sistema operativo), Update Manager (parches) y JEA (delegación acotada)."
+        },
+        {
+          "id": "az800-d2-s02",
+          "situacion": "Un script de mantenimiento se conecta por remoting a un servidor de aplicaciones y desde ahí debe copiar archivos de un servidor de archivos. Funciona a mano desde la consola del servidor pero falla al ejecutarse por remoting. Un compañero propone habilitar CredSSP y cerrar el ticket.",
+          "pregunta": "¿Por qué falla, qué objeción pones a la propuesta y qué implementas en su lugar?",
+          "respuestaEsperada": "Falla por el segundo salto: las credenciales Kerberos de la sesión remota no se reenvían al tercer equipo. CredSSP resolvería el síntoma pero envía las credenciales completas al servidor intermedio, de modo que si ese servidor está comprometido el atacante se queda con ellas. La solución correcta es Resource-Based Kerberos Constrained Delegation, configurada en el servidor de archivos con Set-ADComputer -PrincipalsAllowedToDelegateToAccount, apuntando a la cuenta de equipo del servidor de aplicaciones.",
+          "razonamiento": "Este es un patrón de pregunta muy típico: la opción que funciona no es la opción correcta. Exige razonar el modelo de amenaza, no solo el resultado funcional."
         }
       ]
     },
@@ -108,88 +327,303 @@
       "dominio": "Manage virtual machines and containers",
       "ponderacion": "15-20%",
       "subtemas": [
-        "Hyper-V y VMs guest: enhanced session, nested virtualization, memoria, checkpoints, alta disponibilidad, discos, redes/NIC teaming, switch, shielded VMs",
-        "Contenedores: host Windows Server, imágenes, redes de contenedores, instancias, AKS en Windows Server",
-        "VMs Windows Server en Azure: storage, resize/scale sets, availability, JIT y Bastion"
+        "Hyper-V y VMs invitadas: sesión mejorada, virtualización anidada, memoria, integration services",
+        "DDA, particionado de GPU, grupos de recursos de VM, tipos de planificador del hipervisor",
+        "Checkpoints, discos duros virtuales, adaptadores de red, NIC Teaming, conmutador virtual",
+        "Guarded fabric y shielded VMs",
+        "Contenedores de Windows Server, imágenes, redes, AKS en Windows Server",
+        "VMs de Windows Server en Azure: almacenamiento, capacidad, disponibilidad, JIT y Bastion"
       ],
       "flashcards": [
-        { "id": "az800-d3-f01", "concepto": "Checkpoints de Hyper-V", "explicacion": "Instantáneas del estado de una VM (estándar: incluye memoria; producción: usa VSS, consistente para cargas como SQL). Útiles antes de cambios; no sustituyen al backup." },
-        { "id": "az800-d3-f02", "concepto": "Nested virtualization", "explicacion": "Permite ejecutar Hyper-V dentro de una VM (exponer las extensiones de virtualización al guest). Necesario para labs, contenedores con aislamiento Hyper-V o emular hosts en Azure." }
+        { "id": "az800-d3-f01", "concepto": "Generación 1 vs Generación 2", "explicacion": "Gen 1 emula BIOS heredada, arranca desde IDE y admite sistemas antiguos de 32 bits. Gen 2 usa firmware UEFI, arranca desde SCSI, admite Secure Boot, arranque desde volúmenes grandes y vTPM. La generación se elige al crear la VM y NO se puede cambiar después: hay que recrear la VM." },
+        { "id": "az800-d3-f02", "concepto": "Enhanced Session Mode", "explicacion": "Permite copiar y pegar, redirigir portapapeles, impresoras, audio y unidades locales dentro de la ventana de conexión a la VM, usando RDP contra el bus VMBus en lugar de la consola básica. Requiere que el invitado admita servicios de escritorio remoto y que estén los Guest Services de integración." },
+        { "id": "az800-d3-f03", "concepto": "Virtualización anidada", "explicacion": "Expone las extensiones de virtualización del procesador dentro de la VM para poder ejecutar Hyper-V o contenedores con aislamiento Hyper-V dentro de ella. Se activa con Set-VMProcessor -VMName X -ExposeVirtualizationExtensions $true, con la VM apagada, y es incompatible con la memoria dinámica." },
+        { "id": "az800-d3-f04", "concepto": "Memoria dinámica", "explicacion": "Define memoria de inicio, mínima y máxima, más un búfer y un peso de prioridad. Hyper-V va ajustando la RAM asignada según la presión real del invitado. No es compatible con virtualización anidada ni con algunas cargas que reservan memoria al arrancar, como ciertas configuraciones de SQL Server." },
+        { "id": "az800-d3-f05", "concepto": "Integration Services", "explicacion": "Componentes que el invitado necesita para hablar bien con el host: apagado ordenado del sistema operativo, sincronización de hora, intercambio de datos, latido, copia de seguridad con VSS y Guest Services para copiar archivos al invitado. En Windows se actualizan por Windows Update; se controlan por VM con Enable-VMIntegrationService." },
+        { "id": "az800-d3-f06", "concepto": "Discrete Device Assignment (DDA)", "explicacion": "Asigna un dispositivo PCIe físico completo (por ejemplo una GPU o una NVMe) directamente a UNA sola VM. Hay que deshabilitar y desmontar el dispositivo del host antes de asignarlo. Da máximo rendimiento, pero rompe la migración en vivo y los checkpoints de esa VM." },
+        { "id": "az800-d3-f07", "concepto": "Particionado de GPU (GPU-P)", "explicacion": "A diferencia de DDA, reparte una misma GPU física entre varias VMs asignando fracciones de sus recursos. Es la respuesta cuando varias VMs necesitan aceleración gráfica y no hay una GPU por VM. DDA es exclusivo, GPU-P es compartido." },
+        { "id": "az800-d3-f08", "concepto": "Checkpoints estándar vs de producción", "explicacion": "Producción (predeterminado): usa VSS dentro del invitado, guarda un estado consistente con las aplicaciones y NO incluye la memoria; al restaurar, la VM arranca como si se hubiera apagado limpiamente. Estándar: incluye memoria y estado de dispositivos, restaura el instante exacto, pero puede dejar inconsistentes bases de datos y controladores de dominio. Los checkpoints no son copias de seguridad." },
+        { "id": "az800-d3-f09", "concepto": "VHDX y tipos de disco", "explicacion": "VHDX admite hasta 64 TB, resiste cortes de corriente gracias a su registro de metadatos y alinea a sectores de 4K; VHD se queda en 2 TB y solo se usa por compatibilidad. Tipos: fijo (reserva todo el espacio, máximo rendimiento), dinámico (crece según se usa) y de diferenciación (guarda solo los cambios respecto a un disco padre que debe permanecer intacto)." },
+        { "id": "az800-d3-f10", "concepto": "Tipos de conmutador virtual", "explicacion": "Externo: conecta las VMs a la red física a través de un adaptador del host. Interno: comunica las VMs entre sí y con el host, sin salir a la red física. Privado: solo entre VMs, ni siquiera el host participa. Sobre el adaptador virtual se configuran VLAN ID, ancho de banda, suplantación de MAC, DHCP guard y router guard." },
+        { "id": "az800-d3-f11", "concepto": "NIC Teaming en Hyper-V", "explicacion": "En el HOST, con Hyper-V lo recomendado es Switch Embedded Teaming (SET), que integra el equipo de tarjetas en el conmutador virtual y es compatible con RDMA. Dentro de la VM, para agrupar dos adaptadores virtuales hay que activar antes la opción NIC Teaming en las características avanzadas del adaptador, o el equipo no funcionará." },
+        { "id": "az800-d3-f12", "concepto": "PowerShell Direct y SSH Direct", "explicacion": "PowerShell Direct permite ejecutar comandos dentro de una VM desde el host SIN red, a través del VMBus, con Enter-PSSession -VMName o Invoke-Command -VMName. Es el salvavidas cuando la red de la VM está mal configurada. SSH Direct es el equivalente para invitados Linux. Requiere que host e invitado sean versiones compatibles y credenciales válidas del invitado." },
+        { "id": "az800-d3-f13", "concepto": "Guarded fabric y shielded VMs", "explicacion": "Una shielded VM se cifra con BitLocker apoyándose en un vTPM y solo puede arrancar en hosts que un Host Guardian Service (HGS) haya declarado sanos. Dos modos de atestación: TPM-trusted attestation (con TPM 2.0, la fuerte) y host key attestation (por par de claves, más simple y menos segura). Protege frente a un administrador de virtualización malintencionado." },
+        { "id": "az800-d3-f14", "concepto": "Contenedor de Windows Server vs aislamiento Hyper-V", "explicacion": "Windows Server container: comparte el kernel del host, arranque rápido y poco consumo, pero exige compatibilidad de versión entre la imagen y el host. Aislamiento Hyper-V: cada contenedor corre en una VM mínima con su propio kernel, más aislamiento y libertad de versión, a cambio de más recursos y arranque más lento." },
+        { "id": "az800-d3-f15", "concepto": "Imágenes base de Windows", "explicacion": "Nano Server: mínima, solo para aplicaciones .NET Core en contenedor, la más ligera. Server Core: sin interfaz gráfica, cubre la mayoría de cargas de servidor. Windows y Windows Server: las más completas, para aplicaciones con dependencias amplias de API. Elegir la más pequeña que ejecute la aplicación es la regla." },
+        { "id": "az800-d3-f16", "concepto": "Redes de contenedores en Windows", "explicacion": "nat es la red por defecto: los contenedores salen a través de NAT y se publican puertos. transparent los conecta directamente a la red física con su propia IP. l2bridge y overlay se usan en escenarios de clúster y Kubernetes. La red se elige al crear el contenedor y determina cómo se le alcanza desde fuera." },
+        { "id": "az800-d3-f17", "concepto": "Availability sets vs availability zones", "explicacion": "Availability set: reparte las VMs en dominios de fallo (hardware y alimentación distintos) y dominios de actualización (no se reinician a la vez), dentro de UN datacenter. Availability zones: reparte en datacenters físicamente separados de la misma región, protegiendo frente a la caída de un edificio entero. Las zonas dan mayor SLA que los conjuntos." },
+        { "id": "az800-d3-f18", "concepto": "JIT VM access y Azure Bastion", "explicacion": "Just in Time (a través de Defender for Cloud) mantiene cerrados los puertos de administración y los abre solo bajo solicitud, para una IP y durante un tiempo limitado. Azure Bastion es un servicio PaaS que da RDP y SSH por el navegador a través del portal, sin IP pública en la VM. Se complementan: Bastion elimina la IP pública, JIT limita la exposición temporal." }
       ],
       "preguntas": [
         {
           "id": "az800-d3-q01",
-          "pregunta": "Antes de aplicar un parche crítico a una VM con SQL Server, quieres un punto de retorno consistente con la aplicación. ¿Qué usas?",
+          "pregunta": "Una VM Gen 1 debe pasar a usar Secure Boot y arrancar desde un disco de 3 TB. ¿Qué haces?",
           "opciones": [
-            { "texto": "Un production checkpoint", "correcta": true, "explicacion": "Usa VSS dentro del guest: estado consistente para aplicaciones transaccionales como SQL." },
-            { "texto": "Un standard checkpoint", "correcta": false, "explicacion": "Congela memoria y procesos en vuelo: al restaurar, SQL puede quedar en estado inconsistente." },
-            { "texto": "Copiar el VHDX con la VM encendida", "correcta": false, "explicacion": "Copia caliente sin coordinación: archivo probablemente corrupto." },
-            { "texto": "Exportar la VM la semana próxima", "correcta": false, "explicacion": "No protege el cambio de hoy." }
+            { "texto": "Crear una VM de Generación 2 y migrar la carga, porque la generación no se puede cambiar", "correcta": true, "explicacion": "La generación se fija al crear la VM y es inmutable; Secure Boot y el arranque desde volúmenes grandes exigen Gen 2 con UEFI." },
+            { "texto": "Convertir la VM a Gen 2 con Update-VMVersion", "correcta": false, "explicacion": "Update-VMVersion actualiza la versión de configuración de la VM, no su generación." },
+            { "texto": "Activar Secure Boot en la configuración de la VM Gen 1", "correcta": false, "explicacion": "Secure Boot depende de UEFI, que Gen 1 no tiene." },
+            { "texto": "Sustituir el VHD por un VHDX y reiniciar", "correcta": false, "explicacion": "Cambiar el formato del disco no aporta firmware UEFI." }
           ]
         },
         {
           "id": "az800-d3-q02",
-          "pregunta": "Necesitas que las VMs críticas de Hyper-V sigan corriendo aunque falle un host físico. ¿Qué implementas?",
+          "pregunta": "Quieres ejecutar contenedores con aislamiento Hyper-V dentro de una VM. ¿Qué debes configurar y qué deja de estar disponible?",
           "opciones": [
-            { "texto": "Un failover cluster de hosts Hyper-V con las VMs como recursos en clúster", "correcta": true, "explicacion": "El clúster reinicia/migra las VMs a los nodos supervivientes: la solución de HA para Hyper-V." },
-            { "texto": "Checkpoints automáticos cada hora", "correcta": false, "explicacion": "Los checkpoints son puntos de retorno, no alta disponibilidad." },
-            { "texto": "NIC teaming en cada host", "correcta": false, "explicacion": "Protege la red del host, no la caída del host completo." },
-            { "texto": "Más memoria en cada VM", "correcta": false, "explicacion": "Los recursos del guest no aportan tolerancia a fallos del host." }
+            { "texto": "Activar la virtualización anidada, lo que impide usar memoria dinámica en esa VM", "correcta": true, "explicacion": "La virtualización anidada expone las extensiones del procesador al invitado y es incompatible con la memoria dinámica." },
+            { "texto": "Activar Enhanced Session Mode, lo que impide usar checkpoints", "correcta": false, "explicacion": "La sesión mejorada afecta a la experiencia de conexión, no a la capacidad de virtualizar dentro de la VM." },
+            { "texto": "Asignar una GPU por DDA, lo que impide la migración en vivo", "correcta": false, "explicacion": "DDA es cierto que rompe la migración en vivo, pero no tiene relación con ejecutar un hipervisor anidado." },
+            { "texto": "Cambiar a checkpoints estándar, lo que impide la consistencia de aplicación", "correcta": false, "explicacion": "El tipo de checkpoint no habilita la virtualización anidada." }
+          ]
+        },
+        {
+          "id": "az800-d3-q03",
+          "pregunta": "Antes de aplicar una actualización a un controlador de dominio virtualizado quieres poder volver atrás. ¿Qué tipo de checkpoint usas y qué advertencia das?",
+          "opciones": [
+            { "texto": "Checkpoint de producción, y advertir de que un checkpoint no sustituye a una copia de seguridad", "correcta": true, "explicacion": "El checkpoint de producción usa VSS y deja un estado consistente; revertir un DC con checkpoints estándar puede provocar problemas de replicación y de USN." },
+            { "texto": "Checkpoint estándar, para capturar también la memoria", "correcta": false, "explicacion": "Capturar la memoria de un DC y restaurarla puede generar inconsistencias de replicación." },
+            { "texto": "Un disco de diferenciación creado a mano", "correcta": false, "explicacion": "Es una solución artesanal y frágil frente a la funcionalidad nativa de checkpoints." },
+            { "texto": "Exportar la VM completa antes de actualizar", "correcta": false, "explicacion": "Es válido como copia, pero mucho más lento y no es lo que la pregunta pide sobre checkpoints." }
+          ]
+        },
+        {
+          "id": "az800-d3-q04",
+          "pregunta": "Una VM necesita el rendimiento íntegro de una tarjeta NVMe física. ¿Qué configuras y qué pierdes?",
+          "opciones": [
+            { "texto": "Discrete Device Assignment, perdiendo migración en vivo y checkpoints en esa VM", "correcta": true, "explicacion": "DDA entrega el dispositivo PCIe completo a una VM, a costa de atarla a ese host físico." },
+            { "texto": "Particionado de GPU, perdiendo aislamiento", "correcta": false, "explicacion": "GPU-P se aplica a GPUs y reparte, no entrega un dispositivo completo." },
+            { "texto": "Un disco de paso a través con caché de escritura", "correcta": false, "explicacion": "Un disco pass-through da acceso al disco, no al dispositivo PCIe con su rendimiento nativo." },
+            { "texto": "SR-IOV en el adaptador de red", "correcta": false, "explicacion": "SR-IOV es una funcionalidad de red, no aplicable a una NVMe." }
+          ]
+        },
+        {
+          "id": "az800-d3-q05",
+          "pregunta": "La red de una VM quedó mal configurada tras un cambio y no responde por red, pero la VM está encendida. ¿Cómo entras a arreglarla?",
+          "opciones": [
+            { "texto": "PowerShell Direct desde el host, con Enter-PSSession -VMName", "correcta": true, "explicacion": "PowerShell Direct usa el VMBus y no necesita red en la VM, que es exactamente el caso." },
+            { "texto": "PowerShell remoting con Enter-PSSession -ComputerName", "correcta": false, "explicacion": "Requiere red funcional en la VM." },
+            { "texto": "Un checkpoint estándar y restaurarlo", "correcta": false, "explicacion": "Revertiría también cualquier otro cambio válido hecho desde entonces." },
+            { "texto": "Azure Bastion", "correcta": false, "explicacion": "Bastion es para VMs de Azure, no para una VM Hyper-V on-premises." }
+          ]
+        },
+        {
+          "id": "az800-d3-q06",
+          "pregunta": "El objetivo es que un administrador de virtualización deshonesto no pueda leer los datos de una VM crítica. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Un guarded fabric con Host Guardian Service y shielded VMs con vTPM", "correcta": true, "explicacion": "La shielded VM cifra su disco con BitLocker y solo arranca en hosts atestados como sanos, con la consola bloqueada para el administrador del host." },
+            { "texto": "Habilitar Secure Boot en la VM", "correcta": false, "explicacion": "Secure Boot protege el arranque frente a código no firmado, pero no impide que el administrador del host lea el disco." },
+            { "texto": "Cifrar el VHDX con EFS en el host", "correcta": false, "explicacion": "El administrador del host podría acceder igualmente a las claves." },
+            { "texto": "Usar checkpoints de producción cifrados", "correcta": false, "explicacion": "Los checkpoints no proporcionan ese modelo de protección." }
+          ]
+        },
+        {
+          "id": "az800-d3-q07",
+          "pregunta": "Una aplicación en contenedor debe correr sobre un host cuya versión de Windows no coincide con la de la imagen. ¿Qué haces?",
+          "opciones": [
+            { "texto": "Ejecutarla con aislamiento Hyper-V", "correcta": true, "explicacion": "Con aislamiento Hyper-V el contenedor lleva su propio kernel, lo que elimina la exigencia de coincidencia de versión con el host." },
+            { "texto": "Ejecutarla como contenedor de proceso normal", "correcta": false, "explicacion": "El contenedor de proceso comparte el kernel del host y exige compatibilidad de versiones." },
+            { "texto": "Cambiar la red del contenedor a transparent", "correcta": false, "explicacion": "La red no tiene nada que ver con la compatibilidad de kernel." },
+            { "texto": "Reconstruir la imagen sobre Nano Server", "correcta": false, "explicacion": "Cambiar de imagen base no elimina por sí solo el requisito de compatibilidad con el kernel del host." }
+          ]
+        },
+        {
+          "id": "az800-d3-q08",
+          "pregunta": "Se pide máxima disponibilidad de un servicio en Azure frente a la caída completa de un datacenter en la región. ¿Qué eliges?",
+          "opciones": [
+            { "texto": "Availability zones", "correcta": true, "explicacion": "Las zonas son datacenters físicamente separados dentro de la región, lo que protege frente a la pérdida de un edificio entero." },
+            { "texto": "Un availability set con 3 dominios de fallo", "correcta": false, "explicacion": "El conjunto de disponibilidad reparte dentro de un mismo datacenter: no cubre la caída del edificio." },
+            { "texto": "Un VM scale set en una sola zona", "correcta": false, "explicacion": "El escalado no aporta resistencia frente a la caída del datacenter si todo está en la misma zona." },
+            { "texto": "Discos Premium SSD con redundancia local", "correcta": false, "explicacion": "La redundancia local del almacenamiento no protege contra la pérdida del datacenter." }
+          ]
+        },
+        {
+          "id": "az800-d3-q09",
+          "pregunta": "Seguridad exige que ninguna VM de administración tenga IP pública, pero los administradores necesitan RDP. ¿Qué despliegas?",
+          "opciones": [
+            { "texto": "Azure Bastion", "correcta": true, "explicacion": "Bastion da RDP y SSH desde el navegador a través del portal, sin IP pública en la VM." },
+            { "texto": "JIT VM access con el puerto 3389", "correcta": false, "explicacion": "JIT limita la ventana de exposición, pero sigue implicando un punto de acceso público a la VM." },
+            { "texto": "Una regla NSG que permita 3389 solo desde la IP de la oficina", "correcta": false, "explicacion": "Reduce la superficie pero no elimina la IP pública, que era el requisito." },
+            { "texto": "Un servidor de salto con IP pública y MFA", "correcta": false, "explicacion": "Traslada el problema a otra máquina con IP pública." }
+          ]
+        },
+        {
+          "id": "az800-d3-q10",
+          "pregunta": "Vas a agrupar dos adaptadores virtuales DENTRO de una VM invitada para tolerancia a fallos. ¿Qué requisito hay que cumplir?",
+          "opciones": [
+            { "texto": "Activar la opción NIC Teaming en las características avanzadas de cada adaptador de red de la VM", "correcta": true, "explicacion": "Sin esa opción el equipo dentro del invitado no funcionará, aunque el host tenga redundancia." },
+            { "texto": "Habilitar SR-IOV en el conmutador virtual", "correcta": false, "explicacion": "SR-IOV mejora el rendimiento pero no es lo que habilita el teaming en el invitado." },
+            { "texto": "Configurar Switch Embedded Teaming dentro de la VM", "correcta": false, "explicacion": "SET es una tecnología del host, no del invitado." },
+            { "texto": "Asignar el mismo VLAN ID a los dos adaptadores", "correcta": false, "explicacion": "La VLAN no interviene en la habilitación del teaming en el invitado." }
           ]
         }
       ],
       "escenarios": [
         {
           "id": "az800-d3-s01",
-          "situacion": "Desarrollo pide contenedores Windows para modernizar una app .NET Framework, con orquestación, y Operaciones quiere seguir gestionando el hardware actual.",
-          "pregunta": "¿Qué plataforma propones y qué preparas en los hosts?",
-          "respuestaEsperada": "Preparar Windows Server como container host (rol Containers, runtime, imágenes base Windows compatibles con la versión del host), registry para las imágenes (p. ej. ACR), y desplegar AKS habilitado en Windows Server para la orquestación on-premises, con las consideraciones de red de contenedores (NAT/transparent/overlay).",
-          "razonamiento": "La app .NET Framework exige contenedores Windows (no Linux); AKS on Windows Server da orquestación estándar sin abandonar el datacenter, que era la restricción de Operaciones."
+          "situacion": "Un laboratorio de formación necesita 8 VMs con aceleración gráfica para AutoCAD, sobre un host con una única GPU profesional. Además, el formador quiere poder mover las VMs a otro host durante el mantenimiento.",
+          "pregunta": "¿DDA o particionado de GPU? Justifica y señala el conflicto con el requisito de movilidad.",
+          "respuestaEsperada": "Particionado de GPU (GPU-P), porque DDA entrega el dispositivo completo a una única VM y aquí hay ocho VMs con una sola GPU. Sobre la movilidad: DDA ata la VM al host físico e impide la migración en vivo, así que también por eso queda descartado. Conviene verificar que el host y la versión de Windows Server soportan GPU-P y planificar el mantenimiento contando con las limitaciones de movilidad de las VMs aceleradas.",
+          "razonamiento": "La distinción DDA (exclusivo, sin migración) frente a GPU-P (compartido) es una comparación clásica del examen, y añadir el requisito de mantenimiento obliga a razonar sobre las consecuencias operativas."
+        },
+        {
+          "id": "az800-d3-s02",
+          "situacion": "Una empresa quiere migrar una aplicación web heredada .NET Framework a contenedores. El equipo propone Nano Server para que la imagen sea lo más pequeña posible, y desplegar en un host Windows Server con una versión distinta a la de la imagen.",
+          "pregunta": "¿Qué dos errores hay en esa propuesta y cómo la corriges?",
+          "respuestaEsperada": "Primer error: Nano Server no sirve para .NET Framework, solo cubre aplicaciones .NET Core; para .NET Framework hay que usar Server Core o una imagen completa de Windows. Segundo error: con contenedores de proceso, la versión de la imagen debe ser compatible con el kernel del host; si no coinciden hay que alinear las versiones o ejecutar con aislamiento Hyper-V, que aporta su propio kernel a costa de más recursos.",
+          "razonamiento": "Combina la elección de imagen base con la regla de compatibilidad de kernel y el papel del aislamiento Hyper-V, que son los tres puntos que el examen pregunta sobre contenedores de Windows."
+        },
+        {
+          "id": "az800-d3-s03",
+          "situacion": "Una VM de Hyper-V con SQL Server sufre falta de memoria en horas punta y sobra memoria de madrugada. El administrador quiere activar memoria dinámica, pero en el mismo host quiere además ejecutar otra VM con contenedores aislados por Hyper-V.",
+          "pregunta": "¿Qué configuras en cada VM y qué incompatibilidad tienes que explicar?",
+          "respuestaEsperada": "En la VM de SQL Server se puede usar memoria dinámica configurando memoria de inicio, mínima, máxima, búfer y peso, teniendo en cuenta que ciertas configuraciones de SQL Server reservan memoria al arrancar y conviene validar el comportamiento. En la VM que ejecutará contenedores con aislamiento Hyper-V hay que activar la virtualización anidada, y esa VM NO puede usar memoria dinámica: hay que asignarle memoria estática. Son dos VMs con configuraciones distintas en el mismo host, lo cual es perfectamente válido.",
+          "razonamiento": "La incompatibilidad entre virtualización anidada y memoria dinámica es un detalle que se pregunta con frecuencia, y el escenario obliga a aplicarlo sin generalizar de más."
         }
       ]
     },
     {
       "id": "az800-d4",
-      "dominio": "Implement and manage on-premises and hybrid networking",
+      "dominio": "Implement and manage an on-premises and hybrid networking infrastructure",
       "ponderacion": "15-20%",
       "subtemas": [
-        "Name resolution híbrido: DNS con AD DS, zonas y registros, forwarding, integración con Azure DNS (público, privado, Private Resolver), políticas DNS, DNSSEC",
-        "IP addressing: IPAM, DHCP (scopes, reservas, alta disponibilidad), troubleshooting híbrido",
-        "Conectividad: Remote Access, Azure Network Adapter, extended network, NPAS, Web Application Proxy, site-to-site VPN, Azure Relay, Entra Private Access, Application Proxy"
+        "DNS integrado en AD DS, zonas y registros, reenviadores, DNS policies, DNSSEC",
+        "Integración con Azure Public DNS, Azure Private DNS y Azure DNS Private Resolver",
+        "IPAM, DHCP, ámbitos, reservas y alta disponibilidad de DHCP",
+        "Remote Access, Azure Network Adapter, Azure Extended Network, NPS",
+        "Web Application Proxy, VPN site-to-site, Azure Relay, Entra Private Access y Application Proxy"
       ],
       "flashcards": [
-        { "id": "az800-d4-f01", "concepto": "Conditional forwarding", "explicacion": "Regla del DNS de Windows Server que reenvía las consultas de un dominio concreto (p. ej. la zona privada de Azure) a servidores específicos: pieza clave de la resolución híbrida." },
-        { "id": "az800-d4-f02", "concepto": "DHCP failover", "explicacion": "Alta disponibilidad del DHCP en Windows Server: dos servidores comparten un scope en modo load balance o hot standby, sin necesidad de clúster." }
+        { "id": "az800-d4-f01", "concepto": "Zonas integradas en Active Directory", "explicacion": "El DNS de Windows puede guardar la zona dentro de AD en lugar de en un archivo. Ventajas: replicación por el propio motor de AD (multimaestro, sin transferencias de zona), delegación de permisos por objeto y, sobre todo, la opción de actualizaciones dinámicas SEGURAS, que solo existe en zonas integradas en AD." },
+        { "id": "az800-d4-f02", "concepto": "Ámbito de replicación de una zona", "explicacion": "Una zona integrada en AD se puede replicar a todos los servidores DNS del bosque (partición ForestDnsZones), a todos los del dominio (DomainDnsZones), a todos los DCs del dominio (compatibilidad con Windows 2000) o a un ámbito de directorio personalizado. Elegir bien evita replicar zonas a sitios que no las necesitan." },
+        { "id": "az800-d4-f03", "concepto": "Reenviadores vs reenviadores condicionales", "explicacion": "Un reenviador manda a otro servidor TODAS las consultas que el DNS no puede resolver. Un reenviador condicional lo hace solo para un dominio concreto, por ejemplo enviar todo lo de partner.local al DNS del socio. Los root hints son el último recurso si no hay reenviadores. Regla: condicional para dominios concretos, reenviador general para el resto." },
+        { "id": "az800-d4-f04", "concepto": "Zona stub", "explicacion": "Copia de solo los registros NS, SOA y de pegado (glue) de otra zona, que se mantiene actualizada automáticamente. Sirve para saber quién es autoritativo de otro dominio sin replicar todos sus datos. Un reenviador condicional es configuración estática; la zona stub se actualiza sola cuando cambian los servidores de nombres del otro lado." },
+        { "id": "az800-d4-f05", "concepto": "DNS policies", "explicacion": "Reglas que hacen que el DNS responda de forma distinta según quién pregunta: gestión de tráfico por ubicación, respuestas diferentes para clientes internos y externos (split-brain), listas de bloqueo, o filtrado por hora del día. Se configuran con los cmdlets Add-DnsServerQueryResolutionPolicy y similares." },
+        { "id": "az800-d4-f06", "concepto": "DNSSEC", "explicacion": "Firma criptográficamente la zona para que el cliente pueda verificar que la respuesta no ha sido manipulada. Introduce los registros RRSIG (firmas), DNSKEY (claves públicas), DS (delegación firmada) y NSEC3 (negación de existencia). Los clientes lo exigen mediante la Name Resolution Policy Table (NRPT), que se distribuye por GPO." },
+        { "id": "az800-d4-f07", "concepto": "Envejecimiento y borrado (aging y scavenging)", "explicacion": "Limpia registros dinámicos obsoletos. Dos intervalos: no-refresh (7 días por defecto, durante los que no se acepta refresco) y refresh (otros 7 días, durante los que sí). Pasados ambos, el registro es candidato a borrarse. Hay que habilitarlo en el servidor Y en la zona, o no ocurre nada." },
+        { "id": "az800-d4-f08", "concepto": "Azure DNS Private Resolver", "explicacion": "Servicio gestionado que resuelve la resolución de nombres híbrida sin VMs de reenvío. Endpoint de entrada: permite que los clientes on-premises resuelvan zonas privadas de Azure. Endpoint de salida con forwarding rulesets: permite que los recursos de Azure resuelvan nombres del dominio on-premises. Sustituye a la vieja práctica de montar VMs de DNS en Azure." },
+        { "id": "az800-d4-f09", "concepto": "Ámbitos, reservas y opciones de DHCP", "explicacion": "El ámbito define el rango de direcciones de una subred, con su duración de concesión y exclusiones. Una reserva ata una IP a una MAC concreta. Las opciones más preguntadas: 003 router (puerta de enlace), 006 servidores DNS, 015 nombre de dominio DNS y 042 servidores NTP." },
+        { "id": "az800-d4-f10", "concepto": "Jerarquía de opciones DHCP", "explicacion": "Las opciones se pueden definir a nivel de servidor, de ámbito, de clase de usuario o proveedor, y de reserva. Gana siempre la más específica: reserva por encima de clase, clase por encima de ámbito, y ámbito por encima de servidor. Es la causa habitual de un cliente que recibe un DNS distinto al esperado." },
+        { "id": "az800-d4-f11", "concepto": "Alta disponibilidad de DHCP", "explicacion": "DHCP failover entre dos servidores, con dos modos. Load balance: los dos reparten concesiones simultáneamente, por defecto al 50/50, ideal en la misma sede. Hot standby: uno atiende y el otro espera con un porcentaje de direcciones reservado, adecuado para una sucursal respaldada desde la central. El MCLT define el tiempo mínimo antes de que el superviviente pueda tomar el control completo." },
+        { "id": "az800-d4-f12", "concepto": "Autorización de DHCP y relay", "explicacion": "En un dominio, un servidor DHCP Windows debe estar autorizado en AD o no reparte direcciones; es la protección contra servidores DHCP no autorizados. Cuando el cliente y el servidor están en subredes distintas, hace falta un agente de retransmisión DHCP o la configuración de ip helper en el router, porque el DISCOVER es una difusión que no cruza routers." },
+        { "id": "az800-d4-f13", "concepto": "IPAM", "explicacion": "Consola centralizada que descubre e inventaria servidores DHCP, DNS, controladores de dominio y NPS, y gestiona el espacio de direcciones IP con auditoría y delegación por roles. Necesita una base de datos (WID o SQL Server) y aprovisionamiento manual o por GPO. Atención: Microsoft ha anunciado su deprecación en Windows Server 2025, y no figura entre los objetivos del examen sucesor AZ-802." },
+        { "id": "az800-d4-f14", "concepto": "Azure Network Adapter", "explicacion": "Funcionalidad de Windows Admin Center que crea con pocos clics una conexión punto a sitio desde un servidor concreto hacia una red virtual de Azure. Es la vía rápida para conectar UN servidor, frente a la VPN site-to-site que conecta redes enteras." },
+        { "id": "az800-d4-f15", "concepto": "Azure Extended Network", "explicacion": "Extiende una subred on-premises hacia Azure de forma que una VM migrada CONSERVA su dirección IP original. Requiere un agente en una máquina de cada lado. Es la respuesta cuando hay aplicaciones heredadas con la IP fija escrita en su configuración y no se puede redireccionar." },
+        { "id": "az800-d4-f16", "concepto": "Azure Relay (hybrid connections)", "explicacion": "Permite exponer un servicio que está en la red interna hacia consumidores de la nube SIN abrir ningún puerto entrante ni montar VPN: el agente local establece una conexión saliente hacia el relay y el tráfico se encamina por ahí. Es la solución cuando la política de red prohíbe cualquier puerto entrante." },
+        { "id": "az800-d4-f17", "concepto": "Web Application Proxy vs Entra Application Proxy", "explicacion": "Web Application Proxy es un rol de Windows Server que publica aplicaciones internas hacia Internet apoyándose en AD FS, con infraestructura propia en la DMZ. Entra Application Proxy hace lo mismo desde la nube mediante conectores ligeros que solo abren tráfico saliente, sin DMZ. Entra Private Access es la evolución de acceso privado tipo Zero Trust dentro de Global Secure Access." },
+        { "id": "az800-d4-f18", "concepto": "NPS (Network Policy Server)", "explicacion": "Implementación de RADIUS en Windows Server. Las connection request policies deciden si la petición se procesa localmente o se reenvía a otro servidor RADIUS; las network policies deciden si se concede el acceso y en qué condiciones (grupo, hora, tipo de puerto). Se usa para VPN, 802.1X en switches y Wi-Fi corporativo." }
       ],
       "preguntas": [
         {
           "id": "az800-d4-q01",
-          "pregunta": "Los servidores on-premises no resuelven los nombres de los private endpoints de Azure (privatelink.*). ¿Qué configuras?",
+          "pregunta": "Se exige que solo los equipos unidos al dominio puedan registrar sus nombres en el DNS. ¿Qué configuras?",
           "opciones": [
-            { "texto": "Conditional forwarders hacia Azure DNS Private Resolver (o hacia un DNS en la VNet)", "correcta": true, "explicacion": "Las zonas privadas de Azure solo se resuelven desde dentro: el forwarding condicional dirige esas consultas al resolver correcto." },
-            { "texto": "Añadir registros en el archivo hosts de cada servidor", "correcta": false, "explicacion": "Inmantenible y se rompe cuando cambian las IPs de los endpoints." },
-            { "texto": "Cambiar el DNS de los servidores a 8.8.8.8", "correcta": false, "explicacion": "Un resolver público no conoce (ni debe conocer) las zonas privadas." },
-            { "texto": "Habilitar DNSSEC", "correcta": false, "explicacion": "DNSSEC firma respuestas; no resuelve el enrutamiento de consultas híbrido." }
+            { "texto": "Una zona integrada en AD DS con actualizaciones dinámicas seguras", "correcta": true, "explicacion": "La opción de actualizaciones dinámicas seguras solo está disponible en zonas integradas en AD, porque se apoya en ACLs de Active Directory." },
+            { "texto": "Una zona principal en archivo con actualizaciones dinámicas", "correcta": false, "explicacion": "Una zona en archivo solo ofrece actualizaciones dinámicas no seguras o ninguna." },
+            { "texto": "Una zona stub con transferencias restringidas", "correcta": false, "explicacion": "Una zona stub no aloja registros de clientes." },
+            { "texto": "Envejecimiento y borrado con intervalos de 7 días", "correcta": false, "explicacion": "El scavenging limpia registros obsoletos, no controla quién puede registrarse." }
           ]
         },
         {
           "id": "az800-d4-q02",
-          "pregunta": "La sede pierde DHCP cuando el único servidor se reinicia por mantenimiento. ¿Cuál es la solución nativa más simple?",
+          "pregunta": "Las consultas al dominio de un socio comercial deben ir a los DNS de ese socio, y el resto del tráfico seguir por el reenviador habitual. ¿Qué configuras?",
           "opciones": [
-            { "texto": "Configurar DHCP failover con un segundo servidor (hot standby o load balance)", "correcta": true, "explicacion": "El failover nativo replica scopes y leases entre dos servidores sin clúster ni almacenamiento compartido." },
-            { "texto": "Aumentar la duración del lease a 30 días", "correcta": false, "explicacion": "Mitiga a los clientes ya servidos pero no atiende a los nuevos durante la caída." },
-            { "texto": "Un failover cluster con storage compartido", "correcta": false, "explicacion": "Funciona pero es mucho más complejo que el failover nativo de DHCP." },
-            { "texto": "IPs estáticas para todos", "correcta": false, "explicacion": "Renuncia a DHCP: carga administrativa enorme y propensa a conflictos." }
+            { "texto": "Un reenviador condicional para el dominio del socio", "correcta": true, "explicacion": "El reenviador condicional se aplica solo al dominio indicado, dejando intacto el comportamiento general." },
+            { "texto": "Un reenviador general apuntando al DNS del socio", "correcta": false, "explicacion": "Enviaría también todo el tráfico de Internet al socio." },
+            { "texto": "Modificar los root hints", "correcta": false, "explicacion": "Los root hints solo entran en juego cuando no hay reenviadores y no permiten direccionar un dominio concreto." },
+            { "texto": "Una zona secundaria del dominio del socio", "correcta": false, "explicacion": "Es posible, pero exige que el socio autorice transferencias de zona y replica todos sus datos: mucho más invasivo de lo necesario." }
+          ]
+        },
+        {
+          "id": "az800-d4-q03",
+          "pregunta": "Los usuarios internos y los externos deben recibir IPs distintas para www.contoso.com desde el mismo servidor DNS. ¿Qué usas?",
+          "opciones": [
+            { "texto": "DNS policies con ámbitos de zona para split-brain", "correcta": true, "explicacion": "Las DNS policies permiten responder de forma distinta según el origen de la consulta, que es la definición de split-brain DNS." },
+            { "texto": "Dos zonas secundarias con distinto maestro", "correcta": false, "explicacion": "No permite decidir la respuesta según quién pregunta." },
+            { "texto": "DNSSEC con NSEC3", "correcta": false, "explicacion": "DNSSEC garantiza integridad de la respuesta, no respuestas diferenciadas." },
+            { "texto": "Un reenviador condicional para contoso.com", "correcta": false, "explicacion": "No diferencia por cliente." }
+          ]
+        },
+        {
+          "id": "az800-d4-q04",
+          "pregunta": "Un cliente DHCP recibe un servidor DNS distinto al configurado en el ámbito. Hay una reserva para ese equipo. ¿Cuál es la causa más probable?",
+          "opciones": [
+            { "texto": "Hay una opción definida a nivel de reserva, que tiene prioridad sobre la del ámbito", "correcta": true, "explicacion": "En la jerarquía de opciones DHCP gana siempre la más específica: reserva por encima de clase, ámbito y servidor." },
+            { "texto": "El servidor DHCP no está autorizado en AD", "correcta": false, "explicacion": "Si no estuviera autorizado no repartiría ninguna dirección." },
+            { "texto": "Falta el agente de retransmisión DHCP", "correcta": false, "explicacion": "Sin relay el cliente no obtendría dirección alguna en otra subred." },
+            { "texto": "El MCLT del failover está mal configurado", "correcta": false, "explicacion": "El MCLT afecta a la conmutación por error, no a qué opciones se entregan." }
+          ]
+        },
+        {
+          "id": "az800-d4-q05",
+          "pregunta": "Una sucursal necesita DHCP tolerante a fallos respaldado desde la central, sin repartir la carga a partes iguales. ¿Qué modo de failover eliges?",
+          "opciones": [
+            { "texto": "Hot standby", "correcta": true, "explicacion": "En hot standby un servidor atiende y el otro queda en espera con un porcentaje reservado, que es el patrón central-sucursal." },
+            { "texto": "Load balance al 50/50", "correcta": false, "explicacion": "Reparte la carga por igual, que es justo lo que se descarta." },
+            { "texto": "Split scope 80/20", "correcta": false, "explicacion": "Es la técnica antigua, previa al failover nativo, y no sincroniza el estado de las concesiones." },
+            { "texto": "Un clúster de conmutación por error con el rol DHCP", "correcta": false, "explicacion": "Es posible pero mucho más pesado que el failover nativo de DHCP." }
+          ]
+        },
+        {
+          "id": "az800-d4-q06",
+          "pregunta": "Una VM que se migra a Azure debe conservar exactamente su dirección IP porque hay aplicaciones que la tienen escrita en su configuración. ¿Qué implementas?",
+          "opciones": [
+            { "texto": "Azure Extended Network", "correcta": true, "explicacion": "Extiende la subred on-premises hacia Azure de forma que la VM migrada mantiene su IP original." },
+            { "texto": "Azure Network Adapter desde Windows Admin Center", "correcta": false, "explicacion": "Crea una conexión punto a sitio para un servidor, pero no preserva el direccionamiento de la subred." },
+            { "texto": "Una VPN site-to-site con enrutamiento estático", "correcta": false, "explicacion": "Conecta las redes, pero la VM en Azure recibiría una IP de la red virtual, no la original." },
+            { "texto": "Azure Relay con hybrid connections", "correcta": false, "explicacion": "Relay expone servicios, no extiende el direccionamiento IP." }
+          ]
+        },
+        {
+          "id": "az800-d4-q07",
+          "pregunta": "La política de seguridad prohíbe abrir cualquier puerto entrante, pero una aplicación en Azure debe consumir un servicio interno. ¿Qué usas?",
+          "opciones": [
+            { "texto": "Azure Relay con hybrid connections", "correcta": true, "explicacion": "El agente local establece la conexión hacia fuera y el relay encamina el tráfico, sin necesidad de puertos entrantes ni VPN." },
+            { "texto": "Web Application Proxy en la DMZ", "correcta": false, "explicacion": "Exige publicar el proxy hacia Internet, con puertos entrantes." },
+            { "texto": "Una VPN site-to-site", "correcta": false, "explicacion": "Es una solución válida en general pero implica infraestructura de túnel, y el enunciado busca precisamente evitarla." },
+            { "texto": "Un reenviador condicional en el DNS", "correcta": false, "explicacion": "El DNS resuelve nombres, no aporta conectividad." }
+          ]
+        },
+        {
+          "id": "az800-d4-q08",
+          "pregunta": "Las VMs de una red virtual de Azure deben resolver nombres del dominio interno de la oficina, y los equipos de la oficina deben resolver zonas privadas de Azure. ¿Qué despliegas?",
+          "opciones": [
+            { "texto": "Azure DNS Private Resolver con endpoint de entrada y de salida más forwarding rulesets", "correcta": true, "explicacion": "Es el servicio gestionado diseñado exactamente para la resolución de nombres bidireccional en escenarios híbridos, sin mantener VMs de reenvío." },
+            { "texto": "Azure Public DNS con registros duplicados", "correcta": false, "explicacion": "Publicaría nombres internos en Internet, que es indeseable e incompleto." },
+            { "texto": "Dos VMs con el rol DNS haciendo de reenviadores en cada lado", "correcta": false, "explicacion": "Funciona, y era la práctica antigua, pero exige mantener servidores; el enunciado apunta al servicio gestionado." },
+            { "texto": "Una zona stub en cada lado", "correcta": false, "explicacion": "Las zonas stub no cubren la resolución hacia zonas privadas de Azure." }
+          ]
+        },
+        {
+          "id": "az800-d4-q09",
+          "pregunta": "Quieres publicar una aplicación web interna para usuarios remotos sin desplegar servidores en la DMZ ni abrir puertos entrantes. ¿Qué eliges?",
+          "opciones": [
+            { "texto": "Microsoft Entra Application Proxy con conectores", "correcta": true, "explicacion": "Los conectores solo abren tráfico saliente hacia el servicio en la nube, sin DMZ ni puertos entrantes." },
+            { "texto": "Web Application Proxy con AD FS", "correcta": false, "explicacion": "Requiere infraestructura propia publicada en la DMZ." },
+            { "texto": "Remote Access con Always On VPN", "correcta": false, "explicacion": "Da acceso a la red completa, más de lo pedido, y exige un extremo VPN publicado." },
+            { "texto": "Azure Network Adapter", "correcta": false, "explicacion": "Conecta un servidor a una red virtual, no publica aplicaciones a usuarios remotos." }
           ]
         }
       ],
       "escenarios": [
         {
           "id": "az800-d4-s01",
-          "situacion": "Tras montar la VPN site-to-site con Azure, las VMs de Azure resuelven los servidores locales, pero los equipos locales no resuelven las VMs de Azure ni los private endpoints.",
-          "pregunta": "¿Cómo completas la resolución de nombres híbrida?",
-          "respuestaEsperada": "Desplegar Azure DNS Private Resolver (inbound endpoint) en la VNet y crear conditional forwarders en los DNS locales hacia ese endpoint para las zonas de Azure (incluidas las privatelink). Verificar que las private DNS zones están vinculadas a la VNet y que el tráfico DNS pasa por el túnel.",
-          "razonamiento": "La resolución híbrida es bidireccional: cada lado necesita saber a quién reenviar las zonas del otro. El Private Resolver es el punto de entrada soportado para consultas on-premises→Azure."
+          "situacion": "Una empresa mueve la mitad de sus servidores a Azure. Tras la migración, las aplicaciones de la oficina no resuelven los nombres de las VMs de Azure, y las VMs de Azure no resuelven los servidores de la oficina. El equipo propone montar dos VMs con el rol DNS en Azure como reenviadores.",
+          "pregunta": "¿Funcionaría la propuesta? ¿Qué alternativa gestionada propones y cómo la configuras?",
+          "respuestaEsperada": "Sí funcionaría, es la práctica clásica, pero obliga a mantener, parchear y dar alta disponibilidad a dos VMs solo para reenviar DNS. La alternativa gestionada es Azure DNS Private Resolver: un endpoint de entrada para que los clientes on-premises resuelvan las zonas privadas de Azure, y un endpoint de salida con forwarding rulesets que envíe las consultas del dominio interno hacia los DNS de la oficina. En el DNS on-premises se añade un reenviador condicional apuntando al endpoint de entrada.",
+          "razonamiento": "Es el escenario híbrido de DNS más habitual y exige distinguir los dos sentidos de la resolución, además de comparar la solución con VMs frente a la gestionada."
+        },
+        {
+          "id": "az800-d4-s02",
+          "situacion": "En una red con tres subredes y un solo servidor DHCP, los equipos de dos de ellas no obtienen dirección. En la subred que sí funciona, un portátil concreto recibe siempre un servidor DNS antiguo, aunque el ámbito está bien configurado.",
+          "pregunta": "Diagnostica ambos problemas por separado.",
+          "respuestaEsperada": "Las dos subredes sin dirección no tienen agente de retransmisión DHCP ni ip helper configurado en el router: el mensaje DISCOVER es una difusión y no cruza el router, así que nunca llega al servidor. El portátil con el DNS antiguo tiene, casi con seguridad, una reserva con opciones propias, o pertenece a una clase de usuario con opciones definidas; en la jerarquía de opciones DHCP la más específica gana sobre la del ámbito.",
+          "razonamiento": "Dos fallos clásicos que se confunden entre sí. El primero es de capa de red, el segundo de jerarquía de configuración; distinguirlos demuestra comprensión real del funcionamiento de DHCP."
+        },
+        {
+          "id": "az800-d4-s03",
+          "situacion": "Seguridad quiere reducir la superficie expuesta. Hoy hay tres cosas publicadas hacia Internet: un servidor Web Application Proxy en la DMZ para una aplicación interna, un extremo VPN para que los comerciales accedan a un servidor de archivos, y un puerto abierto para que un servicio en la nube consulte una API interna.",
+          "pregunta": "Propón una alternativa moderna para cada una de las tres, justificando la reducción de exposición.",
+          "respuestaEsperada": "Para la aplicación interna, Microsoft Entra Application Proxy: los conectores solo abren tráfico saliente y desaparece el servidor de la DMZ. Para el acceso de los comerciales, Microsoft Entra Private Access dentro de Global Secure Access, que da acceso por aplicación en lugar de acceso a la red completa, siguiendo el modelo Zero Trust. Para el servicio en la nube que consulta la API interna, Azure Relay con hybrid connections, donde el agente local inicia la conexión saliente y no hace falta ningún puerto entrante. Las tres eliminan puertos de escucha en el perímetro.",
+          "razonamiento": "Agrupa las tres tecnologías de publicación que el examen tiende a mezclar y las contrasta con sus equivalentes heredados, obligando a razonar el modelo de exposición de cada una."
         }
       ]
     },
@@ -198,43 +632,145 @@
       "dominio": "Manage storage and file services",
       "ponderacion": "15-20%",
       "subtemas": [
-        "Azure Files: shares, permisos, Azure File Sync (configurar, monitorizar, migrar desde DFS)",
-        "File shares de Windows Server: acceso, FSRM, BranchCache, DFS, SMB over QUIC y opciones SMB",
-        "Storage local: discos y volúmenes, Storage Spaces, Storage Replica, deduplicación, SMB Direct, Storage QoS, sistemas de archivos, iSCSI"
+        "Azure Files: recursos compartidos, permisos, Azure File Sync, migración desde DFS",
+        "Recursos compartidos de Windows Server, FSRM, BranchCache, DFS",
+        "SMB over QUIC y opciones de SMB",
+        "Discos y volúmenes, Storage Spaces, Storage Replica, deduplicación",
+        "SMB Direct, Storage QoS, sistemas de archivos, iSCSI"
       ],
       "flashcards": [
-        { "id": "az800-d5-f01", "concepto": "Azure File Sync: cloud tiering", "explicacion": "El servidor local actúa como caché: los archivos calientes se mantienen locales y los fríos se convierten en punteros hacia Azure Files, liberando espacio sin cambiar la experiencia de usuario." },
-        { "id": "az800-d5-f02", "concepto": "Storage Replica", "explicacion": "Replicación a nivel de bloque entre servidores o clústeres (síncrona para RPO cero en distancias cortas, asíncrona para largas): base de la recuperación ante desastres de file servers." }
+        { "id": "az800-d5-f01", "concepto": "Azure Files y sus niveles", "explicacion": "Recurso compartido SMB (o NFS) alojado en Azure, montable desde Windows, Linux y macOS. Standard se apoya en almacenamiento HDD dentro de una cuenta de uso general; Premium usa una cuenta FileStorage con SSD y se aprovisiona por capacidad, ofreciendo latencia baja. La elección se hace por rendimiento y patrón de uso, no solo por precio." },
+        { "id": "az800-d5-f02", "concepto": "Autenticación en Azure Files", "explicacion": "Tres opciones de identidad: AD DS on-premises, Microsoft Entra Domain Services y Entra Kerberos para identidades híbridas. El modelo de permisos tiene dos capas que hay que configurar por separado: roles RBAC a nivel de recurso compartido (quién puede montar) y ACLs NTFS a nivel de archivos y carpetas (qué puede hacer dentro)." },
+        { "id": "az800-d5-f03", "concepto": "Azure File Sync", "explicacion": "Convierte un servidor Windows en una caché local de un recurso compartido de Azure Files. Piezas: el Storage Sync Service, un sync group, un cloud endpoint (el share de Azure) y uno o varios server endpoints (las carpetas locales). Permite tener varias sedes sincronizadas contra la misma copia en la nube." },
+        { "id": "az800-d5-f04", "concepto": "Cloud tiering", "explicacion": "Función de Azure File Sync que deja en el servidor local solo los archivos usados recientemente y sustituye el resto por punteros, recuperándolos bajo demanda al abrirlos. Se gobierna con una política de espacio libre en el volumen y, opcionalmente, con una política de fecha. Es lo que permite servir 10 TB de datos desde un servidor con 500 GB de disco." },
+        { "id": "az800-d5-f05", "concepto": "Migrar DFS Replication a Azure File Sync", "explicacion": "El orden importa: primero se crea el sync group y se añade el server endpoint, se deja completar la sincronización inicial, y solo entonces se deshabilita DFS-R en esa carpeta. Tener DFS-R y File Sync replicando la misma carpeta a la vez provoca conflictos. Los espacios de nombres de DFS (DFS-N) pueden mantenerse apuntando a los servidores." },
+        { "id": "az800-d5-f06", "concepto": "DFS Namespaces vs DFS Replication", "explicacion": "Son dos cosas distintas que suelen confundirse. DFS-N crea una ruta lógica única (\\\\dominio\\datos) que redirige a servidores reales, con referencias ordenadas por coste de sitio. DFS-R copia el contenido entre servidores usando Remote Differential Compression para enviar solo los bloques cambiados. Se pueden usar juntas o por separado." },
+        { "id": "az800-d5-f07", "concepto": "FSRM (File Server Resource Manager)", "explicacion": "Cuatro herramientas: cuotas (duras impiden superar el límite, blandas solo avisan) sobre carpetas o plantillas, file screens que bloquean tipos de archivo por grupos, clasificación de archivos con reglas, y tareas de gestión de archivos como caducar contenido antiguo. También genera informes de almacenamiento." },
+        { "id": "az800-d5-f08", "concepto": "BranchCache", "explicacion": "Cachea contenido en la sucursal para no descargarlo repetidamente por la WAN. Modo distribuido: cada cliente guarda un trozo y se lo sirve a los demás, sin servidor, adecuado para oficinas pequeñas. Modo hosted cache: un servidor de la sucursal centraliza la caché, más fiable para oficinas grandes. Se configura por GPO y necesita servidores de contenido compatibles." },
+        { "id": "az800-d5-f09", "concepto": "SMB over QUIC", "explicacion": "Encapsula SMB dentro de QUIC sobre UDP 443, con TLS 1.3 obligatorio y un certificado en el servidor. Permite acceder a un recurso compartido desde Internet SIN VPN y sin exponer el puerto 445. Requiere ediciones compatibles de Windows Server. Es la respuesta cuando piden acceso a archivos para teletrabajo sin túnel." },
+        { "id": "az800-d5-f10", "concepto": "Opciones de seguridad de SMB", "explicacion": "Firma SMB (integridad, detecta manipulación y ataques de retransmisión), cifrado SMB (confidencialidad de extremo a extremo, se activa por recurso compartido o por servidor) y el bloqueo de SMB1, que debe estar deshabilitado siempre. Las versiones recientes de Windows Server endurecen estos valores por defecto." },
+        { "id": "az800-d5-f11", "concepto": "SMB Multichannel y SMB Direct", "explicacion": "Multichannel usa varias rutas de red a la vez entre cliente y servidor, aportando más ancho de banda y tolerancia a fallos, y se activa solo si hay adaptadores adecuados. SMB Direct usa RDMA para transferir con muy baja latencia y casi sin consumo de CPU, y es la base del rendimiento en Storage Spaces Direct." },
+        { "id": "az800-d5-f12", "concepto": "Storage Spaces", "explicacion": "Agrupa discos físicos en un pool y crea discos virtuales con distintos niveles de resiliencia: simple (sin protección, máximo rendimiento), mirror (dos o tres copias, la opción por defecto para datos importantes) y parity (eficiente en espacio, más lento en escritura, adecuado para archivado). Puede añadirse conciencia de bandeja (enclosure awareness)." },
+        { "id": "az800-d5-f13", "concepto": "Storage Replica", "explicacion": "Replicación a nivel de BLOQUE entre volúmenes, independiente del sistema de archivos. Modo síncrono: confirma la escritura cuando ha llegado a los dos extremos, sin pérdida de datos, exige baja latencia. Modo asíncrono: confirma localmente y envía después, admite distancias largas a cambio de posible pérdida. Necesita un volumen de log rápido y dedicado." },
+        { "id": "az800-d5-f14", "concepto": "Deduplicación de datos", "explicacion": "Divide los archivos en fragmentos y almacena una sola copia de cada fragmento repetido. Se habilita por volumen y con un perfil de uso: servidor de archivos de propósito general, VDI o servidor de copias de seguridad virtualizado. No se puede usar en el volumen de sistema ni de arranque. Ahorros típicos muy altos en VDI y en repositorios de copias." },
+        { "id": "az800-d5-f15", "concepto": "NTFS vs ReFS", "explicacion": "NTFS: maduro, admite compresión, cifrado EFS, cuotas de disco duras y es el único arrancable. ReFS: orientado a integridad y escala, con integrity streams que detectan y corrigen corrupción junto a espacios con resiliencia, y block cloning que acelera enormemente operaciones con VHDX. ReFS no arranca el sistema y no admite EFS ni compresión." },
+        { "id": "az800-d5-f16", "concepto": "Storage QoS", "explicacion": "Define políticas de IOPS mínimas y máximas para discos virtuales, evitando que una VM ruidosa consuma todo el rendimiento. Las políticas pueden ser dedicadas (los valores se aplican a cada disco por separado) o agregadas (varios discos comparten el presupuesto). Se aplica sobre clústeres de servidor de archivos escalable y Storage Spaces Direct." },
+        { "id": "az800-d5-f17", "concepto": "iSCSI", "explicacion": "Presenta almacenamiento en bloque sobre la red TCP/IP. El iSCSI Target Server publica LUNs (archivos VHDX) y el iSCSI Initiator del cliente las monta como si fueran discos locales. Elementos clave: IQN como identificador, portales de destino, autenticación CHAP (y CHAP mutuo) y MPIO para tener varias rutas y tolerancia a fallos." },
+        { "id": "az800-d5-f18", "concepto": "Cuotas: FSRM vs cuotas de disco NTFS", "explicacion": "Las cuotas de disco de NTFS se aplican por usuario y por volumen completo, contabilizando por propietario del archivo. Las cuotas de FSRM se aplican por CARPETA, con plantillas reutilizables, avisos por correo y umbrales configurables. En un servidor de archivos moderno la respuesta correcta suele ser FSRM." }
       ],
       "preguntas": [
         {
           "id": "az800-d5-q01",
-          "pregunta": "El file server de la sucursal se queda sin disco: 80% de los archivos no se tocan hace más de un año, pero deben seguir accesibles en la misma ruta. ¿Qué solución encaja?",
+          "pregunta": "Una sede con un servidor de 500 GB debe dar acceso a 8 TB de archivos históricos sin ampliar el disco. ¿Qué implementas?",
           "opciones": [
-            { "texto": "Azure File Sync con cloud tiering", "correcta": true, "explicacion": "Los archivos fríos pasan a Azure y quedan como punteros locales: mismo path para el usuario, disco liberado." },
-            { "texto": "Comprar otro disco y mover archivos a mano", "correcta": false, "explicacion": "Pospone el problema y rompe rutas si se mueven carpetas." },
-            { "texto": "Borrar lo antiguo", "correcta": false, "explicacion": "El requisito es que sigan accesibles." },
-            { "texto": "Activar deduplicación solamente", "correcta": false, "explicacion": "Ayuda con el espacio pero no escala como el tiering ilimitado hacia la nube." }
+            { "texto": "Azure File Sync con cloud tiering", "correcta": true, "explicacion": "El servidor conserva localmente los archivos usados recientemente y el resto queda en Azure Files, recuperándose bajo demanda." },
+            { "texto": "Deduplicación de datos en el volumen", "correcta": false, "explicacion": "Ahorra espacio, pero no permite servir 8 TB desde 500 GB de disco." },
+            { "texto": "DFS Replication contra un servidor de la central", "correcta": false, "explicacion": "DFS-R replica el contenido completo, con lo que exigiría los 8 TB en local." },
+            { "texto": "Un recurso compartido montado por iSCSI desde la central", "correcta": false, "explicacion": "Depende del enlace WAN para cada acceso y no aporta caché local inteligente." }
           ]
         },
         {
           "id": "az800-d5-q02",
-          "pregunta": "Necesitas que un volumen crítico de un file server tenga réplica exacta en el datacenter secundario con RPO cero. ¿Qué tecnología usas?",
+          "pregunta": "Vas a migrar una carpeta que hoy replica con DFS-R hacia Azure File Sync. ¿Cuál es el orden correcto?",
           "opciones": [
-            { "texto": "Storage Replica en modo síncrono", "correcta": true, "explicacion": "Replica bloques de forma síncrona: la escritura se confirma en ambos lados, RPO cero." },
-            { "texto": "DFS Replication", "correcta": false, "explicacion": "Replica archivos cerrados de forma asíncrona: no da RPO cero ni replica archivos en uso." },
-            { "texto": "Robocopy programado cada noche", "correcta": false, "explicacion": "RPO de horas: lejos del requisito." },
-            { "texto": "BranchCache", "correcta": false, "explicacion": "Es caché de lectura para sucursales, no replicación." }
+            { "texto": "Crear el sync group, añadir el server endpoint, esperar a la sincronización inicial y solo entonces deshabilitar DFS-R", "correcta": true, "explicacion": "Mantener ambos replicando a la vez genera conflictos, y deshabilitar DFS-R antes de tiempo deja la carpeta sin protección durante la migración." },
+            { "texto": "Deshabilitar DFS-R primero y luego crear el sync group", "correcta": false, "explicacion": "Deja una ventana sin replicación y sin copia sincronizada." },
+            { "texto": "Configurar los dos de forma permanente para tener doble replicación", "correcta": false, "explicacion": "DFS-R y File Sync sobre la misma carpeta provocan conflictos de archivos." },
+            { "texto": "Copiar los archivos manualmente a Azure Files y luego reconfigurar", "correcta": false, "explicacion": "Pierde el estado y no aprovecha el mecanismo de sincronización inicial." }
+          ]
+        },
+        {
+          "id": "az800-d5-q03",
+          "pregunta": "Los teletrabajadores necesitan acceso a un recurso compartido de archivos desde Internet, sin VPN y sin exponer el puerto 445. ¿Qué usas?",
+          "opciones": [
+            { "texto": "SMB over QUIC", "correcta": true, "explicacion": "Encapsula SMB sobre UDP 443 con TLS 1.3 y certificado, permitiendo acceso desde Internet sin túnel VPN ni el puerto 445 abierto." },
+            { "texto": "BranchCache en modo hosted", "correcta": false, "explicacion": "BranchCache optimiza el ancho de banda en sucursales, no da acceso desde Internet." },
+            { "texto": "DFS Namespaces con referencias por sitio", "correcta": false, "explicacion": "DFS-N organiza rutas lógicas, no resuelve el acceso remoto seguro." },
+            { "texto": "Cifrado SMB sobre el recurso compartido", "correcta": false, "explicacion": "Cifra el tráfico pero sigue necesitando el puerto 445 accesible." }
+          ]
+        },
+        {
+          "id": "az800-d5-q04",
+          "pregunta": "Hay que impedir que los usuarios guarden archivos de vídeo en el servidor de archivos, y avisar al responsable cuando lo intenten. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Un file screen de FSRM sobre el grupo de archivos de vídeo, con notificación por correo", "correcta": true, "explicacion": "Los file screens bloquean por tipo de archivo y admiten notificaciones, registro en eventos y ejecución de comandos." },
+            { "texto": "Una cuota dura de FSRM", "correcta": false, "explicacion": "La cuota limita el espacio, no el tipo de archivo." },
+            { "texto": "Permisos NTFS de denegación sobre la extensión .mp4", "correcta": false, "explicacion": "Los permisos NTFS actúan sobre objetos y usuarios, no sobre extensiones." },
+            { "texto": "Clasificación de archivos con una regla de contenido", "correcta": false, "explicacion": "La clasificación etiqueta, pero por sí sola no bloquea el guardado." }
+          ]
+        },
+        {
+          "id": "az800-d5-q05",
+          "pregunta": "Se necesita replicar un volumen entre dos centros de datos separados 400 km, aceptando cierta pérdida de datos en caso de desastre. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "Storage Replica en modo asíncrono", "correcta": true, "explicacion": "El modo asíncrono admite latencias altas y distancias largas, a cambio de la posible pérdida de las últimas escrituras." },
+            { "texto": "Storage Replica en modo síncrono", "correcta": false, "explicacion": "El modo síncrono exige latencia muy baja; a 400 km penalizaría gravemente el rendimiento de escritura." },
+            { "texto": "DFS Replication entre los dos volúmenes", "correcta": false, "explicacion": "DFS-R replica a nivel de archivo cerrado y no sirve para volúmenes con archivos abiertos como bases de datos." },
+            { "texto": "Deduplicación con copia programada", "correcta": false, "explicacion": "No es un mecanismo de replicación." }
+          ]
+        },
+        {
+          "id": "az800-d5-q06",
+          "pregunta": "¿En qué escenario la deduplicación de datos da mayor ahorro?",
+          "opciones": [
+            { "texto": "Un repositorio de copias de seguridad virtualizado o un almacén de VDI", "correcta": true, "explicacion": "Son los casos con más redundancia entre archivos, porque muchos escritorios o copias comparten los mismos bloques." },
+            { "texto": "Un volumen con vídeo ya comprimido", "correcta": false, "explicacion": "El contenido comprimido tiene poca redundancia de bloques y el ahorro es marginal." },
+            { "texto": "El volumen de sistema del servidor", "correcta": false, "explicacion": "La deduplicación no se admite en volúmenes de sistema ni de arranque." },
+            { "texto": "Una base de datos SQL Server en producción", "correcta": false, "explicacion": "No es un escenario soportado ni recomendable para archivos abiertos en constante escritura." }
+          ]
+        },
+        {
+          "id": "az800-d5-q07",
+          "pregunta": "Se busca un sistema de archivos que detecte y corrija automáticamente la corrupción de datos en un espacio con resiliencia. ¿Cuál eliges y qué limitación aceptas?",
+          "opciones": [
+            { "texto": "ReFS, aceptando que no puede ser el volumen de arranque y no admite EFS ni compresión", "correcta": true, "explicacion": "Los integrity streams de ReFS detectan corrupción y, con un espacio con resiliencia, la reparan desde la copia buena." },
+            { "texto": "NTFS con compresión activada", "correcta": false, "explicacion": "NTFS no ofrece integrity streams con reparación automática." },
+            { "texto": "ReFS, aceptando que no admite discos de más de 2 TB", "correcta": false, "explicacion": "ReFS está diseñado precisamente para gran escala; esa limitación no existe." },
+            { "texto": "NTFS con cuotas de disco y EFS", "correcta": false, "explicacion": "Son funcionalidades útiles pero no relacionadas con la integridad de datos." }
+          ]
+        },
+        {
+          "id": "az800-d5-q08",
+          "pregunta": "Una VM está consumiendo casi todo el rendimiento del almacenamiento compartido y perjudica al resto. ¿Qué aplicas?",
+          "opciones": [
+            { "texto": "Una política de Storage QoS con IOPS máximas para ese disco virtual", "correcta": true, "explicacion": "Storage QoS define mínimos y máximos de IOPS por disco virtual, evitando el efecto del vecino ruidoso." },
+            { "texto": "Una cuota de FSRM sobre el volumen", "correcta": false, "explicacion": "FSRM limita capacidad, no rendimiento." },
+            { "texto": "Activar la deduplicación en el volumen", "correcta": false, "explicacion": "Ahorra espacio y puede incluso añadir carga, sin limitar IOPS." },
+            { "texto": "Cambiar el disco virtual de dinámico a fijo", "correcta": false, "explicacion": "Puede mejorar algo el rendimiento de esa VM, pero no impone un límite ni protege a las demás." }
+          ]
+        },
+        {
+          "id": "az800-d5-q09",
+          "pregunta": "Un servidor debe acceder a almacenamiento en bloque por iSCSI con tolerancia a fallos de ruta y autenticación mutua. ¿Qué configuras?",
+          "opciones": [
+            { "texto": "MPIO con varias rutas y CHAP mutuo entre initiator y target", "correcta": true, "explicacion": "MPIO aporta rutas redundantes y balanceo, y el CHAP mutuo autentica en ambos sentidos." },
+            { "texto": "NIC Teaming en el servidor y CHAP simple", "correcta": false, "explicacion": "Para iSCSI se prefiere MPIO sobre teaming, y el CHAP simple no es autenticación mutua." },
+            { "texto": "SMB Multichannel con cifrado SMB", "correcta": false, "explicacion": "SMB Multichannel se aplica a SMB, no a iSCSI." },
+            { "texto": "Storage Replica síncrono entre initiator y target", "correcta": false, "explicacion": "Storage Replica replica volúmenes, no gestiona rutas ni autenticación iSCSI." }
           ]
         }
       ],
       "escenarios": [
         {
           "id": "az800-d5-s01",
-          "situacion": "Tu empresa tiene un DFS Namespace con réplicas en 3 sedes vía DFS-R, con conflictos frecuentes y usuarios quejándose de versiones pisadas. Quieren centralizar en la nube manteniendo acceso rápido local.",
-          "pregunta": "¿Cómo migras a una arquitectura híbrida más sana?",
-          "respuestaEsperada": "Migrar a Azure Files como única fuente de verdad con Azure File Sync en cada sede (server endpoints con cloud tiering), conservando el DFS Namespace para no cambiar las rutas de usuario. Planificar la migración por shares, validar permisos NTFS/identidad, y monitorizar la sincronización antes de retirar DFS-R.",
-          "razonamiento": "File Sync elimina la replicación multi-master (origen de los conflictos de DFS-R) centralizando el estado en Azure, mientras el namespace preserva la experiencia y el tiering mantiene el rendimiento local."
+          "situacion": "Una empresa con tres sedes quiere: una ruta única para los usuarios sin importar la sede, que cada sede lea de su servidor local, que los datos existan en la nube como copia, y que los servidores locales tengan solo 1 TB frente a los 6 TB de datos totales.",
+          "pregunta": "Diseña la solución completa indicando qué tecnología cubre cada requisito.",
+          "respuestaEsperada": "DFS Namespaces para la ruta lógica única, con referencias ordenadas por coste de sitio para que cada usuario vaya a su servidor local. Azure File Sync con un sync group y un server endpoint por sede, todos contra el mismo cloud endpoint, lo que sincroniza las tres sedes y deja la copia maestra en Azure Files. Cloud tiering activado con política de espacio libre en cada servidor, para servir 6 TB desde discos de 1 TB. DFS-R deja de ser necesario porque la sincronización la hace File Sync.",
+          "razonamiento": "Es la arquitectura canónica de servidor de archivos híbrido y obliga a separar claramente DFS-N (rutas), la sincronización (File Sync) y el ahorro de disco (cloud tiering), tres piezas que se confunden constantemente."
+        },
+        {
+          "id": "az800-d5-s02",
+          "situacion": "Auditoría detecta que un servidor de archivos tiene SMB1 habilitado, comparte datos de nóminas sin cifrar y varios departamentos han llenado el volumen con archivos personales. Además, la dirección quiere acceso desde casa sin desplegar VPN.",
+          "pregunta": "Propón un plan que cubra los cuatro puntos.",
+          "respuestaEsperada": "Deshabilitar SMB1 por completo y verificar que ningún cliente heredado dependa de él. Activar el cifrado SMB sobre el recurso compartido de nóminas y comprobar que la firma SMB está exigida. Aplicar cuotas de FSRM por carpeta con plantillas y avisos por umbral, más file screens para bloquear los tipos de archivo personales (música, vídeo) con notificación al responsable. Para el acceso remoto, configurar SMB over QUIC, que expone el recurso sobre UDP 443 con TLS 1.3 y certificado, sin VPN y sin abrir el puerto 445.",
+          "razonamiento": "Recorre los tres bloques del dominio (seguridad de SMB, gestión con FSRM y acceso remoto moderno) en un solo caso, que es el formato de pregunta larga habitual."
+        },
+        {
+          "id": "az800-d5-s03",
+          "situacion": "Se monta un nuevo servidor de archivos con 12 discos. La carga son perfiles de usuario y archivos ofimáticos, con mucha redundancia entre ellos. Se pide protección frente a fallo de disco, protección frente a corrupción silenciosa y el mayor ahorro de espacio posible.",
+          "pregunta": "¿Qué combinación de pool, resiliencia, sistema de archivos y funcionalidades eliges?",
+          "respuestaEsperada": "Crear un pool de Storage Spaces con los 12 discos y un disco virtual con resiliencia mirror, que protege frente al fallo de disco y permite reparar. Formatear en ReFS con integrity streams, para que la corrupción silenciosa se detecte y se corrija automáticamente a partir de la copia sana del mirror. Habilitar la deduplicación de datos en el volumen con el perfil de servidor de archivos de propósito general, que es donde los perfiles y documentos ofimáticos dan el mayor ahorro. Parity daría más capacidad útil pero penalizaría la escritura, que aquí es frecuente.",
+          "razonamiento": "Fuerza a combinar tres capas (resiliencia física, integridad del sistema de archivos y eficiencia de espacio) y a justificar mirror frente a parity según el patrón de escritura, que es el matiz que suele decidir la pregunta."
         }
       ]
     }
