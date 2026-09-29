@@ -64,7 +64,7 @@
         {
           "id": "az305-d1-f08",
           "concepto": "Key Vault: Azure RBAC vs access policies",
-          "explicacion": "Azure RBAC es el modelo de permisos recomendado: roles de data plane (Key Vault Secrets User, Crypto Officer, Certificates Officer) asignables al vault o a un objeto concreto, compatibles con PIM y conditions. Úsalo en todos los vaults nuevos y migra los antiguos. Las access policies son el modelo heredado: no permiten scope por secreto y quien tiene Contributor sobre el vault puede concederse acceso a los datos, así que evítalas salvo dependencia heredada."
+          "explicacion": "Azure RBAC es el modelo de permisos recomendado: roles de data plane (Key Vault Secrets User, Crypto Officer, Certificates Officer) asignables al vault o, como excepción, a un objeto concreto, y compatibles con PIM. Úsalo en todos los vaults nuevos, con un vault por aplicación y entorno y los roles asignados a nivel de vault, y migra los antiguos. Las access policies son el modelo heredado: no permiten scope por secreto y quien tiene Contributor sobre el vault puede concederse acceso a los datos, así que evítalas salvo dependencia heredada."
         },
         {
           "id": "az305-d1-f09",
@@ -79,7 +79,7 @@
         {
           "id": "az305-d1-f11",
           "concepto": "Entra Connect Sync vs Entra Cloud Sync",
-          "explicacion": "Cloud Sync usa agentes ligeros gestionados desde la nube, con varios agentes activos para alta disponibilidad y soporte de bosques desconectados; es la dirección estratégica de Microsoft. Connect Sync es un servidor on-premises (una sola instancia activa por tenant) con reglas avanzadas, sincronización de dispositivos para hybrid join y sin el límite de 150.000 objetos por dominio de Cloud Sync. Elige Cloud Sync salvo que necesites hybrid join de dispositivos, reglas complejas o más escala; ambos pueden coexistir sincronizando bosques distintos."
+          "explicacion": "Cloud Sync usa agentes ligeros gestionados desde la nube, con varios agentes activos para alta disponibilidad y soporte de bosques desconectados; Microsoft inició en 2026 la transición por fases de Connect Sync hacia Cloud Sync. Connect Sync es un servidor on-premises (una sola instancia activa por tenant) con reglas avanzadas, sincronización de dispositivos para hybrid join y sin el límite de 150.000 objetos por dominio de Cloud Sync. Elige Cloud Sync salvo que necesites hybrid join de dispositivos, reglas complejas o más escala; ambos pueden coexistir sincronizando bosques distintos."
         },
         {
           "id": "az305-d1-f12",
@@ -129,7 +129,7 @@
         {
           "id": "az305-d1-f21",
           "concepto": "Jerarquía de management groups",
-          "explicacion": "Los management groups agrupan suscripciones para heredar Azure Policy, Azure RBAC y budgets, con hasta 6 niveles bajo el root. Diseña por arquetipo de carga (Platform, Landing zones Corp y Online, Sandbox, Decommissioned) en lugar de por organigrama, que cambia más a menudo. Evita jerarquías profundas y asignaciones suscripción a suscripción; usa la suscripción como unidad de escala y aislamiento y los resource groups por ciclo de vida de la carga."
+          "explicacion": "Los management groups agrupan suscripciones para heredar Azure Policy y Azure RBAC y para agregar costes y budgets, con hasta 6 niveles bajo el root. Diseña por arquetipo de carga (Platform, Landing zones Corp y Online, Sandbox, Decommissioned) en lugar de por organigrama, que cambia más a menudo. Evita jerarquías profundas y asignaciones suscripción a suscripción; usa la suscripción como unidad de escala y aislamiento y los resource groups por ciclo de vida de la carga."
         },
         {
           "id": "az305-d1-f22",
@@ -149,7 +149,7 @@
         {
           "id": "az305-d1-f25",
           "concepto": "PIM vs access reviews vs entitlement management",
-          "explicacion": "PIM da acceso just-in-time a roles de Entra ID y de Azure RBAC (eligible, activación limitada, aprobación, MFA). Access reviews recertifican periódicamente accesos existentes (grupos, apps, guests, roles) y pueden retirarlos automáticamente. Entitlement management gobierna la entrada con access packages que usuarios internos o de connected organizations solicitan, con aprobación y expiración; lifecycle workflows (Entra ID Governance) automatizan altas, cambios y bajas de empleados."
+          "explicacion": "PIM da acceso just-in-time a roles de Entra ID y de Azure RBAC (eligible, activación limitada, aprobación, MFA). Access reviews recertifican periódicamente accesos existentes (grupos, apps, guests, roles) y pueden retirarlos automáticamente. Entitlement management gobierna la entrada con access packages que usuarios internos o de connected organizations solicitan, con aprobación y expiración; lifecycle workflows (Entra ID Governance) automatizan altas, cambios y bajas de empleados. No uses access reviews para dar acceso temporal ni PIM para gobernar invitados: cada pieza cierra un hueco distinto."
         },
         {
           "id": "az305-d1-f26",
@@ -300,7 +300,7 @@
             {
               "texto": "Cambiar la tabla al plan Auxiliary",
               "correcta": false,
-              "explicacion": "Es aún más barato, pero las alertas dejan de funcionar en tablas Auxiliary y sus consultas no están optimizadas para troubleshooting."
+              "explicacion": "ContainerLogV2 no figura entre las tablas que admiten Auxiliary y, aunque lo admitiera, ese plan no permite alertas ni ofrece consultas optimizadas para troubleshooting."
             },
             {
               "texto": "Reducir la analytics retention de la tabla a 7 días",
@@ -321,7 +321,7 @@
         },
         {
           "id": "az305-d1-q07",
-          "pregunta": "Una empresa opera en la UE y en EE. UU. Los logs de recursos europeos no pueden salir de la UE. Cada equipo de aplicación debe ver solo los logs de sus recursos y nadie fuera del SOC puede leer las tablas de seguridad. ¿Qué diseño de Log Analytics recomiendas?",
+          "pregunta": "Una empresa opera en la UE y en EE. UU. Los logs de recursos europeos no pueden salir de la UE. Cada equipo de aplicación debe ver solo los logs de sus recursos, nadie fuera del SOC puede leer las tablas de seguridad y quieres el mínimo número de workspaces. ¿Qué diseño de Log Analytics recomiendas?",
           "opciones": [
             {
               "texto": "Un workspace global en East US con table-level RBAC para las tablas de seguridad",
@@ -336,7 +336,7 @@
             {
               "texto": "Un workspace por equipo de aplicación en cada geografía",
               "correcta": false,
-              "explicacion": "Aísla los datos, pero multiplica workspaces, complica consultas y alertas transversales y pierde commitment tiers sin necesidad."
+              "explicacion": "Aísla los datos, pero multiplica workspaces (incumple el mínimo pedido), complica consultas y alertas transversales y pierde commitment tiers."
             },
             {
               "texto": "Un workspace por geografía y el rol Log Analytics Reader para cada equipo sobre su workspace regional",
@@ -425,7 +425,7 @@
         },
         {
           "id": "az305-d1-q11",
-          "pregunta": "Una VMSS con autoscale y 12 Function Apps deben leer el mismo Key Vault y la misma cuenta de storage. Seguridad exige aprobar las role assignments antes de desplegar y que sobrevivan si se recrean los recursos. ¿Qué identidad usas?",
+          "pregunta": "Una VMSS con autoscale y 12 Function Apps deben leer el mismo Key Vault y la misma cuenta de storage sin credenciales que distribuir ni rotar. Seguridad exige aprobar las role assignments antes de desplegar y que sobrevivan si se recrean los recursos. ¿Qué identidad usas?",
           "opciones": [
             {
               "texto": "Una user-assigned managed identity asignada a la VMSS y a las Function Apps",
@@ -440,7 +440,7 @@
             {
               "texto": "Un service principal con certificado instalado en la VMSS y en las apps",
               "correcta": false,
-              "explicacion": "Funciona, pero introduce una credencial que hay que distribuir, proteger y rotar, algo que las managed identities eliminan."
+              "explicacion": "Cumple la aprobación previa, pero introduce un certificado que hay que distribuir, proteger y rotar, justo lo que el enunciado prohíbe."
             },
             {
               "texto": "Una app registration con workload identity federation hacia el emisor OIDC de GitHub",
@@ -555,27 +555,27 @@
         },
         {
           "id": "az305-d1-q16",
-          "pregunta": "Una ONG de 40 personas solo tiene Microsoft Entra ID Free. Quiere MFA para todos, que las cuentas nuevas queden protegidas sin intervención y bloquear protocolos heredados, sin coste adicional. ¿Qué eliges?",
+          "pregunta": "Cada domingo de 02:00 a 04:00 se parchean las VMs del resource group rg-web. Las 150 alert rules cubren toda la suscripción y avisan por SMS y email. En esa ventana no debe llegar ninguna notificación de esas VMs, las alertas deben quedar registradas y no quieres modificar reglas. ¿Qué configuras?",
           "opciones": [
             {
-              "texto": "Habilitar security defaults",
+              "texto": "Una alert processing rule de supresión con scope rg-web y programación semanal",
               "correcta": true,
-              "explicacion": "Es gratuito: obliga a registrar MFA, la exige a administradores y cuando es necesario al resto, bloquea legacy authentication y cubre automáticamente a los usuarios nuevos."
+              "explicacion": "Quita los action groups de las alertas disparadas en ese scope y horario sin tocar las reglas; las alertas siguen visibles y el resto de la suscripción notifica con normalidad."
             },
             {
-              "texto": "Conditional Access con la plantilla de MFA para todos los usuarios",
+              "texto": "Un runbook que deshabilite las alert rules al empezar la ventana y las reactive al terminar",
               "correcta": false,
-              "explicacion": "Cumpliría técnicamente, pero necesita licencias Entra ID P1: supone un coste adicional."
+              "explicacion": "Modifica las reglas, que se quería evitar, y mientras están deshabilitadas no se registran alertas ni se vigila el resto de la suscripción."
             },
             {
-              "texto": "Per-user MFA habilitado usuario a usuario",
+              "texto": "La opción Mute actions de las log search alert rules durante dos horas",
               "correcta": false,
-              "explicacion": "Hay que activarlo manualmente para cada cuenta: los usuarios nuevos quedan desprotegidos hasta que alguien lo haga."
+              "explicacion": "Silencia cada regla durante un tiempo después de dispararse, no en un horario fijo, exige editar las reglas y no existe en las alertas de métricas."
             },
             {
-              "texto": "Confiar en la MFA obligatoria que Microsoft ya aplica en Azure",
+              "texto": "Una maintenance configuration de Azure Update Manager con la ventana del domingo",
               "correcta": false,
-              "explicacion": "La MFA obligatoria solo cubre portales de administración y la gestión de recursos Azure; no protege el acceso al correo ni a otras apps."
+              "explicacion": "Programa cuándo se instalan los parches, pero no suprime las notificaciones de Azure Monitor."
             }
           ]
         },
@@ -659,27 +659,27 @@
         },
         {
           "id": "az305-d1-q20",
-          "pregunta": "Los técnicos remotos necesitan RDP y SMB contra 50 servidores on-premises. Seguridad quiere eliminar la VPN, aplicar Conditional Access por aplicación y no abrir puertos de entrada. ¿Qué recomiendas?",
+          "pregunta": "Doce aplicaciones de producción usan varios secretos propios cada una. Cada app debe leer solo los suyos con su managed identity, un Contributor no debe poder concederse acceso a los datos y quieres pocas role assignments y aislar entre apps el throttling y el impacto de un compromiso. ¿Qué diseñas?",
           "opciones": [
             {
-              "texto": "Microsoft Entra application proxy publicando cada servidor",
+              "texto": "Un Key Vault compartido con access policies que den Get de secretos a cada managed identity",
               "correcta": false,
-              "explicacion": "Está orientado a publicar apps web por HTTP/HTTPS; no ofrece acceso nativo por SMB ni RDP directo a cada servidor."
+              "explicacion": "Las access policies se aplican a todo el vault, así que cada app leería todos los secretos, y un Contributor puede editarlas y concederse acceso."
             },
             {
-              "texto": "VPN point-to-site con Azure VPN Gateway y autenticación de Entra ID",
+              "texto": "Un Key Vault compartido con modelo Azure RBAC y Key Vault Secrets User asignado secreto a secreto",
               "correcta": false,
-              "explicacion": "Mantiene la VPN y da acceso de red amplio; no aplica Conditional Access por aplicación ni por servidor."
+              "explicacion": "Aísla los secretos, pero multiplica las role assignments y comparte throttling y radio de impacto entre las doce apps; Microsoft lo desaconseja salvo excepciones."
             },
             {
-              "texto": "Microsoft Entra Private Access con private network connectors",
+              "texto": "Un Key Vault por aplicación con access policies y un lock CanNotDelete en cada vault",
+              "correcta": false,
+              "explicacion": "Aísla por app, pero con access policies un Contributor puede concederse acceso a los datos, y el lock no limita permisos de data plane."
+            },
+            {
+              "texto": "Un Key Vault por aplicación con modelo Azure RBAC y Key Vault Secrets User a nivel de vault",
               "correcta": true,
-              "explicacion": "Lleva el modelo de application proxy a cualquier TCP/UDP (RDP, SMB), con Conditional Access por aplicación y conectores solo salientes, sin VPN."
-            },
-            {
-              "texto": "Azure Bastion en una VNet conectada al datacenter",
-              "correcta": false,
-              "explicacion": "Solo ofrece RDP y SSH (no SMB) y no aplica Conditional Access por aplicación a cada servidor on-premises."
+              "explicacion": "Aísla secretos, throttling e impacto por app con una role assignment por identidad, y con RBAC un Contributor no puede crear role assignments para leer datos."
             }
           ]
         },
@@ -953,9 +953,9 @@
               "explicacion": "Recertifican quién conserva el acceso, pero no lo convierten en just-in-time ni piden aprobación en cada uso."
             },
             {
-              "texto": "Un access package de entitlement management con expiración",
+              "texto": "Un access package de entitlement management que asigne Owner activo durante 30 días",
               "correcta": false,
-              "explicacion": "Asigna paquetes por solicitud con caducidad, pero no ofrece activación por horas con MFA y aprobación sobre roles de Azure RBAC como PIM."
+              "explicacion": "Gobierna la solicitud y la caducidad, pero durante esos 30 días el rol queda activo sin activación por horas ni MFA en cada uso."
             },
             {
               "texto": "Privileged Identity Management con asignaciones eligible de Owner",
@@ -1001,14 +1001,14 @@
           "id": "az305-d1-s01",
           "situacion": "Una multinacional aterriza en Azure: 4 unidades de negocio, entornos prod/dev separados, requisitos de cumplimiento distintos por país y necesidad de informes de coste por unidad.",
           "pregunta": "¿Qué estructura de gobierno diseñas?",
-          "respuestaEsperada": "Jerarquía de management groups por unidad de negocio (y/o entorno), suscripciones separadas prod/dev por unidad, iniciativas de Azure Policy por requisito regulatorio asignadas al nivel adecuado, convención de tags obligatoria (CostCenter, Env, Owner) forzada por policy, y RBAC con grupos de Entra ID al scope mínimo.",
-          "razonamiento": "La estructura jerárquica traduce la organización real a Azure: la herencia de policy y RBAC automatiza el cumplimiento por país/unidad y los tags habilitan el reporte financiero."
+          "respuestaEsperada": "Jerarquía de management groups poco profunda y basada en arquetipos (Azure landing zones): Platform (identity, management, connectivity), Landing Zones (Corp y Online), Sandbox y Decommissioned; un management group hijo por país solo si su regulación exige políticas realmente distintas. Suscripciones por carga de trabajo y entorno (prod/dev separados), iniciativas de Azure Policy regulatorias asignadas en el management group donde aplican, tags obligatorios (BusinessUnit, CostCenter, Env, Owner) forzados y heredados con Policy, y RBAC con grupos de Entra ID al scope mínimo.",
+          "razonamiento": "Copiar el organigrama en management groups crea jerarquías profundas que hay que rehacer con cada reorganización; el Cloud Adoption Framework recomienda agruparlos por el tipo de gobierno que necesita cada carga. El reporte por unidad de negocio sale de los tags y de la propiedad de las suscripciones en Cost Management, y la herencia de Policy y RBAC aplica el cumplimiento sin configurar suscripción a suscripción."
         },
         {
           "id": "az305-d1-s02",
           "situacion": "Una cadena de retail opera 450 VMs en West Europe y North Europe, 200 servidores on-premises y 80 servicios PaaS. El SOC adoptará Microsoft Sentinel, pero durante 12 meses debe seguir alimentando su SIEM de terceros. Los logs de firewall y DNS suman 3 TB/día y el regulador pide conservarlos 5 años y poder consultarlos. Operaciones necesita alertas de rendimiento y el CFO exige recortar el coste de logs.",
           "pregunta": "¿Qué arquitectura de logging y routing de logs propones?",
-          "respuestaEsperada": "Workspaces en West Europe separados para seguridad (con Sentinel) y operaciones, salvo que unirlos permita un commitment tier y el SOC acepte table-level RBAC. Servidores on-premises conectados con Azure Arc y Azure Monitor Agent en todas las máquinas, con DCRs distintas: eventos de seguridad filtrados con XPath hacia el workspace de Sentinel y rendimiento o logs operacionales hacia el operacional. Diagnostic settings de los PaaS desplegados con Azure Policy (DeployIfNotExists, category group allLogs o audit) hacia el workspace que corresponda, y un segundo diagnostic setting hacia Event Hubs en cada región para el SIEM de terceros mientras dure la transición. Logs de firewall y DNS en el plan de menor coste que admita cada tabla (Auxiliary en tablas personalizadas basadas en DCR o compatibles, Basic si se necesitan simple log alerts) con total retention de 5 años; tablas de detección y alertas en Analytics. Workspace transformations para descartar registros de poco valor antes de almacenarlos.",
+          "respuestaEsperada": "Workspaces en West Europe separados para seguridad (con Sentinel) y operaciones, salvo que unirlos permita un commitment tier y el SOC acepte table-level RBAC. Servidores on-premises conectados con Azure Arc y Azure Monitor Agent en todas las máquinas, con DCRs distintas: eventos de seguridad filtrados con XPath hacia el workspace de Sentinel y rendimiento o logs operacionales hacia el operacional. Diagnostic settings de los PaaS desplegados con Azure Policy (DeployIfNotExists, category group allLogs o audit) hacia el workspace que corresponda, y un segundo diagnostic setting hacia Event Hubs en cada región para el SIEM de terceros mientras dure la transición; los eventos de las máquinas llegan a ese SIEM con una data export rule del workspace de seguridad hacia Event Hubs. Logs de firewall y DNS en el plan de menor coste que admita cada tabla (Auxiliary en tablas personalizadas basadas en DCR o compatibles, Basic si se necesitan simple log alerts) con total retention de 5 años; tablas de detección y alertas en Analytics. Workspace transformations para descartar registros de poco valor antes de almacenarlos.",
           "razonamiento": "Separar operaciones y seguridad evita que todo el volumen operacional se facture a precio de Sentinel y da al SOC la propiedad de sus datos; unirlos solo compensa si alcanza un commitment tier. Arc + AMA + DCR es el único camino soportado tras la retirada de MMA y permite filtrar en origen. DeployIfNotExists garantiza cobertura en recursos nuevos sin configurar recurso a recurso. Event Hubs es el destino de streaming para un SIEM externo (en la misma región que el recurso), mejor que exportar desde storage. Retener 5 años de 3 TB/día en Analytics sería prohibitivo; los planes de bajo coste con retención total larga mantienen la consulta KQL, mientras que archivar solo en storage perdería la consulta directa exigida."
         },
         {
@@ -1023,7 +1023,7 @@
           "situacion": "Un grupo industrial de 12.000 empleados sincroniza su bosque AD con Entra Connect Sync y password hash sync, con los PCs Windows en hybrid join. Acaba de comprar una empresa de 3.000 usuarios cuyo bosque AD no tiene conectividad con el principal. Hay aplicaciones web on-premises con Kerberos y servidores de ficheros SMB a los que los técnicos remotos entran por VPN. Tienen Microsoft 365 E3 (Entra ID P1) y quieren MFA resistente a phishing para los administradores.",
           "pregunta": "¿Qué diseño de identidad híbrida y de acceso a recursos on-premises recomiendas?",
           "respuestaEsperada": "Mantener Connect Sync con PHS para el bosque principal, necesario mientras haya hybrid join de dispositivos, y añadir Microsoft Entra Cloud Sync con al menos dos agentes en el bosque adquirido, también con PHS. Conditional Access: MFA para todos, bloqueo de legacy authentication, authentication strength resistente a phishing (FIDO2 o passkeys, Windows Hello for Business, certificate-based authentication) para roles de administración y dos cuentas break-glass excluidas y monitorizadas. Publicar las apps web Kerberos con Entra application proxy y KCD, y sustituir la VPN de los técnicos por Entra Private Access para SMB y RDP (licencia Private Access o Entra Suite y cliente Global Secure Access). Private network connectors en grupos por ubicación, con al menos dos conectores por grupo.",
-          "razonamiento": "Cloud Sync es la única herramienta que sincroniza un bosque desconectado y puede coexistir con Connect Sync para otro bosque; Connect Sync sigue haciendo falta por la sincronización de dispositivos para hybrid join. PHS es la opción más simple y resiliente; PTA solo tendría sentido si la normativa prohibiera hashes en la nube. Con P1, Conditional Access supera a security defaults y a per-user MFA porque admite exclusiones, condiciones y authentication strengths. Application proxy cubre las apps web sin cliente; Private Access cubre protocolos no web con acceso por aplicación y Conditional Access, algo que la VPN no ofrece."
+          "razonamiento": "Cloud Sync es la única herramienta que sincroniza un bosque desconectado y puede coexistir con Connect Sync para otro bosque; Connect Sync sigue haciendo falta por la sincronización de dispositivos para hybrid join; conviene planificar la transición a Cloud Sync que Microsoft inició en 2026 cuando cubra ese requisito. PHS es la opción más simple y resiliente; PTA solo tendría sentido si la normativa prohibiera hashes en la nube. Con P1, Conditional Access supera a security defaults y a per-user MFA porque admite exclusiones, condiciones y authentication strengths. Application proxy cubre las apps web sin cliente; Private Access cubre protocolos no web con acceso por aplicación y Conditional Access, algo que la VPN no ofrece."
         },
         {
           "id": "az305-d1-s05",
@@ -1050,7 +1050,7 @@
           "id": "az305-d1-s08",
           "situacion": "Un hospital universitario tiene 9.000 empleados con altas y bajas diarias desde su sistema de RR. HH., 1.500 investigadores externos de otras universidades y 40 administradores con roles permanentes de Global Administrator y Owner. Una auditoría encontró cuentas de exempleados activas, guests sin uso desde hace años y exceso de privilegios. Tienen licencias de Microsoft Entra ID Governance.",
           "pregunta": "¿Qué solución de identity governance recomiendas?",
-          "respuestaEsperada": "Aprovisionamiento desde RR. HH. (HR-driven o API-driven provisioning) y lifecycle workflows para joiner (tareas previas al primer día, Temporary Access Pass), mover y leaver (deshabilitar la cuenta y retirar grupos y licencias el último día). Entitlement management con catálogos por proyecto de investigación, connected organizations para las universidades, aprobación del investigador principal como sponsor, expiración a 180 días y eliminación automática del guest cuando pierde su último access package. Access reviews recurrentes: trimestrales para guests y grupos sensibles, con auto-apply y denegación si el revisor no responde, y revisiones de inactividad para limpiar guests antiguos. PIM para roles de Entra ID y de Azure RBAC con asignaciones eligible, activación limitada, authentication strength y aprobación para Global Administrator, más access reviews de esas asignaciones. Dos cuentas break-glass permanentes, excluidas de Conditional Access y con alertas sobre cualquier uso.",
+          "respuestaEsperada": "Aprovisionamiento desde RR. HH. (HR-driven o API-driven provisioning) y lifecycle workflows para joiner (tareas previas al primer día, Temporary Access Pass), mover y leaver (deshabilitar la cuenta y retirar grupos y licencias el último día). Entitlement management con catálogos por proyecto de investigación, connected organizations para las universidades, aprobación del investigador principal como sponsor, expiración a 180 días y eliminación automática del guest cuando pierde su último access package. Access reviews recurrentes: trimestrales para guests y grupos sensibles, con auto-apply y denegación si el revisor no responde, y revisiones de inactividad para limpiar guests antiguos. PIM para roles de Entra ID y de Azure RBAC con asignaciones eligible, activación limitada, authentication strength y aprobación para Global Administrator, más access reviews de esas asignaciones. Dos cuentas break-glass permanentes, excluidas de Conditional Access, con passkey FIDO2 (la MFA obligatoria de Azure también les aplica) y con alertas sobre cualquier uso.",
           "razonamiento": "Cada pieza cierra un hallazgo de la auditoría: lifecycle workflows desactiva a los exempleados desde el origen de verdad, entitlement management impide guests sin fecha de caducidad desde su entrada, access reviews limpia lo que ya existe y lo certifica periódicamente, y PIM elimina los privilegios permanentes. Solo access reviews no bastaría porque actúa a posteriori, y solo PIM no gobierna guests ni altas y bajas. Las cuentas break-glass permanentes evitan quedarse sin acceso al tenant si falla PIM o una política de Conditional Access."
         }
       ]
@@ -1111,12 +1111,12 @@
         {
           "id": "az305-d2-f09",
           "concepto": "Azure Database for PostgreSQL y MySQL flexible server",
-          "explicacion": "PaaS para motores open source con tiers Burstable (créditos de CPU, solo dev/test), General Purpose y Memory Optimized, stop/start del servidor para ahorrar y HA zonal opcional. Úsalo cuando la app ya depende de PostgreSQL o MySQL y quieres el mínimo cambio de código. Trampas: Single Server de ambos motores y Azure Database for MariaDB están retirados (MariaDB migra a MySQL flexible server), y Burstable no es para producción (en MySQL ni siquiera admite HA ni read replicas)."
+          "explicacion": "PaaS para motores open source con tiers Burstable (créditos de CPU, solo dev/test), General Purpose y Memory Optimized, stop/start del servidor para ahorrar y HA opcional (en la misma zona o zone-redundant). Úsalo cuando la app ya depende de PostgreSQL o MySQL y quieres el mínimo cambio de código. Trampas: Single Server de ambos motores y Azure Database for MariaDB están retirados (MariaDB migra a MySQL flexible server), y Burstable no es para producción (en MySQL ni siquiera admite HA ni read replicas)."
         },
         {
           "id": "az305-d2-f10",
           "concepto": "PostgreSQL elastic clusters (Citus)",
-          "explicacion": "Capacidad de Azure Database for PostgreSQL flexible server que une varios nodos con la extensión Citus para sharding horizontal por fila (distribution column como tenant_id) o por esquema. Úsalo cuando una base PostgreSQL necesita escalar escrituras y almacenamiento más allá de un nodo, típico en SaaS multi-tenant o analítica en tiempo real. Es el sustituto recomendado de Azure Cosmos DB for PostgreSQL (en retirada); si solo necesitas escalar lecturas, basta un servidor con read replicas."
+          "explicacion": "Capacidad de Azure Database for PostgreSQL flexible server que une varios nodos con la extensión Citus para sharding horizontal por fila (distribution column como tenant_id) o por esquema. Úsalo cuando una base PostgreSQL necesita escalar escrituras y almacenamiento más allá de un nodo, típico en SaaS multi-tenant o analítica en tiempo real. Es el sustituto recomendado de Azure Cosmos DB for PostgreSQL (en retirada y sin despliegues nuevos); si solo necesitas escalar lecturas, basta un servidor con read replicas."
         },
         {
           "id": "az305-d2-f11",
@@ -1131,7 +1131,7 @@
         {
           "id": "az305-d2-f13",
           "concepto": "Ledger en Azure SQL",
-          "explicacion": "Ledger encadena con hashes SHA-256 las transacciones sobre tablas ledger y guarda los digests fuera de la base (Blob con immutability o Azure Confidential Ledger) para demostrar que nadie, ni un DBA, alteró los datos. Updatable ledger tables permiten UPDATE y DELETE conservando el historial; append-only ledger tables solo admiten INSERT. No impide la manipulación ni cifra: la detecta al verificar, y una tabla o base ledger no puede volver a ser normal."
+          "explicacion": "Ledger encadena con hashes SHA-256 las transacciones sobre tablas ledger y guarda los digests fuera de la base (Blob con immutability o Azure Confidential Ledger) para demostrar que nadie, ni un DBA, alteró los datos. Úsalo cuando un auditor o regulador exige prueba criptográfica de integridad: updatable ledger tables si la app corrige con UPDATE o DELETE conservando el historial, append-only ledger tables si solo inserta. No es la opción para impedir cambios ni para ocultar datos (usa permisos, Always Encrypted o WORM en Blob): solo detecta la manipulación al verificar, y una tabla o base ledger no puede volver a ser normal."
         },
         {
           "id": "az305-d2-f14",
@@ -1141,7 +1141,7 @@
         {
           "id": "az305-d2-f15",
           "concepto": "Partition key en Cosmos DB",
-          "explicacion": "Define cómo se reparten datos y throughput: cada logical partition admite hasta 20 GB y cada partición hasta 10.000 RU/s. Elige una propiedad con alta cardinalidad, escrituras repartidas y presente en los filtros frecuentes (p. ej., /customerId); cambiarla exige copiar los datos a otro contenedor. Si un valor puede superar 20 GB, usa hierarchical partition keys (hasta tres niveles, p. ej., /tenantId, /userId, /id) en lugar de claves sintéticas, y evita fechas o valores de baja cardinalidad, que crean hot partitions."
+          "explicacion": "Define cómo se reparten datos y throughput: cada logical partition admite hasta 20 GB y cada physical partition hasta 10.000 RU/s. Elige una propiedad con alta cardinalidad, escrituras repartidas y presente en los filtros frecuentes (p. ej., /customerId); cambiarla exige copiar los datos a otro contenedor. Si un valor puede superar 20 GB, usa hierarchical partition keys (hasta tres niveles, p. ej., /tenantId, /userId, /id) en lugar de claves sintéticas, y evita fechas o valores de baja cardinalidad, que crean hot partitions."
         },
         {
           "id": "az305-d2-f16",
@@ -1166,7 +1166,7 @@
         {
           "id": "az305-d2-f20",
           "concepto": "Lifecycle management vs smart tier",
-          "explicacion": "Lifecycle management aplica reglas JSON por prefijo o blob index tags para pasar a Cool, Cold o Archive, o borrar, según días desde creación, modificación o último acceso (este último requiere access time tracking). Úsalo cuando la retención es predecible, incluye Archive o un borrado final. Smart tier mueve solo entre Hot, Cool y Cold según el acceso, sin reglas ni early deletion, pero exige cuenta GPv2 zone-redundant (ZRS, GZRS o RA-GZRS) y no llega a Archive."
+          "explicacion": "Lifecycle management aplica reglas JSON por prefijo o blob index tags para pasar a Cool, Cold o Archive, o borrar, según días desde creación, modificación o último acceso (este último requiere access time tracking). Úsalo cuando la retención es predecible, necesitas umbrales propios, Archive o un borrado final. Smart tier mueve solo entre Hot, Cool y Cold con umbrales fijos (Cool tras 30 días sin acceso, Cold tras 90) y devuelve a Hot al leer, sin early deletion pero con una cuota de monitorización por objeto; exige GPv2 zone-redundant (ZRS, GZRS o RA-GZRS) y no llega a Archive."
         },
         {
           "id": "az305-d2-f21",
@@ -1176,7 +1176,7 @@
         {
           "id": "az305-d2-f22",
           "concepto": "ADLS Gen2 vs Blob estándar",
-          "explicacion": "ADLS Gen2 es Blob Storage con hierarchical namespace: directorios reales con rename y delete atómicos, ACL POSIX por carpeta y fichero y endpoint dfs para Spark y Hadoop. Úsalo para data lakes y analítica (Databricks, Synapse, shortcuts de OneLake). No lo actives para backups, imágenes o apps que solo manejan objetos: no aporta nada, no se puede desactivar y algunas features no están disponibles (blob versioning, version-level WORM)."
+          "explicacion": "ADLS Gen2 es Blob Storage con hierarchical namespace: directorios reales con rename y delete atómicos, ACL POSIX por carpeta y fichero y endpoint dfs para Spark y Hadoop. Úsalo para data lakes y analítica (Databricks, Synapse, shortcuts de OneLake). No lo actives para backups, imágenes o apps que solo manejan objetos: no aporta nada, no se puede desactivar y algunas features no están disponibles (blob versioning, point-in-time restore, object replication)."
         },
         {
           "id": "az305-d2-f23",
@@ -1196,7 +1196,7 @@
         {
           "id": "az305-d2-f26",
           "concepto": "Data Factory vs Databricks vs Synapse vs Fabric",
-          "explicacion": "Azure Data Factory orquesta e integra datos en low-code con muchos conectores, self-hosted integration runtime para fuentes on-premises y Azure-SSIS IR para paquetes SSIS. Azure Databricks es Spark gestionado con notebooks, Delta Lake, Unity Catalog y MLflow, para ingeniería y ciencia de datos con código. Synapse reúne pools SQL y Spark en un workspace PaaS (sigue soportado), mientras que Microsoft Fabric es la plataforma SaaS unificada sobre OneLake (Data Factory, lakehouse, warehouse, Real-Time Intelligence, Mirroring y Power BI con Direct Lake), la opción recomendada para plataformas analíticas nuevas con mínima gestión."
+          "explicacion": "Azure Data Factory orquesta y copia datos en low-code, con self-hosted integration runtime para fuentes on-premises y Azure-SSIS IR para paquetes SSIS, pero no es una plataforma de notebooks ni de ML. Azure Databricks es Spark gestionado con notebooks, Delta Lake, Unity Catalog y MLflow: elígelo para ingeniería y ciencia de datos con código, no para analistas que quieren SaaS sin clusters. Synapse reúne pools SQL y Spark en un workspace PaaS que dimensionas tú (sigue soportado), mientras que Microsoft Fabric es la plataforma SaaS unificada sobre OneLake (lakehouse, warehouse, Mirroring, Real-Time Intelligence y Power BI con Direct Lake), la opción natural para plataformas analíticas nuevas con mínima gestión."
         },
         {
           "id": "az305-d2-f27",
@@ -1285,7 +1285,7 @@
         },
         {
           "id": "az305-d2-q04",
-          "pregunta": "Una ISV aloja 180 bases pequeñas en Azure SQL Database, una por cliente, con uso medio bajo y picos a horas distintas. Quiere un coste mensual predecible, sin latencia de reanudación, y aplicar sus licencias SQL Server con Software Assurance. ¿Qué despliegas?",
+          "pregunta": "Una ISV aloja 180 bases pequeñas en Azure SQL Database, una por cliente, con uso medio bajo y picos a horas distintas. Quiere el menor coste mensual, predecible y sin latencia de reanudación, aplicando sus licencias SQL Server con Software Assurance. ¿Qué despliegas?",
           "opciones": [
             {
               "texto": "Un elastic pool vCore General Purpose con Azure Hybrid Benefit",
@@ -1305,7 +1305,7 @@
             {
               "texto": "180 bases vCore provisioned, cada una dimensionada para su pico",
               "correcta": false,
-              "explicacion": "Cumple rendimiento y licencias, pero pagas el pico de cada base todo el tiempo: es la opción más cara."
+              "explicacion": "Cumple rendimiento y licencias, pero pagas el pico de cada base todo el tiempo: incumple el requisito de menor coste."
             }
           ]
         },
@@ -1389,12 +1389,12 @@
         },
         {
           "id": "az305-d2-q08",
-          "pregunta": "Una SaaS usa PostgreSQL con extensiones propias y una columna tenant_id en todas las tablas. Las escrituras ya superan lo que admite un solo servidor y necesitas escalar horizontalmente con un servicio gestionado recomendado para proyectos nuevos. ¿Qué eliges?",
+          "pregunta": "Una SaaS usa PostgreSQL con una columna tenant_id en todas las tablas. Las escrituras ya superan lo que admite un solo servidor y necesitas escalar horizontalmente, sin cambiar de motor, con un servicio gestionado recomendado para proyectos nuevos. ¿Qué eliges?",
           "opciones": [
             {
               "texto": "Azure Cosmos DB for PostgreSQL con tablas distribuidas por tenant_id",
               "correcta": false,
-              "explicacion": "Usa Citus, pero está en retirada y Microsoft no lo recomienda para proyectos nuevos."
+              "explicacion": "Usa Citus, pero está en retirada: ya no admite despliegues nuevos ni se recomienda para proyectos nuevos."
             },
             {
               "texto": "PostgreSQL flexible server Memory Optimized con read replicas",
@@ -1404,7 +1404,7 @@
             {
               "texto": "Azure SQL Database Hyperscale con named replicas",
               "correcta": false,
-              "explicacion": "Escala mucho, pero exige cambiar de motor y reescribir el código y las extensiones de PostgreSQL."
+              "explicacion": "Escala mucho, pero exige cambiar de motor y reescribir el código y las consultas de PostgreSQL."
             },
             {
               "texto": "PostgreSQL flexible server con elastic clusters por tenant_id",
@@ -1418,12 +1418,12 @@
           "pregunta": "Una tienda online migra desde MariaDB on-premises. Necesita un servicio gestionado y soportado compatible con su código MySQL, con HA entre zonas en producción y el menor coste posible en desarrollo. ¿Qué diseño propones?",
           "opciones": [
             {
-              "texto": "MySQL flexible server General Purpose con HA zonal; Burstable en desarrollo",
+              "texto": "MySQL flexible server General Purpose con HA zone-redundant; Burstable en desarrollo",
               "correcta": true,
-              "explicacion": "MySQL flexible server es el destino para MariaDB; General Purpose admite HA zonal y Burstable abarata dev/test."
+              "explicacion": "MySQL flexible server es el destino para MariaDB; General Purpose admite HA zone-redundant y Burstable abarata dev/test."
             },
             {
-              "texto": "MySQL flexible server Burstable con HA zone-redundant en producción y en desarrollo",
+              "texto": "MySQL flexible server Burstable con HA zone-redundant tanto en producción como en desarrollo",
               "correcta": false,
               "explicacion": "Burstable no admite HA ni se recomienda para producción: al agotar créditos la CPU cae a la línea base."
             },
@@ -1444,7 +1444,7 @@
           "pregunta": "Un banco exige controlar y rotar la clave que cifra en reposo sus bases de Azure SQL Database, y poder dejar los datos ilegibles revocando el acceso a esa clave. No se permiten cambios en las aplicaciones. ¿Qué configuras?",
           "opciones": [
             {
-              "texto": "TDE con service-managed key, la opción por defecto",
+              "texto": "TDE con service-managed key, la opción por defecto de Azure SQL",
               "correcta": false,
               "explicacion": "Cifra en reposo, pero Microsoft gestiona la clave: no puedes controlarla ni revocarla."
             },
@@ -1493,7 +1493,7 @@
         },
         {
           "id": "az305-d2-q12",
-          "pregunta": "Una SaaS guarda a todos sus clientes en una base Azure SQL Database compartida. Los usuarios de cada cliente lanzan consultas ad hoc desde Power BI con su propia identidad y solo deben ver sus filas, aunque escriban ellos la consulta. ¿Qué implementas?",
+          "pregunta": "Una SaaS guarda a todos sus clientes en una base Azure SQL Database compartida. Los usuarios de cada cliente lanzan consultas ad hoc desde Power BI con su propia identidad y solo deben ver sus filas, aunque escriban ellos la consulta. Quieres un único control, sin crear objetos por cliente. ¿Qué implementas?",
           "opciones": [
             {
               "texto": "Dynamic Data Masking sobre las columnas de datos del cliente",
@@ -1508,7 +1508,7 @@
             {
               "texto": "Una vista por cliente y permisos de SELECT solo sobre la vista de cada uno",
               "correcta": false,
-              "explicacion": "Multiplica objetos y permisos, y no protege si alguien obtiene acceso a la tabla base."
+              "explicacion": "Exige crear y mantener una vista y sus permisos por cliente, justo lo que se quiere evitar, y no protege la tabla base."
             },
             {
               "texto": "Always Encrypted con claves distintas para cada cliente",
@@ -1701,7 +1701,7 @@
         },
         {
           "id": "az305-d2-q20",
-          "pregunta": "Una API nueva en Cosmos DB tendrá picos impredecibles de hasta 20.000 RU/s, pero de media usará menos del 20 % de ese máximo. Necesita réplicas en dos regiones y throughput garantizado con SLA. ¿Qué modelo de capacidad eliges?",
+          "pregunta": "Una API nueva en Cosmos DB tendrá picos impredecibles de hasta 20.000 RU/s, pero de media usará menos del 20 % de ese máximo. Necesita réplicas en dos regiones, throughput garantizado con SLA y el menor coste posible. ¿Qué modelo de capacidad eliges?",
           "opciones": [
             {
               "texto": "Serverless, pagando solo las RU consumidas",
@@ -1711,7 +1711,7 @@
             {
               "texto": "Throughput manual de 20.000 RU/s",
               "correcta": false,
-              "explicacion": "Absorbe los picos, pero pagas 20.000 RU/s todas las horas aunque uses una fracción."
+              "explicacion": "Absorbe los picos con SLA, pero pagas 20.000 RU/s todas las horas aunque uses una fracción: no es el menor coste."
             },
             {
               "texto": "Throughput manual de 4.000 RU/s",
@@ -1742,7 +1742,7 @@
             {
               "texto": "Smart tier activado en la cuenta actual",
               "correcta": false,
-              "explicacion": "Smart tier exige una cuenta zone-redundant (ZRS, GZRS o RA-GZRS) y esta es LRS."
+              "explicacion": "Exige una cuenta zone-redundant (ZRS, GZRS o RA-GZRS) y esta es LRS; además baja a Cool con un umbral fijo de 30 días, no 60."
             },
             {
               "texto": "Una Azure Function con timer que revise y mueva blobs",
@@ -1753,7 +1753,7 @@
         },
         {
           "id": "az305-d2-q22",
-          "pregunta": "Un proceso nocturno reescribe completo un dataset de 40 TB en Blob Storage y varias apps lo leen intensamente durante el día. Un compañero propone moverlo a Cool para ahorrar. ¿Qué tier recomiendas?",
+          "pregunta": "Un proceso nocturno reescribe completo un dataset de 40 TB en Blob Storage y varias apps lo leen intensamente durante el día. Un compañero propone moverlo a Cool para ahorrar. ¿Qué tier minimiza el coste total?",
           "opciones": [
             {
               "texto": "Cool",
@@ -2043,14 +2043,14 @@
           "id": "az305-d2-s01",
           "situacion": "Una plataforma de e-commerce guarda: catálogo (lecturas masivas, esquema variable), pedidos (transaccional, integridad crítica) e imágenes de producto (estáticas, mucho volumen).",
           "pregunta": "¿Qué almacén asignas a cada tipo de dato y por qué?",
-          "respuestaEsperada": "Catálogo en Cosmos DB (esquema flexible, lecturas globales), pedidos en Azure SQL Database (ACID, integridad relacional, tier según carga), imágenes en Blob Storage con CDN delante y lifecycle hacia tiers fríos para versiones antiguas.",
+          "respuestaEsperada": "Catálogo en Cosmos DB (esquema flexible, lecturas globales), pedidos en Azure SQL Database (ACID, integridad relacional, tier según carga), imágenes en Blob Storage con Azure Front Door delante como CDN y lifecycle management hacia tiers fríos para versiones antiguas.",
           "razonamiento": "El diseño 'polyglot persistence' asigna cada carga al motor cuyo modelo de coste y consistencia le corresponde, en lugar de forzar un único almacén para todo."
         },
         {
           "id": "az305-d2-s02",
           "situacion": "Una fintech europea usa una base Azure SQL Database Business Critical compartida por 40 bancos clientes (columna tenant_id). El regulador exige: controlar la clave de cifrado en un HSM propio y poder revocarla; que ni DBAs ni operadores cloud vean IBAN ni documento de identidad (la app busca por coincidencia exacta del documento); que cada banco solo vea sus filas en sus informes; que soporte vea los teléfonos parcialmente ocultos; y prueba de que el histórico de transferencias no se ha manipulado, aunque se permiten correcciones. Solo se admite autenticación con Microsoft Entra ID.",
           "pregunta": "¿Qué controles de protección de datos incluyes y qué riesgo cubre cada uno?",
-          "respuestaEsperada": "TDE con customer-managed key en Azure Key Vault Managed HSM (rotación y revocación bajo control del cliente). Always Encrypted para IBAN y documento con column master key en Managed HSM: cifrado deterministic para el documento (búsqueda por igualdad) y randomized para el IBAN; secure enclaves solo si aparecen búsquedas por patrón o rango (Intel SGX en DC-series si se exige el máximo aislamiento frente al host). Row-Level Security con security policy basada en el tenant (SESSION_CONTEXT o mapeo de la identidad Entra) para los informes. Dynamic Data Masking parcial en el teléfono para el rol de soporte. Updatable ledger tables para transferencias con digests automáticos en Azure Confidential Ledger. Microsoft Entra-only authentication, Auditing y Microsoft Defender for SQL como capa de detección.",
+          "respuestaEsperada": "TDE con customer-managed key en Azure Key Vault Managed HSM (rotación y revocación bajo control del cliente). Always Encrypted para IBAN y documento con column master key en Managed HSM: cifrado deterministic para el documento (búsqueda por igualdad) y randomized para el IBAN; secure enclaves solo si aparecen búsquedas por patrón o rango (VBS por defecto; Intel SGX en DC-series si se exige el máximo aislamiento frente al host). Row-Level Security con security policy basada en el tenant (SESSION_CONTEXT o mapeo de la identidad Entra) para los informes. Dynamic Data Masking parcial en el teléfono para el rol de soporte. Updatable ledger tables para transferencias con digests automáticos en Azure Confidential Ledger. Microsoft Entra-only authentication, Auditing y Microsoft Defender for SQL como capa de detección.",
           "razonamiento": "Cada control cubre un riesgo distinto. TDE-CMK protege en reposo y da control de la clave, pero el motor ve los datos en claro, por eso Always Encrypted es imprescindible frente a DBAs. RLS es lo único que filtra filas en cualquier consulta; DDM no es una barrera (los administradores ven y un usuario ad hoc puede inferir), así que solo sirve para reducir la exposición accidental del soporte. Ledger no impide cambios pero los hace detectables; append-only no vale porque hay correcciones. Descartes: TDE service-managed (sin control ni revocación), DDM para el IBAN (no protege de administradores) y vistas por banco (no se imponen si se accede a la tabla base)."
         },
         {
@@ -2064,15 +2064,15 @@
           "id": "az305-d2-s04",
           "situacion": "Una SaaS de logística tiene su plataforma multi-tenant en Azure Cosmos DB for PostgreSQL (Citus), con 3.000 tenants y tablas distribuidas por tenant_id. Su portal de marketing es un WordPress que corría sobre MariaDB y hoy está en una VM provisional. Los entornos de pruebas solo se usan durante un sprint de dos semanas al mes. Dirección quiere servicios con soporte a largo plazo, mínimos cambios de código y recortar el coste de los entornos no productivos.",
           "pregunta": "¿A qué servicios migras cada carga y con qué configuración?",
-          "respuestaEsperada": "Plataforma SaaS: Azure Database for PostgreSQL flexible server con elastic clusters, manteniendo row-based sharding por tenant_id y reference tables, en General Purpose o Memory Optimized según memoria y con HA zonal. Portal: Azure Database for MySQL flexible server General Purpose con HA zone-redundant. Pruebas: flexible servers en Burstable, parados fuera de los sprints con una automatización de stop/start, y reservas solo para producción.",
-          "razonamiento": "Cosmos DB for PostgreSQL está en retirada y elastic clusters ofrece la misma extensión Citus y los mismos modelos de sharding, así que el código apenas cambia. Azure Database for MariaDB se retiró en septiembre de 2025 y su destino natural es MySQL flexible server por compatibilidad de protocolo y SQL. Burstable abarata dev/test pero no es para producción (créditos de CPU; en MySQL sin HA). Parar el servidor elimina el cargo de cómputo, aunque en PostgreSQL se reinicia solo a los 7 días, por eso hay que automatizar la parada. Descartes: Azure SQL Hyperscale (cambio de motor) y VMs con PostgreSQL o MariaDB (más administración)."
+          "respuestaEsperada": "Plataforma SaaS: Azure Database for PostgreSQL flexible server con elastic clusters, manteniendo row-based sharding por tenant_id y reference tables, en General Purpose o Memory Optimized según memoria y con HA zone-redundant. Portal: Azure Database for MySQL flexible server General Purpose con HA zone-redundant. Pruebas: flexible servers en Burstable, parados fuera de los sprints con una automatización de stop/start, y reservas solo para producción.",
+          "razonamiento": "Cosmos DB for PostgreSQL está en retirada (ya no admite despliegues nuevos) y elastic clusters ofrece la misma extensión Citus y los mismos modelos de sharding, así que el código apenas cambia. Azure Database for MariaDB se retiró en septiembre de 2025 y su destino natural es MySQL flexible server por compatibilidad de protocolo y SQL. Burstable abarata dev/test pero no es para producción (créditos de CPU; en MySQL sin HA). Parar el servidor elimina el cargo de cómputo, aunque en PostgreSQL se reinicia solo a los 7 días, por eso hay que automatizar la parada. Descartes: Azure SQL Hyperscale (cambio de motor) y VMs con PostgreSQL o MariaDB (más administración)."
         },
         {
           "id": "az305-d2-s05",
           "situacion": "Un operador de videojuegos online tiene 8 millones de jugadores en Europa, Norteamérica y Asia. Guarda perfiles e inventarios en JSON que cambia cada temporada, con lecturas y escrituras por playerId, y el tráfico se multiplica por cinco durante los eventos. También conserva el histórico de partidas (varios TB, consultas puntuales por playerId y fecha), y negocio quiere analítica sobre los datos operacionales sin afectar al juego ni construir pipelines ETL.",
           "pregunta": "¿Qué almacenes y configuraciones propones para perfiles, histórico y analítica?",
-          "respuestaEsperada": "Perfiles e inventarios: Azure Cosmos DB for NoSQL con partition key /playerId, regiones en las tres geografías (multi-region writes si se exige escritura local), consistencia Session y autoscale con el máximo dimensionado para eventos. Histórico: Azure Table Storage con PartitionKey=playerId y RowKey con la fecha invertida para leer primero lo reciente. Analítica: Mirroring de Cosmos DB hacia Microsoft Fabric (OneLake en Delta) para Power BI y Spark sin consumir RU del contenedor transaccional.",
-          "razonamiento": "Cosmos DB da latencia de milisegundos cerca de cada jugador y esquema flexible; /playerId tiene alta cardinalidad y coincide con el patrón de acceso, así que evita consultas cross-partition. Session asegura que el jugador ve sus cambios con el menor coste de RU; Strong duplicaría las RU de lectura. Autoscale encaja con picos x5 y uso medio bajo, y serverless queda descartado porque solo admite una región. Table Storage es mucho más barato que Cosmos DB para TB fríos leídos por clave. Synapse Link ya no se recomienda para proyectos nuevos: Mirroring a Fabric es el sustituto zero-ETL."
+          "respuestaEsperada": "Perfiles e inventarios: Azure Cosmos DB for NoSQL con partition key /playerId, regiones en las tres geografías (multi-region writes si se exige escritura local), consistencia Session y autoscale con el máximo dimensionado para eventos. Histórico: Azure Table Storage con PartitionKey=playerId y RowKey con la fecha invertida para leer primero lo reciente. Analítica: Mirroring de Cosmos DB hacia Microsoft Fabric (OneLake en Delta) para Power BI y Spark sin consumir RU del contenedor transaccional; requiere continuous backup en la cuenta (el tier de 7 días no tiene coste).",
+          "razonamiento": "Cosmos DB da latencia de milisegundos cerca de cada jugador y esquema flexible; /playerId tiene alta cardinalidad y coincide con el patrón de acceso, así que evita consultas cross-partition. Session asegura que el jugador ve sus cambios con el menor coste de RU; Strong duplicaría las RU de lectura. Autoscale encaja con picos x5 y uso medio bajo, y serverless queda descartado porque solo admite una región. Table Storage es mucho más barato que Cosmos DB para TB fríos leídos por clave. Synapse Link para Cosmos DB ya no se admite en proyectos nuevos: Mirroring a Fabric es el sustituto zero-ETL."
         },
         {
           "id": "az305-d2-s06",
@@ -2118,7 +2118,7 @@
         {
           "id": "az305-d3-f02",
           "concepto": "Estrategias de HA para compute",
-          "explicacion": "Escalera de resiliencia: availability sets (fallo de rack o host, SLA 99,95 %) < availability zones (fallo de datacenter, 99,99 %) < multi-región con balanceo global (fallo regional). Parte de availability zones o de un VMSS Flexible zone-spanning en regiones con zonas, y usa availability sets solo si la región no tiene zonas. No pagues multi-región activo-activo si el RTO tolera horas: ASR o el backup cubren el desastre regional por mucho menos."
+          "explicacion": "Escalera de resiliencia: fault domains con availability set o VMSS Flexible (fallo de rack o host, SLA 99,95 %) < availability zones (fallo de datacenter, 99,99 %) < multi-región con balanceo global (fallo regional). Parte de un VMSS Flexible repartido en zonas; en regiones sin zonas Microsoft recomienda VMSS Flexible con fault domains y deja los availability sets para despliegues existentes. No pagues multi-región activo-activo si el RTO tolera horas: ASR o el backup cubren el desastre regional por mucho menos."
         },
         {
           "id": "az305-d3-f03",
@@ -2133,12 +2133,12 @@
         {
           "id": "az305-d3-f05",
           "concepto": "Soft delete en Azure Backup",
-          "explicacion": "Retiene los datos de backup eliminados de 14 a 180 días (los primeros 14 sin coste) y permite recuperarlos con undelete; viene activado por defecto en ambos tipos de vault. Configúralo como always-on para que nadie pueda desactivarlo después. No bloquea reducir la retención ni detener la protección: para eso combínalo con immutable vault y multi-user authorization."
+          "explicacion": "Retiene de 14 a 180 días (los primeros 14 sin coste) los datos de backup eliminados, incluidos los recovery points que se pierden al reducir la retención, y permite recuperarlos con undelete. Con secure by default ya no se puede desactivar en los Recovery Services vaults; en un Backup vault, márcalo always-on para que nadie lo apague. No impide borrar ni acortar retenciones, solo da una ventana para deshacerlo: para bloquear esas operaciones, combínalo con immutable vault y multi-user authorization."
         },
         {
           "id": "az305-d3-f06",
           "concepto": "Immutable vault (Enabled vs Locked)",
-          "explicacion": "Impide operaciones que harían perder recovery points antes de expirar, como borrar datos al detener la protección o reducir la retención. En estado Enabled es reversible por un Backup Contributor; en Locked es irreversible y aplica WORM, que es lo que piden los reguladores. Revisa las retenciones antes de bloquearlo (no podrás reducirlas) y recuerda que no cubre los operational backups de blobs, Files o discos."
+          "explicacion": "Impide operaciones que harían perder recovery points antes de expirar, como detener la protección borrando datos o reducir la retención. En estado Enabled es reversible por quien administra el vault; en Locked es irreversible y los backups pasan a almacenamiento WORM, que es lo que piden los reguladores. Revisa las retenciones antes de bloquearlo (no podrás reducirlas) y recuerda que no cubre los operational backups de blobs, Files o discos."
         },
         {
           "id": "az305-d3-f07",
@@ -2148,7 +2148,7 @@
         {
           "id": "az305-d3-f08",
           "concepto": "Cross Region Restore (CRR)",
-          "explicacion": "Opción de un vault GRS que permite restaurar en la región pareada cuando quieras, sin esperar a que Microsoft declare un desastre, lo que habilita simulacros de auditoría. Sirve para VMs, SQL o SAP HANA en VM, Azure Files y PostgreSQL. No la elijas para RPO bajos: la réplica a la secundaria añade hasta 12 h (en VMs el peor caso ronda 36 h) y, una vez activada, no se puede desactivar."
+          "explicacion": "Opción de un vault GRS que permite restaurar en la región pareada cuando quieras, sin esperar a que Microsoft declare un desastre, lo que habilita simulacros de auditoría. Sirve para VMs, SQL o SAP HANA en VM, Azure Files y PostgreSQL. No la elijas para RPO bajos: la réplica a la secundaria añade hasta 12 h (en VMs el peor caso ronda 36 h) y, una vez iniciada la protección, ya no puedes quitarla."
         },
         {
           "id": "az305-d3-f09",
@@ -2173,12 +2173,12 @@
         {
           "id": "az305-d3-f13",
           "concepto": "MARS vs MABS vs DPM",
-          "explicacion": "MARS es un agente solo para Windows que envía archivos, carpetas y system state directo al Recovery Services vault, sin servidor intermedio ni backup consciente de aplicaciones. MABS (Microsoft Azure Backup Server) hace backup app-aware de SQL, Exchange, SharePoint y VMs de Hyper-V o VMware a disco local y luego al vault, sin licencia de System Center. DPM ofrece lo mismo más cinta y DPM secundario, pero exige licencias de System Center."
+          "explicacion": "MARS es un agente solo para Windows que envía archivos, carpetas y system state directo al Recovery Services vault: úsalo para servidores sueltos sin cargas de aplicación que proteger. MABS (Microsoft Azure Backup Server) hace backup app-aware de SQL, Exchange, SharePoint y VMs de Hyper-V o VMware a disco local y luego al vault, sin licencia de System Center. Elige DPM solo si ya lo tienes licenciado o necesitas cinta, y recuerda que ninguno de los tres sustituye a ASR cuando el RPO es de minutos."
         },
         {
           "id": "az305-d3-f14",
           "concepto": "Recovery plans y test failover en ASR",
-          "explicacion": "Un recovery plan agrupa VMs en hasta 7 grupos que arrancan por orden y añade runbooks de Azure Automation y acciones manuales antes o después de cada grupo. El test failover levanta el plan en una VNet aislada sin detener la replicación ni afectar a producción, y mide el RTO real. No confundas el plan (orden y automatización) con el replication group (puntos consistentes entre varias VMs)."
+          "explicacion": "Un recovery plan agrupa VMs en hasta 7 grupos que arrancan por orden y añade runbooks de Azure Automation y acciones manuales antes o después de cada grupo: úsalo para apps multicapa con dependencias de arranque. El test failover levanta el plan en una VNet aislada sin detener la replicación ni afectar a producción, y mide el RTO real. No confundas el plan (orden y automatización) con el replication group (puntos consistentes entre varias VMs), ni lo sustituyas por scripts propios que lancen failovers sueltos."
         },
         {
           "id": "az305-d3-f15",
@@ -2198,7 +2198,7 @@
         {
           "id": "az305-d3-f18",
           "concepto": "Failover groups vs active geo-replication",
-          "explicacion": "Failover groups conmutan juntas varias bases (o todas las de una Managed Instance) a una única secundaria en otra región, con listeners read-write y read-only que no cambian tras el failover. Active geo-replication es por base, admite hasta 4 secundarias legibles (incluso en la misma región) pero la app debe cambiar de endpoint, y no existe en Managed Instance. Elige failover groups por defecto y deja la política customer-managed."
+          "explicacion": "Failover groups conmutan juntas varias bases (o todas las de una Managed Instance) a otra región con listeners read-write y read-only que no cambian tras el failover; en GA admiten una secundaria por base (varias secundarias sigue en preview). Active geo-replication es por base, admite hasta 4 secundarias legibles (incluso en la misma región) pero la app debe cambiar de endpoint, y no existe en Managed Instance. Elige failover groups con política customer-managed por defecto, y active geo-replication cuando necesites varias réplicas legibles en distintas regiones."
         },
         {
           "id": "az305-d3-f19",
@@ -2218,12 +2218,12 @@
         {
           "id": "az305-d3-f22",
           "concepto": "Cosmos DB: multi-region writes vs single write region con service-managed failover",
-          "explicacion": "Multi-region writes acepta escrituras en todas las regiones (99,999 % de lectura y escritura) y sigue escribiendo ante una caída regional, a cambio de resolver conflictos y renunciar a strong consistency. Single write region permite strong consistency, pero ante la caída del escritor la escritura se detiene hasta el service-managed failover, que puede tardar una hora o más, o hasta que fuerzas el failover. Si necesitas recuperación automática rápida con un solo escritor, valora per-partition automatic failover (PPAF)."
+          "explicacion": "Multi-region writes acepta escrituras en todas las regiones (99,999 % de lectura y escritura) y sigue escribiendo ante una caída regional, a cambio de resolver conflictos y renunciar a strong consistency. Single write region permite strong, pero si cae la región de escritura las escrituras se detienen hasta el service-managed failover, que puede tardar una hora o más, o hasta que pones tú la región offline (forced failover). Si con un solo escritor necesitas recuperación automática en minutos, activa per-partition automatic failover (PPAF): admite strong con RPO 0, pero tiene coste adicional."
         },
         {
           "id": "az305-d3-f23",
           "concepto": "Cosmos DB: continuous backup vs periodic",
-          "explicacion": "Continuous permite restaurar tú mismo a cualquier segundo de los últimos 7, 30 o 35 días (el tier de 7 días no cobra almacenamiento de backup), en una cuenta nueva o en la misma. Periodic es el modo por defecto: copias cada cierto intervalo con retención de hasta un mes, y la restauración se pide al soporte. Elige continuous para errores lógicos; el paso a continuous es irreversible y no está disponible para API for Cassandra."
+          "explicacion": "Continuous permite restaurar tú mismo a cualquier segundo de los últimos 7, 30 o 35 días (el tier de 7 días no cobra almacenamiento de backup) en una cuenta nueva, o en la misma si el recurso fue borrado. Periodic es el modo por defecto: copias cada cierto intervalo con retención de hasta un mes, y la restauración se pide al soporte. Elige continuous para errores lógicos; el paso a continuous es irreversible y no está disponible para API for Cassandra."
         },
         {
           "id": "az305-d3-f24",
@@ -2238,7 +2238,7 @@
         {
           "id": "az305-d3-f26",
           "concepto": "RA-GRS/RA-GZRS y customer-managed failover",
-          "explicacion": "Las variantes RA permiten leer del endpoint secundario en todo momento, así que la app sigue leyendo durante una caída regional sin failover. El planned failover intercambia regiones sin pérdida y sirve para simulacros; el unplanned pierde lo escrito tras la Last Sync Time y deja la cuenta en LRS hasta que reconfiguras la geo-redundancia. No confíes en el failover gestionado por Microsoft para tu plan de DR."
+          "explicacion": "Las variantes RA permiten leer del endpoint secundario en todo momento, así que la app sigue leyendo durante una caída regional sin hacer failover. El planned failover intercambia regiones sin pérdida y sirve para simulacros (una cuenta GZRS queda en GRS hasta el failback); el unplanned pierde lo escrito tras la Last Sync Time y deja la cuenta en LRS hasta que reactivas la geo-redundancia. No confíes en el failover gestionado por Microsoft para tu DR, y si necesitas acotar el RPO geográfico activa geo priority replication (SLA de Last Sync Time de 15 minutos)."
         },
         {
           "id": "az305-d3-f27",
@@ -2353,7 +2353,7 @@
         },
         {
           "id": "az305-d3-q05",
-          "pregunta": "Un auditor advierte que un administrador de backup con credenciales robadas podría desactivar soft delete y reducir la retención de los vaults. Quieres que esas operaciones requieran una aprobación temporal del equipo de seguridad. ¿Qué recomiendas?",
+          "pregunta": "Un auditor advierte que un administrador de backup con credenciales robadas podría reducir la retención de las políticas y detener la protección borrando los datos. Quieres que esas operaciones solo se puedan hacer con una aprobación temporal del equipo de seguridad. ¿Qué recomiendas?",
           "opciones": [
             {
               "texto": "Multi-user authorization con un Resource Guard gestionado por seguridad",
@@ -2363,7 +2363,7 @@
             {
               "texto": "Un resource lock CanNotDelete sobre cada vault",
               "correcta": false,
-              "explicacion": "Solo impide borrar el recurso vault; no bloquea desactivar soft delete ni reducir retención, y un Owner puede quitar el lock."
+              "explicacion": "Un Owner puede quitar el lock cuando quiera, no introduce la aprobación de seguridad y no impide reducir la retención de las políticas."
             },
             {
               "texto": "Un rol personalizado de Azure RBAC que quite los permisos de escritura sobre políticas y vaults",
@@ -2373,7 +2373,7 @@
             {
               "texto": "Immutable vault en estado Enabled en todos los vaults",
               "correcta": false,
-              "explicacion": "Bloquea reducir retención, pero en estado Enabled un Backup Contributor puede desactivarlo, y no exige aprobación de seguridad."
+              "explicacion": "Bloquea esas operaciones para todos sin ofrecer un flujo de aprobación, y en estado Enabled quien administra el vault puede desactivarlo."
             }
           ]
         },
@@ -2384,12 +2384,12 @@
             {
               "texto": "Immutable vault en estado Enabled",
               "correcta": false,
-              "explicacion": "Protege las mismas operaciones pero es reversible: un Backup Contributor puede desactivarlo, así que no cumple 'irreversible'."
+              "explicacion": "Protege las mismas operaciones, pero es reversible: quien administra el vault puede desactivarlo, así que no cumple 'irreversible'."
             },
             {
               "texto": "Soft delete always-on con 180 días de retención",
               "correcta": false,
-              "explicacion": "Retrasa el borrado definitivo de datos eliminados, pero no impide reducir la retención de la política ni aporta WORM."
+              "explicacion": "Da una ventana para recuperar lo borrado o recortado, pero no impide la operación ni aporta WORM hasta la expiración."
             },
             {
               "texto": "Immutable vault en estado Locked",
@@ -2431,25 +2431,25 @@
         },
         {
           "id": "az305-d3-q08",
-          "pregunta": "Una VM Windows con una aplicación de pedidos necesita backups app-consistent con RPO máximo de 6 horas y restauraciones rápidas de los últimos 10 días. Hoy usa la política Standard. ¿Qué recomiendas con el menor esfuerzo?",
+          "pregunta": "Vas a proteger una VM Windows nueva con una aplicación de pedidos. Exiges backups app-consistent con RPO máximo de 6 horas y restauraciones rápidas desde snapshot de los últimos 10 días, sin automatización propia. ¿Qué configuras?",
           "opciones": [
             {
-              "texto": "Migrar a la política Enhanced con backup cada 6 horas",
+              "texto": "Política Enhanced con backup cada 6 horas e instant restore de 10 días",
               "correcta": true,
-              "explicacion": "Enhanced admite backups cada 6 horas e instant restore de varios días (hasta 30 según la frecuencia): cubre RPO y restauración rápida sin automatizar nada."
+              "explicacion": "Enhanced admite backups cada 4, 6, 8 o 12 horas e instant restore de hasta 30 días (22 con frecuencia de 6 h): cumple ambos objetivos sin scripts."
             },
             {
-              "texto": "Mantener Standard y lanzar backups on-demand cada 6 horas con un runbook",
+              "texto": "Política Standard con backups on-demand cada 6 horas lanzados por un runbook",
               "correcta": false,
-              "explicacion": "Obliga a construir y operar automatización, y los on-demand no siguen la retención de la política; es más esfuerzo sin necesidad."
+              "explicacion": "Exige automatización propia, que el enunciado excluye, y Standard limita el instant restore a 5 días."
             },
             {
-              "texto": "Configurar Azure Disk Backup cada 4 horas para los discos de la VM",
+              "texto": "Azure Disk Backup cada 4 horas para los discos de la VM",
               "correcta": false,
               "explicacion": "Disk Backup es crash-consistent y restaura discos sueltos: no da consistencia de aplicación ni restauración de la VM."
             },
             {
-              "texto": "Instalar el agente MARS en la VM con tres backups diarios",
+              "texto": "Agente MARS en la VM con tres backups diarios",
               "correcta": false,
               "explicacion": "MARS solo protege archivos, carpetas y system state, y tres copias al día (cada 8 h) no cumplen el RPO de 6 horas."
             }
@@ -2873,12 +2873,12 @@
         },
         {
           "id": "az305-d3-q25",
-          "pregunta": "Una Azure SQL Database de catálogo, con primaria en Europa, necesita réplicas legibles en EE. UU. y en Asia para lecturas locales, y poder promover cualquiera de ellas en un desastre. ¿Qué configuras?",
+          "pregunta": "Una Azure SQL Database de catálogo en producción, con primaria en Europa, necesita réplicas legibles en EE. UU. y en Asia para lecturas locales, y poder promover cualquiera de ellas en un desastre. Solo admites funcionalidades en GA. ¿Qué configuras?",
           "opciones": [
             {
               "texto": "Un failover group con secundarias en EE. UU. y en Asia",
               "correcta": false,
-              "explicacion": "Un failover group tiene una única secundaria por base, así que no cubre dos regiones de lectura."
+              "explicacion": "Varias secundarias por failover group siguen en preview, no recomendada para producción; en GA admite una sola secundaria por base."
             },
             {
               "texto": "Read scale-out del tier Business Critical",
@@ -2990,9 +2990,9 @@
               "explicacion": "Resiste la caída de una zona, pero no la de la región completa."
             },
             {
-              "texto": "Dos regiones sin service-managed failover, con forced failover manual",
+              "texto": "Dos regiones sin service-managed failover, poniendo la región offline a mano",
               "correcta": false,
-              "explicacion": "Cumple strong y RPO 0, pero exige que un operador detecte la caída y lance el failover."
+              "explicacion": "Cumple strong y RPO 0, pero exige que un operador detecte la caída y ponga la región offline (forced failover)."
             },
             {
               "texto": "Un escritor, una región de lectura y service-managed failover",
@@ -3003,27 +3003,27 @@
         },
         {
           "id": "az305-d3-q30",
-          "pregunta": "Una web de catálogo lee imágenes de Blob Storage. Si cae la región primaria debe seguir mostrándolas de inmediato; las subidas pueden esperar. También debe resistir la caída de una zona. ¿Qué configuras?",
+          "pregunta": "Una web de catálogo lee y sube imágenes a Blob Storage. Si cae una zona, lecturas y subidas deben seguir en la región primaria; si cae la región entera, basta con seguir mostrando las imágenes de inmediato. ¿Qué redundancia configuras?",
           "opciones": [
             {
               "texto": "GZRS y customer-managed failover cuando caiga la región",
               "correcta": false,
-              "explicacion": "Sin la variante RA el secundario no es legible, y el failover tarda y puede perder datos: no es lectura inmediata."
+              "explicacion": "Cubre la zona, pero sin la variante RA el secundario no es legible hasta completar un failover que tarda y puede perder datos."
             },
             {
               "texto": "RA-GRS con lectura desde el endpoint secundario",
               "correcta": false,
-              "explicacion": "Permite leer en la secundaria, pero en la primaria es LRS: la caída de una zona interrumpe el servicio."
+              "explicacion": "Lee en la secundaria, pero la primaria es LRS en un solo datacenter: si cae esa zona, las subidas se detienen."
             },
             {
               "texto": "RA-GZRS, leyendo del secundario si falla el primario",
               "correcta": true,
-              "explicacion": "Da ZRS en la primaria y lectura en la región secundaria en todo momento, sin necesidad de failover."
+              "explicacion": "ZRS en la primaria mantiene lecturas y subidas si cae una zona, y el endpoint secundario es legible siempre, sin failover."
             },
             {
               "texto": "ZRS con object replication a otra cuenta de la misma región",
               "correcta": false,
-              "explicacion": "Todo queda en la misma región, así que no sirve ante una caída regional."
+              "explicacion": "Resiste la caída de una zona, pero todo queda en la misma región, así que no sirve ante una caída regional."
             }
           ]
         },
@@ -3065,7 +3065,7 @@
             {
               "texto": "La cuenta seguirá siendo GZRS con las regiones intercambiadas",
               "correcta": false,
-              "explicacion": "Eso ocurre en el planned failover; el unplanned deja la cuenta en LRS."
+              "explicacion": "Ni el planned failover la conserva así (pasa a GRS hasta el failback); el unplanned deja la cuenta en LRS."
             },
             {
               "texto": "Cambian los endpoints y debes actualizar las cadenas de conexión",
@@ -3092,21 +3092,21 @@
           "id": "az305-d3-s02",
           "situacion": "Un fabricante con un único CPD tiene 180 VMs en VMware vSphere y un clúster Hyper-V sin VMM con 25 VMs. El ERP (SQL Server y servidores de aplicación en VMware) exige RPO de 15 minutos y RTO de 4 horas ante la pérdida del CPD. SQL Server y Exchange necesitan backups app-consistent con retención de un año y restauraciones rápidas en local. Un competidor sufrió hace poco un ransomware que borró también sus copias, y el auditor pide un simulacro de DR cada trimestre.",
           "pregunta": "¿Qué solución de backup y DR híbrida propones?",
-          "respuestaEsperada": "DR: Azure Site Recovery a Azure. Para VMware, ASR replication appliance (modernizado) con Mobility service y un Recovery Services vault nuevo y dedicado; para Hyper-V, ASR Provider y Recovery Services agent en cada host. Recovery plans por aplicación (SQL, aplicación, web) con runbooks de Azure Automation para DNS y cadenas de conexión, y test failover trimestral en una VNet aislada. Backup: MABS on-premises para SQL Server, Exchange y VMs de Hyper-V, con copia a un Recovery Services vault GRS. Anti-ransomware en el vault de backup: soft delete always-on, immutable vault en estado Locked tras validar retenciones y multi-user authorization con un Resource Guard en una suscripción de seguridad y PIM.",
+          "respuestaEsperada": "DR: Azure Site Recovery a Azure. Para VMware, ASR replication appliance (modernizado) con Mobility service y un Recovery Services vault nuevo y dedicado; para Hyper-V, ASR Provider y Recovery Services agent en cada host. Recovery plans por aplicación (SQL, aplicación, web) con runbooks de Azure Automation para DNS y cadenas de conexión, y test failover trimestral en una VNet aislada. Backup: MABS on-premises para SQL Server, Exchange y VMs de Hyper-V, con copia a un Recovery Services vault GRS. Anti-ransomware en el vault de backup: soft delete (forzado por secure by default) con retención ampliada, immutable vault en estado Locked tras validar retenciones y multi-user authorization con un Resource Guard en una suscripción de seguridad y PIM.",
           "razonamiento": "ASR cumple el RPO de minutos y el RTO de horas; el backup por sí solo tendría RPO de horas y RTO de días. MABS da backup app-aware y restauración local sin licencias de System Center, algo que MARS no hace y DPM encarece. ASR no es backup: replica el cifrado y solo guarda puntos recientes (15 días como máximo), por eso ambos conviven. Immutable Locked y MUA evitan que un administrador comprometido borre copias o reduzca retenciones, que es justo lo que ocurrió al competidor. Azure Migrate no encaja porque migra, no protege."
         },
         {
           "id": "az305-d3-s03",
           "situacion": "Una tienda online en West Europe usa App Service (plan Standard) para la web, AKS con StatefulSets sobre discos LRS para el carrito y Azure SQL Database General Purpose para pedidos. El negocio exige cero pérdida de pedidos ante la caída de una zona y, ante un desastre regional, RTO de 1 hora y RPO de minutos para la base. La región secundaria solo se usará para DR y finanzas quiere recortar su coste. Las imágenes de producto están en Blob Storage y deben seguir visibles aunque caiga la región.",
           "pregunta": "¿Qué diseño de alta disponibilidad y DR recomiendas?",
-          "respuestaEsperada": "Zona: App Service Premium v3 con zone redundancy y al menos 3 instancias; AKS con node pools en tres zonas, réplicas repartidas con topology spread y storage class con discos ZRS; SQL Database General Purpose con zone redundancy. Región: failover group de SQL hacia la región pareada con política customer-managed, secundaria designada como standby replica sin licencia y la app usando el listener read-write. Imágenes en RA-GZRS leyendo del secundario si falla el primario. En la secundaria, plan de App Service y clúster AKS desplegados por IaC y Front Door para conmutar el tráfico.",
-          "razonamiento": "Zone redundancy da RPO 0 ante la caída de una zona sin tocar el código; Standard no la admite y los discos LRS impiden que los pods se muevan de zona. El failover group mantiene el endpoint y conmuta todas las bases juntas; active geo-replication obligaría a cambiar cadenas de conexión. La standby replica elimina el coste de licencia de una secundaria que solo sirve para DR. Business Critical o activo-activo multi-región cumplirían, pero a un coste que el RTO de 1 hora no justifica."
+          "respuestaEsperada": "Zona: App Service Premium v3 con zone redundancy y al menos 3 instancias; AKS con node pools en tres zonas, réplicas repartidas con topology spread y storage class con discos ZRS; SQL Database General Purpose con zone redundancy. Región: failover group de SQL hacia la región pareada con política customer-managed, secundaria designada como standby replica sin licencia y la app usando el listener read-write. Imágenes en RA-GZRS leyendo del secundario si falla el primario. En la secundaria, plan de App Service y clúster AKS ya desplegados con capacidad mínima (warm standby, escalables por IaC) y Front Door para conmutar el tráfico.",
+          "razonamiento": "Zone redundancy da RPO 0 ante la caída de una zona sin tocar el código; Standard no la admite y los discos LRS impiden que los pods se muevan de zona. El failover group mantiene el endpoint y conmuta todas las bases juntas; active geo-replication obligaría a cambiar cadenas de conexión. La standby replica elimina el coste de licencia de una secundaria que solo sirve para DR. El warm standby mínimo cumple el RTO de 1 hora sin pagar una segunda región a plena capacidad; Business Critical o activo-activo multi-región cumplirían, pero a un coste que ese RTO no justifica."
         },
         {
           "id": "az305-d3-s04",
           "situacion": "Un banco mantiene SQL Server 2022 Enterprise en VMs de Azure porque usa características de instancia y agentes de terceros en el sistema operativo. Pide failover automático sin pérdida de datos si cae una zona, una copia en otra región para DR y restaurar a cualquier momento de los últimos 15 días ante errores lógicos. El auditor exige copias mensuales durante 10 años que nadie pueda borrar. Tienen licencias con Software Assurance.",
           "pregunta": "¿Qué solución de HA, DR y backup propones para la capa de datos?",
-          "respuestaEsperada": "Always On availability group con dos réplicas síncronas y failover automático en zonas distintas, en subnets separadas, con cloud witness, y una tercera réplica asíncrona con failover manual en otra región conectada por peering. Licencia HA/DR para las réplicas pasivas. Azure Backup para SQL Server en Azure VM en un Recovery Services vault GRS: full semanal, diferencial diario y log cada 15 minutos con 15 días de retención, más retención mensual de 10 años (archive tier para los puntos antiguos). Vault con immutable Locked, soft delete always-on y Cross Region Restore.",
+          "respuestaEsperada": "Always On availability group con dos réplicas síncronas y failover automático en zonas distintas, en subnets separadas, con cloud witness, y una tercera réplica asíncrona con failover manual en otra región conectada por peering. Licencia HA/DR para las réplicas pasivas. Azure Backup para SQL Server en Azure VM en un Recovery Services vault GRS: full semanal, diferencial diario y log cada 15 minutos con 15 días de retención, más retención mensual de 10 años (archive tier para los puntos antiguos). Vault con immutable Locked, soft delete con retención ampliada y Cross Region Restore.",
           "razonamiento": "Las réplicas síncronas entre zonas dan RPO 0 con failover automático; la asíncrona remota evita penalizar cada commit con latencia entre regiones. ASR o log shipping implican RPO mayor que 0 y failover manual, y Managed Instance queda descartada por las dependencias del sistema operativo. El AG no protege de errores lógicos, porque el cambio se replica, así que el backup con logs cada 15 minutos aporta el point-in-time restore. Immutable Locked cubre la exigencia de que nadie borre las copias, y las réplicas pasivas no pagan licencia gracias a Software Assurance."
         },
         {
@@ -3114,20 +3114,20 @@
           "situacion": "Una plataforma de fidelización global usa Cosmos DB for NoSQL para dos cargas. Los perfiles de usuario se escriben desde Europa, América y Asia, necesitan latencia local y toleran consistencia session. El libro de puntos exige consistencia strong, RPO 0 y que las escrituras se recuperen solas en minutos si cae su región. Un despliegue defectuoso ya corrompió datos una vez y quieren poder restaurar ellos mismos, al segundo, cualquier momento de los últimos 30 días.",
           "pregunta": "¿Cómo diseñas las cuentas de Cosmos DB para alta disponibilidad y recuperación?",
           "respuestaEsperada": "Dos cuentas. Perfiles: multi-region writes en las tres regiones, consistencia session, política de conflictos last-writer-wins, availability zones en cada región y SDK con regiones preferidas. Libro de puntos: una región de escritura y al menos una de lectura, consistencia strong, availability zones y per-partition automatic failover (o service-managed failover si basta con recuperar en horas). Ambas con continuous backup en el tier de 30 días para restauración autoservicio al segundo.",
-          "razonamiento": "Strong consistency no es compatible con multi-region writes, así que una sola cuenta no puede servir a las dos cargas. Para el libro, un único escritor con strong da RPO 0 y PPAF recupera la escritura por partición en minutos sin operador; el service-managed failover clásico puede tardar una hora o más. La replicación no protege de corrupciones, porque las propaga: el continuous backup de 30 días cubre la ventana pedida, mientras que periodic exige ticket de soporte y el tier de 7 días se queda corto."
+          "razonamiento": "Strong consistency no es compatible con multi-region writes, así que una sola cuenta no puede servir a las dos cargas. Para el libro, un único escritor con strong da RPO 0 y PPAF recupera la escritura por partición en menos de 3 minutos sin operador y mantiene RPO 0 con strong; el service-managed failover clásico puede tardar una hora o más. La replicación no protege de corrupciones, porque las propaga: el continuous backup de 30 días cubre la ventana pedida, mientras que periodic exige ticket de soporte y el tier de 7 días se queda corto."
         },
         {
           "id": "az305-d3-s06",
           "situacion": "Un instituto de investigación guarda 400 TB en una cuenta Blob GPv2 sin hierarchical namespace y usa shares SMB de Azure Files de 2 TB. Necesita revertir en minutos sobrescrituras accidentales de los últimos 30 días, tener copias fuera de la cuenta durante un año por riesgo de ransomware, seguir leyendo los datos si cae la región y compartir con un socio en otra región europea, no pareada, solo los resultados publicados.",
           "pregunta": "¿Qué protección y disponibilidad recomiendas para estos datos no estructurados?",
-          "respuestaEsperada": "Blobs: política de Azure Backup con operational backup de 30 días (point-in-time restore en la cuenta) y vaulted backup diario con retención de un año en un Backup vault con immutable Locked y multi-user authorization. Cuenta en RA-GZRS con la app preparada para leer del endpoint secundario. Object replication con filtro por prefijo del contenedor de resultados hacia la cuenta del socio. Azure Files: backup en vault-standard en un Recovery Services vault, con snapshots para restauraciones granulares.",
-          "razonamiento": "Point-in-time restore devuelve rangos de blobs en la propia cuenta en una operación, y vaulted backup mantiene copias fuera de la cuenta que sobreviven a su borrado. RA-GZRS da lectura regional sin failover; GRS a secas no es legible y la geo-replicación replica también el cifrado. Object replication distribuye resultados a una región no pareada, pero no es backup y la cuenta origen pierde el planned failover. Para Files, el snapshot tier vive en la misma cuenta, así que solo el tier vaulted cubre el ransomware."
+          "respuestaEsperada": "Blobs: política de Azure Backup con operational backup de 30 días (point-in-time restore en la cuenta) y vaulted backup diario con retención de un año en un Backup vault con immutable Locked y multi-user authorization, excluyendo el contenedor de resultados publicados. Cuenta en RA-GZRS con la app preparada para leer del endpoint secundario. Object replication con filtro por prefijo desde ese contenedor de resultados hacia la cuenta del socio. Azure Files: backup en vault-standard en un Recovery Services vault, con snapshots para restauraciones granulares.",
+          "razonamiento": "Point-in-time restore devuelve rangos de blobs en la propia cuenta en una operación, y vaulted backup mantiene copias fuera de la cuenta que sobreviven a su borrado. RA-GZRS da lectura regional sin failover; GRS a secas no es legible y la geo-replicación replica también el cifrado. Object replication distribuye resultados a una región no pareada, pero no es backup; además, vaulted backup no admite contenedores que participan en object replication, así que ese contenedor, que ya es una copia publicada, queda cubierto solo por el operational backup. Para Files, el snapshot tier vive en la misma cuenta, así que solo el tier vaulted cubre el ransomware."
         },
         {
           "id": "az305-d3-s07",
           "situacion": "Un organismo público debe mantener todos los datos en su país. Su región de Azure tiene tres availability zones, pero su región pareada está en otro país. Tiene una web en VMs con carga variable, servidores de aplicación en VMs zonales con IPs fijas registradas en firewalls de terceros, Azure SQL Database y backups de VMs. Acepta el riesgo de una caída regional completa, pero no el de una zona.",
           "pregunta": "¿Qué arquitectura de continuidad propones respetando la residencia de datos?",
-          "respuestaEsperada": "Web en un VMSS Flexible repartido en las tres zonas con autoescalado detrás de un Standard Load Balancer. Servidores de aplicación protegidos con ASR zone-to-zone, que conserva VNet, subnet e IPs estáticas. Azure SQL Database con zone redundancy y backup storage ZRS. Backups de VMs en un Recovery Services vault ZRS con immutable vault y soft delete; cuentas de almacenamiento en ZRS. Nada configurado con GRS, GZRS, Cross Region Restore ni ASR hacia la región pareada.",
+          "respuestaEsperada": "Web en un VMSS Flexible repartido en las tres zonas con autoescalado detrás de un Standard Load Balancer. Servidores de aplicación protegidos con ASR zone-to-zone (tras comprobar que la región lo admite), que conserva VNet, subnet e IPs estáticas. Azure SQL Database con zone redundancy y backup storage ZRS. Backups de VMs en un Recovery Services vault ZRS con immutable vault y soft delete; cuentas de almacenamiento en ZRS. Nada configurado con GRS, GZRS, Cross Region Restore ni ASR hacia la región pareada.",
           "razonamiento": "Cualquier opción geo (GRS, GZRS, geo-restore, CRR, ASR entre regiones) replicaría datos fuera del país. Microsoft plantea ASR zone-to-zone justo para regiones sin pareja en la misma jurisdicción, y mantener las IPs evita reconfigurar firewalls de terceros. El VMSS Flexible zonal cubre la caída de una zona con autoescalado, cosa que un availability set no hace. Con backup storage ZRS se pierde geo-restore, un compromiso aceptado junto con el riesgo regional."
         },
         {
@@ -3170,12 +3170,12 @@
         {
           "id": "az305-d4-f04",
           "concepto": "Azure Container Instances (ACI)",
-          "explicacion": "ACI arranca un container group en segundos, con aislamiento Hyper-V y facturación por segundo, sin cluster ni entorno que gestionar. Úsalo para tareas puntuales lanzadas por otro servicio (restart policy Never u OnFailure), contenedores sueltos o para absorber picos de AKS con virtual nodes. No es la opción si necesitas autoescalado por eventos, balanceo, revisiones o descubrimiento de servicios: eso lo dan Container Apps o AKS."
+          "explicacion": "ACI arranca un container group en segundos, con aislamiento a nivel de hipervisor y facturación por segundo, sin cluster ni entorno que gestionar. Úsalo para tareas puntuales lanzadas por otro servicio (restart policy Never u OnFailure), contenedores sueltos o para absorber picos de AKS con virtual nodes. No es la opción si necesitas autoescalado por eventos, balanceo, revisiones o descubrimiento de servicios: eso lo dan Container Apps o AKS."
         },
         {
           "id": "az305-d4-f05",
           "concepto": "Azure Functions: Flex Consumption vs Premium vs Dedicated",
-          "explicacion": "Flex Consumption es el plan serverless recomendado: Linux, VNet integration, escala a cero, always-ready instances opcionales y sin timeout máximo impuesto; no admite deployment slots ni contenedores. Premium mantiene siempre al menos una instancia caliente (sin cold start) y admite VNet, slots y contenedores Linux, a cambio de pagar 24/7. Dedicated (App Service plan) encaja si ya pagas capacidad infrautilizada, quieres coste totalmente predecible o necesitas ASE, pero escala por reglas, no por eventos. El Consumption clásico es legacy: sin VNet y con un máximo de 10 minutos por ejecución."
+          "explicacion": "Flex Consumption es el plan serverless recomendado: Linux, VNet integration, escala a cero, always-ready instances opcionales y sin timeout máximo (30 min por defecto, ampliable); no admite deployment slots ni contenedores. Premium mantiene siempre al menos una instancia caliente (sin cold start) y admite VNet, slots y contenedores Linux, a cambio de pagar 24/7. Dedicated (App Service plan) encaja si ya pagas capacidad infrautilizada, quieres coste totalmente predecible o necesitas ASE, pero escala por reglas, no por eventos. El Consumption clásico es legacy (sin VNet, máximo 10 minutos) y, en cualquier plan, una función HTTP debe responder en 230 s: para más, patrón asíncrono con Durable Functions."
         },
         {
           "id": "az305-d4-f06",
@@ -3210,7 +3210,7 @@
         {
           "id": "az305-d4-f12",
           "concepto": "API Management: tiers y self-hosted gateway",
-          "explicacion": "API Management publica y protege APIs con políticas (JWT, rate limit, cuotas, caché, transformación). Consumption sirve para tráfico esporádico con pago por llamada, sin VNet ni caché integrada; Developer no tiene SLA. Standard v2 alcanza backends privados con VNet integration y admite private endpoint de entrada; Premium v2 añade VNet injection completa. Si necesitas self-hosted gateway (APIs on-premises o multicloud) o gateways en varias regiones, la opción es Premium clásico: los tiers v2 no lo ofrecen."
+          "explicacion": "API Management publica y protege APIs con políticas (JWT, rate limit, cuotas, caché, transformación). Consumption sirve para tráfico esporádico con pago por llamada, sin VNet ni caché integrada, y Developer no tiene SLA. Standard v2 alcanza backends privados con VNet integration y admite private endpoint de entrada; Premium v2 añade VNet injection completa; ambos v2 admiten zone redundancy, pero solo si la activas al crear la instancia. Si necesitas self-hosted gateway en producción (APIs on-premises o multicloud) o gateways en varias regiones, la opción es Premium clásico: los tiers v2 no lo ofrecen."
         },
         {
           "id": "az305-d4-f13",
@@ -3280,12 +3280,12 @@
         {
           "id": "az305-d4-f26",
           "concepto": "Virtual WAN vs hub-spoke gestionado por el cliente",
-          "explicacion": "Virtual WAN Standard es un hub gestionado por Microsoft con routing automático y tránsito any-to-any (sedes, VNets, ExpressRoute, P2S y entre hubs), integración SD-WAN y secured hubs con Azure Firewall y routing intent. Úsalo con muchas sedes (orientativamente 30 o más), varias regiones o necesidad de tránsito global sin mantener UDR. Un hub-spoke propio encaja con pocas sedes, una o dos regiones y necesidad de control fino del hub (NVA propias, rutas a medida); vWAN Basic solo ofrece VPN S2S sin tránsito, así que no sirve si necesitas ExpressRoute o firewall en el hub."
+          "explicacion": "Virtual WAN Standard es un hub gestionado por Microsoft con routing automático y tránsito any-to-any (sedes, VNets, ExpressRoute, P2S y entre hubs), integración SD-WAN y secured hubs con Azure Firewall y routing intent. Úsalo con decenas de sedes, varias regiones o necesidad de tránsito global sin mantener UDR. Un hub-spoke propio encaja con pocas sedes, una o dos regiones y necesidad de control fino del hub (NVA propias, rutas a medida); vWAN Basic solo ofrece VPN S2S sin tránsito, así que no sirve si necesitas ExpressRoute o firewall en el hub."
         },
         {
           "id": "az305-d4-f27",
           "concepto": "Azure Firewall (Basic/Standard/Premium) vs NSG vs WAF vs NVA",
-          "explicacion": "NSG filtra L3/L4 por subnet o NIC (gratis, sin FQDN ni inspección de contenido) y WAF (Application Gateway o Front Door) protege apps HTTP entrantes frente a OWASP y bots. Azure Firewall es el firewall gestionado central para tráfico este-oeste y de salida: Basic (pymes/dev, hasta 250 Mbps, threat intelligence solo en alerta), Standard (threat intelligence en deny, DNS proxy, filtrado FQDN y web categories) y Premium (TLS inspection, IDPS y filtrado por URL completa). Recurre a una NVA de terceros solo si necesitas un fabricante o función que Azure Firewall no cubre, asumiendo tú HA, escalado y parches."
+          "explicacion": "NSG filtra L3/L4 por subnet o NIC (gratis, sin FQDN ni inspección de contenido) y WAF (Application Gateway o Front Door) protege apps HTTP entrantes frente a OWASP y bots. Azure Firewall es el firewall gestionado central para tráfico este-oeste y de salida: Basic (pymes/dev, hasta 250 Mbps, threat intelligence solo en alerta), Standard (threat intelligence en deny, DNS proxy, FQDN en reglas de red y web categories) y Premium (TLS inspection, IDPS y filtrado por URL completa). Recurre a una NVA de terceros solo si necesitas un fabricante o función que Azure Firewall no cubre, asumiendo tú HA, escalado y parches."
         },
         {
           "id": "az305-d4-f28",
@@ -3353,7 +3353,7 @@
             {
               "texto": "AKS con el add-on de KEDA y la extensión de Dapr",
               "correcta": false,
-              "explicacion": "Cumple técnicamente, pero obliga a operar el cluster (node pools, upgrades, parches), justo lo que el equipo quiere evitar."
+              "explicacion": "KEDA y Dapr funcionan, pero obliga a operar el cluster (node pools, upgrades, parches) y el system node pool no puede escalar a cero."
             },
             {
               "texto": "Azure Container Apps con workload profile Consumption",
@@ -3410,7 +3410,7 @@
             {
               "texto": "Azure Container Instances creado por una Logic App por cada mensaje",
               "correcta": false,
-              "explicacion": "ACI no escala por eventos: la orquestación, los reintentos y el límite de paralelismo tendrías que construirlos tú."
+              "explicacion": "Tendrías que construir y mantener en la Logic App la creación, el seguimiento y el borrado de cada container group, los reintentos y el límite de paralelismo: más esfuerzo que un job gestionado."
             },
             {
               "texto": "Un VMSS con autoescalado por métricas que lee la cola",
@@ -3441,7 +3441,7 @@
             {
               "texto": "Flex Consumption con VNet integration",
               "correcta": true,
-              "explicacion": "Llega al private endpoint por VNet integration, no impone timeout máximo y escala a cero, así que no pagas cómputo en reposo."
+              "explicacion": "Llega al private endpoint por VNet integration, admite ejecuciones sin límite máximo (subiendo functionTimeout sobre los 30 min por defecto) y escala a cero, sin coste en reposo."
             },
             {
               "texto": "Dedicated (App Service plan) con Always On",
@@ -3491,40 +3491,40 @@
               "explicacion": "Sirven para tareas contenedorizadas genéricas, pero no ofrecen MPI ni VMs HPC con InfiniBand/RDMA."
             },
             {
-              "texto": "Azure Batch con pools serie HB y multi-instance tasks",
+              "texto": "Azure Batch con pools HBv4 y multi-instance tasks",
               "correcta": true,
-              "explicacion": "Batch es scheduler como servicio: pools autoescalables con tamaños HPC InfiniBand, tareas MPI y miles de tareas vía API."
+              "explicacion": "Batch es scheduler como servicio: pools autoescalables de VMs HBv4 con InfiniBand, multi-instance tasks para MPI y miles de tareas enviadas por API."
             },
             {
-              "texto": "Un VMSS Flexible de VMs serie HB con autoescalado por CPU",
+              "texto": "Un VMSS de VMs HBv4 con autoescalado por CPU",
               "correcta": false,
-              "explicacion": "Da el hardware adecuado, pero tendrías que construir tú la cola de trabajos, el reparto de tareas y los reintentos."
+              "explicacion": "Aporta las VMs HPC, pero tendrías que construir tú la cola de trabajos, el reparto de tareas, el arranque MPI y los reintentos: es operar tu propio scheduler."
             }
           ]
         },
         {
           "id": "az305-d4-q09",
-          "pregunta": "Un tier web stateless en VMs debe escalar entre 6 y 60 instancias. Para ahorrar, todo lo que supere 6 VMs regulares garantizadas puede ser Spot. La imagen dorada se versiona y debe estar disponible en dos regiones. ¿Qué diseño cumple todo?",
+          "pregunta": "Una aseguradora ingiere la telemetría de 200.000 vehículos con productores Kafka. Fraude debe poder releer desde el propio stream los eventos de los últimos 30 días, el cifrado en reposo debe usar customer-managed keys y no quieren pagar un clúster single-tenant. ¿Qué tier de Event Hubs eliges?",
           "opciones": [
             {
-              "texto": "VMSS Uniform con prioridad Spot e imagen de Azure Compute Gallery replicada en ambas regiones",
-              "correcta": false,
-              "explicacion": "Uniform obliga a que todas las instancias sean Spot o todas regulares: no garantiza las 6 regulares ante evicciones."
-            },
-            {
-              "texto": "VMSS Flexible con Spot Priority Mix (base de 6 regulares) e imagen de Compute Gallery",
+              "texto": "Premium con retención de 30 días y customer-managed key",
               "correcta": true,
-              "explicacion": "Flexible mezcla Spot y regulares con base garantizada, y Compute Gallery versiona y replica la imagen entre regiones."
+              "explicacion": "Premium retiene hasta 90 días, admite CMK y el endpoint Kafka con aislamiento de recursos, sin el coste de un clúster Dedicated."
             },
             {
-              "texto": "VMSS Flexible con Spot Priority Mix (base regular 6) y una managed image regional",
+              "texto": "Standard con Capture hacia ADLS Gen2 y retención máxima",
               "correcta": false,
-              "explicacion": "La mezcla es correcta, pero una managed image no se versiona ni se replica entre regiones como una image version de la galería."
+              "explicacion": "Standard retiene como máximo 7 días y no admite CMK; Capture guarda una copia, pero no permite releer 30 días por offset desde el stream."
             },
             {
-              "texto": "Availability set con 6 VMs regulares más VMs Spot desde Compute Gallery",
+              "texto": "Dedicated con un capacity unit y retención de 30 días",
               "correcta": false,
-              "explicacion": "Los availability sets no autoescalan y solo admiten VMs de prioridad regular, no Spot."
+              "explicacion": "Cumple retención, CMK y Kafka, pero es justo el clúster single-tenant, más caro, que quieren evitar."
+            },
+            {
+              "texto": "Basic con varios throughput units en el namespace",
+              "correcta": false,
+              "explicacion": "Basic solo retiene 1 día, no admite Kafka ni CMK y tiene un único consumer group por event hub."
             }
           ]
         },
@@ -3634,27 +3634,27 @@
         },
         {
           "id": "az305-d4-q14",
-          "pregunta": "Vas a publicar APIs cuyos backends están en una VNet sin acceso público. El gateway puede ser público, necesitas SLA de producción y zone redundancy, no hace falta multirregión y el criterio decisivo es el menor coste. ¿Qué tier de API Management eliges?",
+          "pregunta": "Vas a publicar en producción APIs cuyos backends están en una VNet sin acceso público. El gateway puede seguir siendo público, no hace falta multirregión y el criterio decisivo es el menor coste con SLA. ¿Qué tier de API Management eliges?",
           "opciones": [
             {
-              "texto": "Basic v2",
+              "texto": "Basic v2 con el gateway público",
               "correcta": false,
-              "explicacion": "Tiene SLA, pero no puede conectarse a backends aislados en una VNet ni admite availability zones."
-            },
-            {
-              "texto": "Premium v2 con VNet injection y availability zones",
-              "correcta": false,
-              "explicacion": "Cumple todo, pero paga una VNet injection completa que no necesitas si el gateway puede ser público."
+              "explicacion": "Es el tier v2 más barato con SLA, pero no puede conectarse a backends aislados en una VNet."
             },
             {
               "texto": "Standard v2 con VNet integration",
               "correcta": true,
-              "explicacion": "Alcanza backends aislados en una VNet, admite availability zones y tiene SLA, con menor coste que los tiers Premium."
+              "explicacion": "Alcanza backends aislados en una VNet con el gateway público y SLA de producción, a menor coste que cualquier tier Premium."
             },
             {
-              "texto": "Consumption",
+              "texto": "Premium v2 con VNet injection completa",
               "correcta": false,
-              "explicacion": "Es serverless y barato, pero no admite integración con VNet ni availability zones."
+              "explicacion": "Cumple, pero pagas una VNet injection que no necesitas si el gateway puede seguir siendo público."
+            },
+            {
+              "texto": "Developer con VNet injection",
+              "correcta": false,
+              "explicacion": "Llega a la VNet, pero no tiene SLA: solo sirve para desarrollo y evaluación."
             }
           ]
         },
@@ -3712,27 +3712,27 @@
         },
         {
           "id": "az305-d4-q17",
-          "pregunta": "Tu pipeline de GitHub Actions despliega Bicep en tres suscripciones. Seguridad prohíbe guardar secretos o certificados de larga duración en GitHub y exige que solo el environment prod del repositorio pueda desplegar en producción. ¿Qué configuras?",
+          "pregunta": "Tu pipeline de GitHub Actions ya usa OIDC para desplegar Bicep en las suscripciones de dev, test y prod. Seguridad exige que solo los jobs del environment prod, con su aprobación obligatoria, obtengan permisos sobre producción, sin secretos guardados. ¿Qué configuras?",
           "opciones": [
             {
-              "texto": "Service principal con client secret en GitHub environment secrets, rotado cada 90 días",
-              "correcta": false,
-              "explicacion": "Sigue siendo un secreto de larga duración guardado en GitHub, lo que la política prohíbe aunque se rote."
-            },
-            {
-              "texto": "Federated credential (environment prod) en una user-assigned managed identity",
+              "texto": "Una user-assigned identity por entorno; la de prod con subject environment:prod y RBAC solo en prod",
               "correcta": true,
-              "explicacion": "Con azure/login en modo OIDC el token de GitHub se canjea por uno de Entra ID sin secretos, y el subject acota la confianza a prod."
+              "explicacion": "Cada identidad tiene RBAC solo en su suscripción y la de prod solo emite tokens a jobs del environment prod, que exige la aprobación."
             },
             {
-              "texto": "Self-hosted runner en una VM de Azure con system-assigned managed identity",
+              "texto": "Una user-assigned identity con federated credential para la rama main y RBAC en las tres suscripciones",
               "correcta": false,
-              "explicacion": "Evita secretos, pero cualquier job que corra en ese runner obtiene la identidad: no puedes limitarla al environment prod."
+              "explicacion": "Cualquier job de main que no declare environment obtiene el token sin pasar por la aprobación de prod, y la identidad tiene permisos en las tres suscripciones."
             },
             {
-              "texto": "Service principal con certificado autofirmado de 2 años guardado como secreto de GitHub",
+              "texto": "Un self-hosted runner en una VM de Azure cuya system-assigned identity tiene RBAC en prod",
               "correcta": false,
-              "explicacion": "Un certificado de larga duración almacenado en GitHub incumple la política igual que un client secret."
+              "explicacion": "No hay secretos, pero cualquier job que se ejecute en ese runner, sea del entorno que sea, obtiene la identidad de prod."
+            },
+            {
+              "texto": "Una sola user-assigned identity con federated credentials para dev, test y prod y RBAC en las tres",
+              "correcta": false,
+              "explicacion": "Los jobs de dev o test reciben la misma identidad, que también tiene permisos sobre producción: no aísla prod."
             }
           ]
         },
@@ -3829,7 +3829,7 @@
               "explicacion": "App Service elimina la gestión de SO e IIS sin cambios de código, y Azure Migrate da readiness, SKU y coste por app y migra en bloque desde un único proyecto."
             },
             {
-              "texto": "Refactor: contenerizar cada app en Windows containers y desplegarla en un clúster de AKS",
+              "texto": "Contenerizar cada app en Windows containers y desplegarla en un clúster de AKS",
               "correcta": false,
               "explicacion": "Obliga a empaquetar contenedores y operar un clúster: más esfuerzo y plazo que un replatform directo."
             },
@@ -3852,7 +3852,7 @@
             {
               "texto": "Dependency agent en cada servidor con Service Map y una estimación en la Azure Pricing Calculator",
               "correcta": false,
-              "explicacion": "Exige agentes (prohibido), es un modelo clásico sin nuevos onboardings y la calculadora no produce un TCO comparado."
+              "explicacion": "Exige agentes (prohibido), Service Map está retirado y la calculadora de precios no produce un TCO comparado con on-premises."
             },
             {
               "texto": "Appliances de Azure Migrate (VMware y físico) con dependencias agentless y un business case",
@@ -4105,9 +4105,9 @@
           "pregunta": "Una fábrica necesita conectividad privada a Azure con latencia predecible para SAP (1 Gbps). Si cae la peering location de ExpressRoute debe seguir conectada; en esa contingencia acepta menos ancho de banda por internet cifrado. Hay que minimizar coste. ¿Qué recomiendas?",
           "opciones": [
             {
-              "texto": "Un circuito ExpressRoute: sus conexiones primaria y secundaria ya cubren esa caída",
+              "texto": "Un circuito ExpressRoute estándar: sus conexiones primaria y secundaria ya cubren esa caída",
               "correcta": false,
-              "explicacion": "Ambas conexiones terminan en la misma peering location, que sigue siendo un punto único de fallo."
+              "explicacion": "En un circuito estándar ambas conexiones terminan en la misma peering location, que sigue siendo un punto único de fallo."
             },
             {
               "texto": "Circuito ExpressRoute más VPN S2S de respaldo, con ambos gateways coexistiendo en la VNet",
@@ -4143,7 +4143,7 @@
             {
               "texto": "FastPath con gateway ErGw3AZ, accelerated networking en las NIC y un proximity placement group",
               "correcta": true,
-              "explicacion": "FastPath saca al gateway del camino de datos (requiere ErGw3AZ, Ultra Performance o ErGwScale), accelerated networking reduce latencia y jitter y el PPG junta los niveles."
+              "explicacion": "FastPath saca al gateway del camino de datos (requiere ErGw3AZ, Ultra Performance o ErGwScale con 10+ unidades), accelerated networking reduce latencia y jitter y el PPG junta los niveles."
             },
             {
               "texto": "Gateway ErGw2AZ, Azure Front Door delante de las VMs y accelerated networking",
@@ -4236,7 +4236,7 @@
           "id": "az305-d4-s01",
           "situacion": "Debes migrar 120 servidores (apps .NET, file servers, SQL) a Azure en 9 meses. El comité pregunta '¿todo a VMs o modernizamos?'.",
           "pregunta": "¿Qué enfoque de migración propones?",
-          "respuestaEsperada": "Seguir el Cloud Adoption Framework: descubrir y evaluar con Azure Migrate, clasificar por las 5R (rehost, refactor, rearchitect, rebuild, retire). Rehost a VMs lo urgente y legado, mover apps web estándar a App Service y SQL a opciones PaaS cuando la compatibilidad lo permita, retirar lo obsoleto, y planificar landing zone (redes, identidad, gobernanza) antes de la primera ola.",
+          "respuestaEsperada": "Seguir el Cloud Adoption Framework: descubrir y evaluar con Azure Migrate (inventario, dependencias, costes) y decidir por carga entre retire, retain, rehost, replatform, refactor, rearchitect, rebuild o replace. Rehost a VMs lo urgente y legado, replatform de apps web estándar a App Service y de SQL a Azure SQL Managed Instance o Database cuando la compatibilidad lo permita, retirar lo obsoleto, y desplegar la landing zone (redes, identidad, gobernanza) antes de la primera ola.",
           "razonamiento": "La respuesta correcta nunca es binaria: la evaluación por carga determina el destino de cada app equilibrando plazo, coste y deuda técnica, sobre una landing zone que evita rehacer los cimientos después."
         },
         {
@@ -4292,7 +4292,7 @@
           "id": "az305-d4-s09",
           "situacion": "Tailspin Media cierra su sala de servidores en 4 meses y no quiere dejar hardware de almacenamiento on-prem. Tiene 650 TB de proyectos cerrados en un NAS NFS (solo lectura) que irán a ADLS Gen2 para análisis, y un share SMB de 30 TB en otro NAS con 200 usuarios activos y ACL NTFS que pasará a Azure Files; el corte de ese share debe hacerse en un fin de semana. La sede tiene 1 Gbps a internet, del que el negocio usa la mitad, y un ExpressRoute que se activará tras la migración.",
           "pregunta": "¿Cómo migras cada conjunto de datos y por qué?",
-          "respuestaEsperada": "Archivo de 650 TB: Azure Data Box next-gen en modo import (por encima de ~480 TB la guía apunta a Data Box 525; dos dispositivos cubren el volumen), copia local por NFS hacia una cuenta con hierarchical namespace (ADLS Gen2 está soportado para import), envío y revisión de los copy logs antes de borrar el origen. Share activo de 30 TB: Azure Storage Mover con agente on-prem, endpoint SMB con credenciales en Key Vault y destino Azure Files SMB; migración convergente n-pass (copia inicial y pasadas incrementales durante semanas) y, el fin de semana del corte, origen en solo lectura, pasada final y redirección de los usuarios (DFS-N o nuevo mapeo) al share, al que luego accederán por ExpressRoute y Private Endpoint.",
+          "respuestaEsperada": "Archivo de 650 TB: Azure Data Box next-gen en modo import (por encima de ~480 TB la guía apunta a Data Box 525; dos Data Box 525 cubren el volumen con margen), copia local por NFS hacia una cuenta con hierarchical namespace (ADLS Gen2 está soportado para import), envío y revisión de los copy logs antes de borrar el origen. Share activo de 30 TB: Azure Storage Mover con agente on-prem, endpoint SMB con credenciales en Key Vault y destino Azure Files SMB; migración convergente n-pass (copia inicial y pasadas incrementales durante semanas) y, el fin de semana del corte, origen en solo lectura, pasada final y redirección de los usuarios (DFS-N o nuevo mapeo) al share, al que luego accederán por ExpressRoute y Private Endpoint.",
           "razonamiento": "Con ~500 Mbps libres se mueven como mucho ~5,4 TB al día: 650 TB tardarían unos 4 meses sin margen, así que el archivo va offline; Data Box Disk (~35 TB por pedido) no escala y Data Box Heavy está retirado. El share activo cambia a diario pero cabe por red (unos 6 días la copia inicial), y Storage Mover permite pasadas incrementales y un corte corto conservando ACL y timestamps. Azure File Sync no encaja porque necesita un Windows Server on-prem como caché y la empresa quiere eliminar ese hardware; AzCopy podría copiar, pero sin orquestación central, historial de jobs ni gestión de agentes a escala."
         }
       ]
