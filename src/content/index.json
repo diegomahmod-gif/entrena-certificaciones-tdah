@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generadoEl": "2026-07-07",
+  "generadoEl": "2026-09-29",
   "idiomaContenido": "es (términos técnicos en inglés)",
   "examenes": [
     {
@@ -19,7 +19,7 @@
       "codigo": "AZ-104",
       "archivo": "az-104.json",
       "prioridad": 2,
-      "cobertura": "muestra"
+      "cobertura": "completa"
     },
     {
       "codigo": "AZ-305",
